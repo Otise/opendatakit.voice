@@ -9,4 +9,24 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  <servlet>
+    <description></description>
+    <display-name>FormVxmlServlet</display-name>
+    <servlet-name>FormVxmlServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.FormVxmlServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FormVxmlServlet</servlet-name>
+    <url-pattern>/FormVxmlServlet</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>XFormUploadServlet</display-name>
+    <servlet-name>XFormUploadServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.XFormUploadServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>XFormUploadServlet</servlet-name>
+    <url-pattern>/XFormUploadServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
