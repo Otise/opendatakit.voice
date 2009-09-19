@@ -18,6 +18,14 @@ package org.odk.voice.xform;
 
 
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Vector;
+
+import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
@@ -27,16 +35,9 @@ import org.javarosa.core.model.instance.DataModelTree;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.transport.ByteArrayPayload;
-import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.parse.XFormParser;
+import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.utils.FileUtils;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Vector;
 
 
 
@@ -54,6 +55,8 @@ public class FormHandler {
     private FormIndex mCurrentIndex;
     private int mQuestionCount;
 
+    private static org.apache.log4j.Logger log = Logger
+    	.getLogger(FormHandler.class);
 
     public FormHandler(FormDef formDef) {
         mForm = formDef;
@@ -73,12 +76,12 @@ public class FormHandler {
     // TODO: logic here? in ANSWER_REQUIRED_BUT_EMPTY
     public int saveAnswer(PromptElement prompt, IAnswerData answer, boolean evaluateConstraints) {
         if (!mForm.evaluateConstraint(prompt.getInstanceRef(), answer) && evaluateConstraints) {
-            return GlobalConstants.ANSWER_CONSTRAINT_VIOLATED;
+            return XFormConstants.ANSWER_CONSTRAINT_VIOLATED;
         } else if (prompt.isRequired() && answer == null && evaluateConstraints) {
-            return GlobalConstants.ANSWER_REQUIRED_BUT_EMPTY;
+            return XFormConstants.ANSWER_REQUIRED_BUT_EMPTY;
         } else {
             mForm.setValue(answer, prompt.getInstanceRef(), prompt.getInstanceNode());
-            return GlobalConstants.ANSWER_OK;
+            return XFormConstants.ANSWER_OK;
         }
     }
 
@@ -491,7 +494,7 @@ public class FormHandler {
 
         // weak check for matching forms
         if (!savedRoot.getName().equals(templateRoot.getName()) || savedRoot.getMult() != 0) {
-            //Log.e(t, "Saved form instance does not match template form definition");
+            log.error("Saved form instance does not match template form definition");
             return false;
         } else {
             // populate the data model
@@ -533,13 +536,13 @@ public class FormHandler {
                     return true;
 
                 } catch (IOException e) {
-                    //Log.e(t, "Error writing XML file");
+                    log.error("Error writing XML file");
                     e.printStackTrace();
                     return false;
                 }
             }
         } catch (IOException e) {
-            //Log.e(t, "Error reading from payload data stream");
+            log.error("Error reading from payload data stream");
             e.printStackTrace();
             return false;
         }
@@ -567,7 +570,7 @@ public class FormHandler {
 //            exportXmlFile(payload, instancePath);
 //
 //        } catch (IOException e) {
-//            Log.e(t, "Error creating serialized payload");
+//            log.error("Error creating serialized payload");
 //            e.printStackTrace();
 //            return false;
 //        }

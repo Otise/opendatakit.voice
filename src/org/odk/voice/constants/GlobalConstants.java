@@ -14,96 +14,96 @@
  * the License.
  */
 
-package org.odk.voice.xform;
+package org.odk.voice.constants;
 
 
 /**
- * The constants used in multiple classes in this application.
+ * Global constants.
  * 
- * @author @author Yaw Anokwa (yanokwa@gmail.com)
+ * @author Adam Lerer (adam.lerer@gmail.com)
  * 
  */
 public class GlobalConstants {
 
-    /**
-     * Request code for returning image capture data from camera intent.
-     */
-    public static final int IMAGE_CAPTURE = 1;
-
-    /**
-     * Request code for returning image capture data from camera intent.
-     */
-    public static final int BARCODE_CAPTURE = 2;
-
-    /**
-     * Request code for returning audio data from mediarecorder intent.
-     */
-    public static final int AUDIO_CAPTURE = 3;
-
-    /**
-     * Request code for returning video data from mediarecorder intent.
-     */
-    public static final int VIDEO_CAPTURE = 4;
-
-    /**
-     * Answer saved with no errors.
-     */
-    public static final int ANSWER_OK = 0;
-
-    /**
-     * Answer required, but was empty or null.
-     */
-    public static final int ANSWER_REQUIRED_BUT_EMPTY = 1;
-
-    /**
-     * Answer constraint was violated.
-     */
-    public static final int ANSWER_CONSTRAINT_VIOLATED = 2;
+//    /**
+//     * Request code for returning image capture data from camera intent.
+//     */
+//    public static final int IMAGE_CAPTURE = 1;
+//
+//    /**
+//     * Request code for returning image capture data from camera intent.
+//     */
+//    public static final int BARCODE_CAPTURE = 2;
+//
+//    /**
+//     * Request code for returning audio data from mediarecorder intent.
+//     */
+//    public static final int AUDIO_CAPTURE = 3;
+//
+//    /**
+//     * Request code for returning video data from mediarecorder intent.
+//     */
+//    public static final int VIDEO_CAPTURE = 4;
+//
+//    /**
+//     * Answer saved with no errors.
+//     */
+//    public static final int ANSWER_OK = 0;
+//
+//    /**
+//     * Answer required, but was empty or null.
+//     */
+//    public static final int ANSWER_REQUIRED_BUT_EMPTY = 1;
+//
+//    /**
+//     * Answer constraint was violated.
+//     */
+//    public static final int ANSWER_CONSTRAINT_VIOLATED = 2;
 
     /**
      * Used to validate and display valid form names.
      */
     public static final String VALID_FILENAME = "[ _\\-A-Za-z0-9]*.x[ht]*ml";
-
-    /**
-     * Forms storage path
-     */
-    public static final String FORMS_PATH = "/sdcard/odk/forms/";
-
-    /**
-     * Instances storage path
-     */
-    public static final String INSTANCES_PATH = "/sdcard/odk/instances/";
-
-    /**
-     * Temp path
-     */
-    public static final String CACHE_PATH = "/sdcard/odk/.cache/";
-
-
-    /**
-     * Identifies the location of the form used to launch form entry
-     */
-    public static final String KEY_FORMPATH = "formpath";
-    public static final String KEY_INSTANCEPATH = "instancepath";
-    public static final String KEY_INSTANCES = "instances";
-    public static final String KEY_SUCCESS = "success";
+    
+//    /**
+//     * Forms storage path
+//     */
+//    public static final String FORMS_PATH = "/sdcard/odk/forms/";
+//
+//    /**
+//     * Instances storage path
+//     */
+//    public static final String INSTANCES_PATH = "/sdcard/odk/instances/";
+//
+//    /**
+//     * Temp path
+//     */
+//    public static final String CACHE_PATH = "/sdcard/odk/.cache/";
 
 
-    /**
-     * How long to wait when opening network connection in milliseconds
-     */
-    public static final int CONNECTION_TIMEOUT = 20000;
+//    /**
+//     * Identifies the location of the form used to launch form entry
+//     */
+//    public static final String KEY_FORMPATH = "formpath";
+//    public static final String KEY_INSTANCEPATH = "instancepath";
+//    public static final String KEY_INSTANCES = "instances";
+//    public static final String KEY_SUCCESS = "success";
 
-    /**
-     * Temporary file
-     */
-    public static final String IMAGE_PATH = CACHE_PATH + "tmp.bin";
 
-    /**
-     * Default font size in entire application
-     */
-    public final static int APPLICATION_FONTSIZE = 10;
+//    /**
+//     * How long to wait when opening network connection in milliseconds
+//     */
+//    public static final int CONNECTION_TIMEOUT = 20000;
+
+//    /**
+//     * Temporary file
+//     */
+//    public static final String IMAGE_PATH = CACHE_PATH + "tmp.bin";
+
+//    /**
+//     * Default font size in entire application
+//     */
+//    public final static int APPLICATION_FONTSIZE = 10;
 
     /**
      * Classes needed to serialize objects

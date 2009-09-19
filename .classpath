@@ -11,5 +11,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/javarosa-core.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/kxml2-2.3.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/servlet-api.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

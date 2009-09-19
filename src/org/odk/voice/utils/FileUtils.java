@@ -35,7 +35,6 @@ import java.util.ArrayList;
 public class FileUtils {
     private final static String t = "FileUtils";
 
-
     public static ArrayList<String> getFoldersAsArrayList(String path) {
         ArrayList<String> mFolderList = new ArrayList<String>();
         File root = new File(path);
@@ -60,7 +59,6 @@ public class FileUtils {
         }
         return mFolderList;
     }
-
 
     public static ArrayList<String> getFilesAsArrayList(String path) {
         ArrayList<String> mFileList = new ArrayList<String>();
