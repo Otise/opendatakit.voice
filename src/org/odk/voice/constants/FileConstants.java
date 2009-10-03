@@ -29,6 +29,12 @@ public class FileConstants {
      * Forms storage path
      */
     public static final String FORMS_PATH = "data/forms";
+
+    /**
+     * Prompt audio storage path
+     */
+    public static final String PROMPT_AUDIO_PATH = "data/audio";
+    
     /**
      * Instances storage path
      */
@@ -38,4 +44,6 @@ public class FileConstants {
      * Temp path
      */
     public static final String CACHE_PATH = "data/.cache";
+    
+    public static final int MAX_FILE_SIZE = 1000000;
 }

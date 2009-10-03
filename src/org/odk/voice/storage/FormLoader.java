@@ -15,7 +15,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.util.XFormUtils;
 import org.odk.voice.constants.FileConstants;
-import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.utils.FileUtils;
 import org.odk.voice.xform.FormHandler;
 
@@ -33,7 +32,7 @@ public class FormLoader {
 	
 	    if (formBin.exists()) {
 	        // if we have binary, deserialize binary
-	        fd = deserializeFormDef(formBin);
+//	        fd = deserializeFormDef(formBin);
 	    } else {
 	        // no binary, read from xml
 	        try {
@@ -70,41 +69,41 @@ public class FormLoader {
 	    return fh;
 	}
 	
-    /**
-     * Read serialized {@link FormDef} from file and recreate as object.
-     * 
-     * @param formDef serialized FormDef file
-     * @return {@link FormDef} object
-     */
-    public static FormDef deserializeFormDef(File formDef) {
-
-        // TODO: any way to remove reliance on jrsp?
-
-        // need a list of classes that formdef uses
-        JavaRosaServiceProvider.instance().registerPrototypes(GlobalConstants.SERIALIABLE_CLASSES);
-        FileInputStream fis = null;
-        FormDef fd = null;
-        try {
-            // create new form def
-            fd = new FormDef();
-            fis = new FileInputStream(formDef);
-            DataInputStream dis = new DataInputStream(fis);
-
-            // read serialized formdef into new formdef
-            fd.readExternal(dis, ExtUtil.defaultPrototypes());
-            dis.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-        }
-
-
-        return fd;
-    }
+//    /**
+//     * Read serialized {@link FormDef} from file and recreate as object.
+//     * 
+//     * @param formDef serialized FormDef file
+//     * @return {@link FormDef} object
+//     */
+//    public static FormDef deserializeFormDef(File formDef) {
+//
+//        // TODO: any way to remove reliance on jrsp?
+//
+//        // need a list of classes that formdef uses
+//        JavaRosaServiceProvider.instance().registerPrototypes(GlobalConstants.SERIALISABLE_CLASSES);
+//        FileInputStream fis = null;
+//        FormDef fd = null;
+//        try {
+//            // create new form def
+//            fd = new FormDef();
+//            fis = new FileInputStream(formDef);
+//            DataInputStream dis = new DataInputStream(fis);
+//
+//            // read serialized formdef into new formdef
+//            fd.readExternal(dis, ExtUtil.defaultPrototypes());
+//            dis.close();
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (DeserializationException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        return fd;
+//    }
     
     /**
      * Write the FormDef to the file system as a binary blog.
