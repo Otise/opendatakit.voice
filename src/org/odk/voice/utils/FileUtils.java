@@ -19,8 +19,10 @@ package org.odk.voice.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,12 +31,48 @@ import java.util.ArrayList;
 /**
  * Static methods used for common file operations.
  * 
+ * @author Adam Lerer (adam.lerer@gmail.com)
  * @author Carl Hartung (carlhartung@gmail.com)
  * 
  */
 public class FileUtils {
-    private final static String t = "FileUtils";
-
+    
+  /**
+   * Writes a file to the given path, appending digits to the end of the file name until it is unique.
+   * @param is The data input stream to write.
+   * @param path The path to write to.
+   * @return The path of the file written to (which may be different than path, if a file at path already exists).
+   */
+  public static String writeFile(InputStream is, String path) {
+    OutputStream os = null;
+    try {
+      if (is == null) return null;
+      String path2 = path;
+      File f = new File(path2);
+      int index = 0;
+      while (f.exists()) {
+        index++;
+        int ext = path.lastIndexOf(".");
+        if (ext == -1)
+          ext = path.length();
+        path2 = path.substring(0, ext) + Integer.toString(index) + path.substring(ext, path.length());
+        f = new File(path2);
+      }
+      f.createNewFile();
+      os = new FileOutputStream(f, true);
+      int i;
+      while ((i = is.read()) != -1)
+        os.write(i);
+      return path2;
+    } catch (Exception e){
+      System.out.println(e);
+      return null;
+    } finally {
+      if (os != null)
+        try {os.close();}catch(IOException e){}
+    }
+  }
+    
     public static ArrayList<String> getFoldersAsArrayList(String path) {
         ArrayList<String> mFolderList = new ArrayList<String>();
         File root = new File(path);
