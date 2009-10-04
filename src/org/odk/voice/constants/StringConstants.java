@@ -56,13 +56,13 @@ public class StringConstants {
     "Please record your answer after the beep, and press the pound key when you are finished recording.";
   
   public static String answerConfirmationKeypad =
-    "You entered {%answer%}.";
+    "You entered ";
   
   public static String answerConfirmationAnd = 
     "and";
   
   public static String answerConfirmationVoice = 
-    "You said {%answer%}.";
+    "You said ";
     
   public static String answerConfirmationOptions = 
     "Press 1 if that is correct, or 2 to try again.";

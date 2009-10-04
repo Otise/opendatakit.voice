@@ -20,6 +20,9 @@ public class VxmlPrompt {
   public VxmlPrompt(String text, String audio) {
     this(text==null?null:new String[]{text}, audio==null?null:new String[]{audio});
   }
+  public VxmlPrompt(String[] textAndAudio) {
+    this(textAndAudio, textAndAudio);
+  }
   public VxmlPrompt(String textAndAudio) {
     this(textAndAudio, textAndAudio);
   }
