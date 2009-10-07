@@ -8,17 +8,11 @@ import java.util.List;
 public class VxmlDocument {
   
   String contents = "";
-  List<VxmlForm> forms = new ArrayList<VxmlForm>();
+  VxmlForm[] forms = null;;
   
-  public VxmlDocument(VxmlForm form){
-    forms.add(form);
+  public VxmlDocument(VxmlForm... forms){
+    this.forms = forms;
   }
-  
-  public VxmlDocument(VxmlField field){
-    this(new VxmlForm("main", field));
-  }
-  
-  private List<VxmlField> fields;
   
   private static final String maintainer = "adam.lerer@gmail.com";
   

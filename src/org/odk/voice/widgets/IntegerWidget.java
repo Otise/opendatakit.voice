@@ -1,11 +1,13 @@
 package org.odk.voice.widgets;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.odk.voice.xform.PromptElement;
 
-public class IntegerWidget implements IQuestionWidget {
+public class IntegerWidget extends WidgetBase {
   
   private final PromptElement p;
   
@@ -19,17 +21,18 @@ public class IntegerWidget implements IQuestionWidget {
     return null;
   }
 
-  @Override
-  public String getPromptVxml() {
-    // TODO Auto-generated method stub
-    return null;
-  }
 
   @Override
   public IAnswerData getAnswer(String stringData, InputStream binaryData)
       throws IllegalArgumentException {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public void getPromptVxml(Writer out) throws IOException {
+    // TODO Auto-generated method stub
+    
   }
 
 }

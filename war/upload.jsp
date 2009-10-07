@@ -8,7 +8,7 @@
 </head>
 <body>
   <h1>ODK Voice XForm Upload</h1>
-  <form>
+  <form action="formUpload" method="post">
     <!-- Form name: <input type="text" name="formname" /><br/> -->
     XForm file to be uploaded: <input type="file" name="form"/><br/>
     <input type="submit"/>

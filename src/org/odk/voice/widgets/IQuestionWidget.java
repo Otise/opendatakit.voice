@@ -1,5 +1,6 @@
 package org.odk.voice.widgets;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 
@@ -18,7 +19,7 @@ public interface IQuestionWidget {
    * 
    * @param out A writer to write the VoiceXML to.
    */
-  public void getPromptVxml(Writer out);
+  public void getPromptVxml(Writer out) throws IOException;
   
   /**
    * 

@@ -17,7 +17,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>FormVxmlServlet</servlet-name>
-    <url-pattern>/FormVxmlServlet</url-pattern>
+    <url-pattern>/formVxml</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>
@@ -27,6 +27,6 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>XFormUploadServlet</servlet-name>
-    <url-pattern>/XFormUploadServlet</url-pattern>
+    <url-pattern>/formUpload</url-pattern>
   </servlet-mapping>
 </web-app>

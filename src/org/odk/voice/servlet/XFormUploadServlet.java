@@ -21,7 +21,8 @@ import org.odk.voice.utils.MultiPartFormItem;
  */
 public class XFormUploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+  public static final String ADDR = "formUpload";
+  
   private static org.apache.log4j.Logger log = Logger
   .getLogger(XFormUploadServlet.class);
   

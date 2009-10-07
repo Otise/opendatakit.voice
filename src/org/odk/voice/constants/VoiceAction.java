@@ -5,5 +5,6 @@ public enum VoiceAction {
   NEXT_PROMPT,
   PREV_PROMPT,
   SAVE_ANSWER, 
-  RESUME_FORM
+  RESUME_FORM,
+  MAIN_MENU
 }

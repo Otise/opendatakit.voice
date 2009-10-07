@@ -1,15 +1,24 @@
 package org.odk.voice.logic;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 
 import org.apache.log4j.Logger;
 import org.odk.voice.constants.FileConstants;
+import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
+import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
 import org.odk.voice.storage.FormLoader;
+import org.odk.voice.vxml.VxmlArrayPrompt;
+import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlForm;
+import org.odk.voice.vxml.VxmlPrompt;
+import org.odk.voice.vxml.VxmlUtils;
+import org.odk.voice.widgets.IQuestionWidget;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
@@ -32,11 +41,12 @@ public class FormVxmlRenderer {
       String sessionid, 
       String callerid, 
       String action, 
-      String stringData, 
+      String answer, 
       InputStream binaryData) {
     
     if (action == null) {
       vs = newSession(sessionid, callerid);
+      beginSession();
     } else {
       vs = vsm.get(sessionid);
     }
@@ -54,12 +64,12 @@ public class FormVxmlRenderer {
     }
     switch(va){
     case SELECT_FORM:
-      selectForm(stringData);
+      selectForm(answer);
       break;
     case RESUME_FORM:
       continueForm();
     case SAVE_ANSWER:
-      saveAnswer(stringData, binaryData);
+      saveAnswer(answer, binaryData);
       nextPrompt();
       break;
     case NEXT_PROMPT:
@@ -71,8 +81,13 @@ public class FormVxmlRenderer {
     }
   }
   
-  private void saveAnswer(String stringData, InputStream binaryData) {
-    
+  private void beginSession(){
+    VxmlDocument d = new VxmlDocument();
+    d.setContents("<block>" + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=default.xml") + "</block>");
+  }
+  
+  private void saveAnswer(String answer, InputStream binaryData) {
+    log.info("Answer: " + answer);
   }
   
   private void nextPrompt(){
@@ -95,19 +110,37 @@ public class FormVxmlRenderer {
   }
   
   private void createView(PromptElement prompt) {
-    switch (prompt.getType()) {
-    case PromptElement.TYPE_START:
-      
-      break;
-    case PromptElement.TYPE_END:
-      break;
-    case PromptElement.TYPE_QUESTION:
-      WidgetFactory.createWidgetFromPrompt(prompt, null);
+    try {
+      switch (prompt.getType()) {
+      case PromptElement.TYPE_START:
+        String grammar = VxmlUtils.createGrammar(new String[]{"1"}, 
+            new String[]{"out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
+        String filled = 
+          "<if expr=\"action='" + VoiceAction.NEXT_PROMPT + "'>" + 
+          VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action");
+        VxmlForm startForm = new VxmlForm("start", 
+            new VxmlArrayPrompt(StringConstants.formStartPrompt(vs.getFormHandler().getFormTitle())),
+                grammar, filled);
+        new VxmlDocument(startForm).write(out);
+        break;
+      case PromptElement.TYPE_END:
+        VxmlForm endForm = new VxmlForm("start", 
+            new VxmlArrayPrompt(StringConstants.formEndPrompt(vs.getFormHandler().getFormTitle())),
+                "", "");
+        new VxmlDocument(endForm).write(out);
+        break;
+      case PromptElement.TYPE_QUESTION:
+        IQuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
+        w.getPromptVxml(out);
+      }
+    } catch (IOException e) {
+      log.error("IOException in createView", e);
     }
   }
 
   public void renderError(VoiceError error, String details){
     log.error("Voice error rendered. Type: " + error.name() + "; Details: " + details);
+    
   }
   
   private VoiceSession newSession(String sessionid, String callerid){

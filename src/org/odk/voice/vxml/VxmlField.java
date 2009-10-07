@@ -17,12 +17,13 @@ public class VxmlField {
   
   String grammar;
   
-  public VxmlField (String name, VxmlPrompt prompt, String grammar){
+  public VxmlField (String name, VxmlPrompt prompt, String grammar, String filled){
     this.name = name;
     this.prompt = prompt;
     this.grammar = grammar;
+    this.filled = filled;
   }
-  
+
   public void write(Writer out) throws IOException{
     out.write("  <field name=\"" + name + "\">\n");
     prompt.write(out);

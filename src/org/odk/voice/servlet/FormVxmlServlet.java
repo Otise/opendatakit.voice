@@ -16,7 +16,7 @@ import org.odk.voice.session.VoiceSessionManager;
  */
 public class FormVxmlServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-  
+  public static final String ADDR = "formVxml";
 	
     /**
      * @see HttpServlet#HttpServlet()
@@ -34,11 +34,11 @@ public class FormVxmlServlet extends HttpServlet {
 	  String callerid = req.getParameter("session.callerid");
 	  String sessionid = req.getParameter("session.sessionid");
 	  String action = req.getParameter("action");
-	  String stringData = req.getParameter("answer");
+	  String answer = req.getParameter("answer");
 	  InputStream binaryData = null;
 	  
 	  FormVxmlRenderer fvr = new FormVxmlRenderer(resp.getWriter());
-	  fvr.renderDialogue(sessionid, callerid, action, stringData, binaryData);
+	  fvr.renderDialogue(sessionid, callerid, action, answer, binaryData);
 	  
 	}
 

@@ -1,11 +1,13 @@
 package org.odk.voice.widgets;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.odk.voice.xform.PromptElement;
 
-public class SelectMultiWidget implements IQuestionWidget {
+public class SelectMultiWidget extends WidgetBase {
   
   private final PromptElement p;
   
@@ -18,11 +20,11 @@ public class SelectMultiWidget implements IQuestionWidget {
     // TODO Auto-generated method stub
     return null;
   }
-
+  
   @Override
-  public String getPromptVxml() {
+  public void getPromptVxml(Writer out) throws IOException {
     // TODO Auto-generated method stub
-    return null;
+    
   }
 
   @Override
