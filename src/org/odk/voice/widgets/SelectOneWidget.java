@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.SelectOneData;
+import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 import org.odk.voice.constants.StringConstants;
 import org.odk.voice.vxml.VxmlArrayPrompt;
@@ -54,6 +56,7 @@ public class SelectOneWidget extends WidgetBase {
           itemLabel = (String) items.nextElement();
           itemValue = (String) h.get(itemLabel);
           promptSegments.add(StringConstants.select1Press(i));
+          promptSegments.add(itemLabel);
           grammarKeys.add(Integer.toString(i));
           grammarTags.add("out.label=\"" + itemLabel + "\"; out.answer=\"" + itemValue + "\";");
           
@@ -64,7 +67,7 @@ public class SelectOneWidget extends WidgetBase {
       }
       confPrompt.append("</if>\n");
       confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationOptions));
-      confPrompt.append("</prompt>");
+      confPrompt.append("</prompt>\n");
       
       VxmlForm answerForm = new VxmlForm("answer", 
           new VxmlArrayPrompt(promptSegments.toArray(new String[]{})), 
@@ -85,8 +88,9 @@ public class SelectOneWidget extends WidgetBase {
   @Override
   public IAnswerData getAnswer(String stringData, InputStream binaryData)
       throws IllegalArgumentException {
-    // TODO Auto-generated method stub
-    return null;
+    if (stringData == null)
+      return null;
+    return new SelectOneData(new Selection(stringData));
   }
 
 }

@@ -35,6 +35,7 @@ import org.javarosa.core.model.instance.DataModelTree;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.transport.ByteArrayPayload;
+import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.utils.FileUtils;
@@ -527,9 +528,10 @@ public class FormHandler {
             if (read > 0) {
                 // write xml file
                 try {
-                    // String filename = path + "/" +
-                    // path.substring(path.lastIndexOf('/') + 1) + ".xml";
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+                     String filename = path + "/" +
+                     path.substring(path.lastIndexOf(File.separator) + 1) + ".xml";
+                    log.info("XML path: " + filename);
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
                     bw.write(new String(data, "UTF-8"));
                     bw.flush();
                     bw.close();
@@ -556,24 +558,23 @@ public class FormHandler {
     /**
      * Serialize data model and extract payload. Exports both binaries and xml.
      */
-//    public boolean exportData(String instancePath, Context context, boolean markCompleted) {
-//
-//        ByteArrayPayload payload;
-//        try {
-//
-//            // assume no binary data inside the model.
-//            DataModelTree datamodel = mForm.getDataModel();
-//            XFormSerializingVisitor serializer = new XFormSerializingVisitor();
-//            payload = (ByteArrayPayload) serializer.createSerializedPayload(datamodel);
-//
-//            // write out xml
-//            exportXmlFile(payload, instancePath);
-//
-//        } catch (IOException e) {
-//            log.error("Error creating serialized payload");
-//            e.printStackTrace();
-//            return false;
-//        }
+    public boolean exportData(String instancePath, boolean markCompleted) {
+
+        ByteArrayPayload payload;
+        try {
+            // assume no binary data inside the model.
+            DataModelTree datamodel = mForm.getDataModel();
+            XFormSerializingVisitor serializer = new XFormSerializingVisitor();
+            payload = (ByteArrayPayload) serializer.createSerializedPayload(datamodel);
+
+            // write out xml
+            exportXmlFile(payload, instancePath);
+
+        } catch (IOException e) {
+            log.error("Error creating serialized payload");
+            e.printStackTrace();
+            return false;
+        }
 //
 //        FileDbAdapter fda = new FileDbAdapter(context);
 //        fda.open();
@@ -601,8 +602,8 @@ public class FormHandler {
 //        }
 //
 //        fda.close();
-//        return true;
-//
-//    }
+        return true;
+
+    }
     
 }

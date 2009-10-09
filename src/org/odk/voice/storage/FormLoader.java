@@ -1,6 +1,5 @@
 package org.odk.voice.storage;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,34 +7,50 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.javarosa.core.JavaRosaServiceProvider;
+import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.util.XFormUtils;
 import org.odk.voice.constants.FileConstants;
 import org.odk.voice.utils.FileUtils;
 import org.odk.voice.xform.FormHandler;
 
+
 public class FormLoader {
 
-	
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(FormLoader.class);
+  
+  /**
+   * Loads an XForm from the filesystem (or cached binary representations), parses them
+   * with javarosa, populates them with a saved data instance if necessary, and returns 
+   * a FormHandler.
+   * 
+   * @param formPath A path to the XForm on the filesystem.
+   *
+   */
 	public static FormHandler getFormHandler(String formPath, String instancePath) {
 	    FormHandler fh = null;
 	    FormDef fd = null;
 	    FileInputStream fis = null;
-	
+	    
 	    File formXml = new File(formPath);
+	    log.info("Form path: " + formPath);
+	    if (!formXml.exists()){
+	      log.error("Form " + formPath + " does not exist.");
+	      return null;
+	    }
 	    File formBin =
 	            new File(FileConstants.CACHE_PATH + FileUtils.getMd5Hash(formXml) + ".formdef");
 	
-	    if (formBin.exists()) {
-	        // if we have binary, deserialize binary
-//	        fd = deserializeFormDef(formBin);
-	    } else {
+//	    if (formBin.exists()) {
+//	      log.info("Form binary exists");
+//	        // if we have binary, deserialize binary
+////	        fd = deserializeFormDef(formBin);
+//	    } else {
 	        // no binary, read from xml
 	        try {
+	          log.info("Form binary does not exist");
 	            fis = new FileInputStream(formXml);
 	            fd = XFormUtils.getFormFromInputStream(fis);
 	            fd.setEvaluationContext(new EvaluationContext());
@@ -43,11 +58,16 @@ public class FormLoader {
 	            serializeFormDef(fd, formPath);
 	        } catch (FileNotFoundException e) {
 	            e.printStackTrace();
+	        } finally {
+	          try { 
+	            fis.close();
+	          } catch (IOException e) { }
 	        }
-	    }
+//	    }
 	
 	    if (fd == null) {
-	        return null;
+	      log.error("FormDef was null from " + formPath);
+	      return null;
 	    }
 	
 	    // create formhandler from formdef

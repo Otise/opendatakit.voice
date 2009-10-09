@@ -36,17 +36,16 @@ import java.util.ArrayList;
  * 
  */
 public class FileUtils {
-    
   /**
    * Writes a file to the given path, appending digits to the end of the file name until it is unique.
-   * @param is The data input stream to write.
+   * @param os The data input stream to write.
    * @param path The path to write to.
    * @return The path of the file written to (which may be different than path, if a file at path already exists).
    */
-  public static String writeFile(InputStream is, String path) {
+  public static String writeFile(byte[] data, String path) throws IOException {
     OutputStream os = null;
     try {
-      if (is == null) return null;
+      if (data == null) throw new IOException("Data is null");
       String path2 = path;
       File f = new File(path2);
       int index = 0;
@@ -58,15 +57,15 @@ public class FileUtils {
         path2 = path.substring(0, ext) + Integer.toString(index) + path.substring(ext, path.length());
         f = new File(path2);
       }
+      createFolder(path.substring(0, path.lastIndexOf(File.separator)));
       f.createNewFile();
+      System.out.println("Path: " + f.getAbsoluteFile());
       os = new FileOutputStream(f, true);
-      int i;
-      while ((i = is.read()) != -1)
-        os.write(i);
+//      int i;
+//      while ((i = is.read()) != -1)
+//        os.write(i);
+      os.write(data);
       return path2;
-    } catch (Exception e){
-      System.out.println(e);
-      return null;
     } finally {
       if (os != null)
         try {os.close();}catch(IOException e){}

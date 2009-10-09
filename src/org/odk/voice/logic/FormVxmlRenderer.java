@@ -1,5 +1,6 @@
 package org.odk.voice.logic;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -9,20 +10,28 @@ import org.odk.voice.constants.FileConstants;
 import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
+import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
 import org.odk.voice.storage.FormLoader;
+import org.odk.voice.utils.FileUtils;
 import org.odk.voice.vxml.VxmlArrayPrompt;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlForm;
-import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.widgets.IQuestionWidget;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * Top-level class for rendering the VoiceXML UI for a form.
+ * Note: This class may have to be broken up into several classes (one for rendering a particular form, one for admins, and one for 
+ * meta-form actions like choosing a form.
+ * @author alerer
+ *
+ */
 public class FormVxmlRenderer {
 
   private static org.apache.log4j.Logger log = Logger
@@ -31,6 +40,8 @@ public class FormVxmlRenderer {
   private Writer out;
   private VoiceSessionManager vsm;
   private VoiceSession vs;
+  private FormHandler fh;
+  private boolean evaluateConstraints = true;
 
   public FormVxmlRenderer(Writer out){
     this.out = out;
@@ -44,20 +55,26 @@ public class FormVxmlRenderer {
       String answer, 
       InputStream binaryData) {
     
-    if (action == null) {
+    log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
+    if (action == null || action.equals("")) {
       vs = newSession(sessionid, callerid);
       beginSession();
+      return;
     } else {
       vs = vsm.get(sessionid);
     }
     
     if (vs == null) {
+      log.error("session lost");
         renderError(VoiceError.SESSION_LOST, null);
         return;
     }
+    fh = vs.getFormHandler();
     
-    VoiceAction va = Enum.valueOf(VoiceAction.class, action);
-    if (va == null) {
+    VoiceAction va;
+    try {
+      va = Enum.valueOf(VoiceAction.class, action);
+    } catch (IllegalArgumentException e) {
       log.error("action string was not a valid VoiceAction");
       renderError(VoiceError.INTERNAL_ERROR, null);
       return;
@@ -78,29 +95,75 @@ public class FormVxmlRenderer {
     case PREV_PROMPT:
       prevPrompt();
       break;
+    case HANGUP:
+      exportData();
+      break;
     }
   }
   
-  private void beginSession(){
+  private void beginSession() {
     VxmlDocument d = new VxmlDocument();
-    d.setContents("<block>" + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=default.xml") + "</block>");
+    d.setContents("<block>" + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=form.xml") + "</block>\n");
+    try {
+      d.write(out);
+    } catch (IOException e) {
+      log.error("IOException in beginSession", e);
+      e.printStackTrace();
+    }
   }
   
-  private void saveAnswer(String answer, InputStream binaryData) {
+  private boolean saveAnswer(String answer, InputStream binaryData) {
     log.info("Answer: " + answer);
+    PromptElement pe = fh.currentPrompt();
+
+    // If the question is readonly there's nothing to save.
+    if (!pe.isReadonly()) {
+
+        int saveStatus =
+                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(pe, null).getAnswer(answer, binaryData),
+                        evaluateConstraints);
+        if (evaluateConstraints && saveStatus != XFormConstants.ANSWER_OK) {
+            renderConstraintFailed(pe, saveStatus);
+            return false;
+        }
+    }
+    return true;
+  }
+  
+  /**
+   * Creates and displays a dialog displaying the violated constraint.
+   */
+  private void renderConstraintFailed(PromptElement p, int saveStatus) {
+    log.warn("Constraint failed: " + p.getConstraintText());
+//      String constraintText = null;
+//      switch (saveStatus) {
+//          case XFormConstants.ANSWER_CONSTRAINT_VIOLATED:
+//              if (p.getConstraintText() != null) {
+//                  constraintText = p.getConstraintText();
+//              } else {
+//                  constraintText = getString(R.string.invalid_answer_error);
+//              }
+//              break;
+//          case XFormConstants.ANSWER_REQUIRED_BUT_EMPTY:
+//              constraintText = getString(R.string.required_answer_error);
+//              break;
+//      }
+//
+//      showCustomToast(constraintText);
+//      mBeenSwiped = false;
   }
   
   private void nextPrompt(){
-    createView(vs.getFormHandler().nextPrompt());
+    createView(fh.nextPrompt());
   }
   
   private void prevPrompt(){
-    createView(vs.getFormHandler().prevPrompt()); 
+    createView(fh.prevPrompt()); 
   }
   
   private void selectForm(String answerString) {
-    String formPath = FileConstants.FORMS_PATH + "/" + answerString;
-    FormHandler fh = FormLoader.getFormHandler(formPath, null);
+    String formPath = FileConstants.FORMS_PATH + File.separator + answerString;
+    fh = FormLoader.getFormHandler(formPath, null);
     vs.setFormHandler(fh);
     createView(fh.currentPrompt());
   }
@@ -119,13 +182,13 @@ public class FormVxmlRenderer {
           "<if expr=\"action='" + VoiceAction.NEXT_PROMPT + "'>" + 
           VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action");
         VxmlForm startForm = new VxmlForm("start", 
-            new VxmlArrayPrompt(StringConstants.formStartPrompt(vs.getFormHandler().getFormTitle())),
+            new VxmlArrayPrompt(StringConstants.formStartPrompt(fh.getFormTitle())),
                 grammar, filled);
         new VxmlDocument(startForm).write(out);
         break;
       case PromptElement.TYPE_END:
         VxmlForm endForm = new VxmlForm("start", 
-            new VxmlArrayPrompt(StringConstants.formEndPrompt(vs.getFormHandler().getFormTitle())),
+            new VxmlArrayPrompt(StringConstants.formEndPrompt(fh.getFormTitle())),
                 "", "");
         new VxmlDocument(endForm).write(out);
         break;
@@ -140,93 +203,26 @@ public class FormVxmlRenderer {
 
   public void renderError(VoiceError error, String details){
     log.error("Voice error rendered. Type: " + error.name() + "; Details: " + details);
-    
+
   }
   
   private VoiceSession newSession(String sessionid, String callerid){
+    if (sessionid == null)
+      renderError(VoiceError.INTERNAL_ERROR, "No sessionid");
     VoiceSession vs = new VoiceSession();
     vs.setCallerid(callerid);
     vsm.put(sessionid, vs);
     return vs;
   }
+  
+  private void exportData() {
+    String path = FileConstants.INSTANCES_PATH + 
+        File.separator + ((vs.getCallerid()==null)?"unknown":vs.getCallerid()) +
+        File.separator + vs.getDate().getTime();
+    FileUtils.createFolder(path);
+    log.info("Export data path: " + path);
+    fh.exportData(path, fh.isEnd());
+    // probably markCompleted true iff they actually finished the survey
+    // but this is dependent on an instances DB...are we making one?
+  }
 }
-//  /**
-//   * Creates a view given the View type and a prompt
-//   * 
-//   * @param prompt
-//   * @return newly created View
-//   */
-//  private View createView(PromptElement prompt) {
-//      setTitle(getString(R.string.app_name) + " > " + mFormHandler.getFormTitle());
-//      FileDbAdapter fda = null;
-//      Cursor c = null;
-//
-//      switch (prompt.getType()) {
-//          case PromptElement.TYPE_START:
-//              View startView = View.inflate(this, R.layout.form_entry_start, null);
-//              setTitle(getString(R.string.app_name) + " > " + mFormHandler.getFormTitle());
-//
-//              fda = new FileDbAdapter(FormEntryActivity.this);
-//              fda.open();
-//              c = fda.fetchFilesByPath(mInstancePath, null);
-//              if (c != null && c.getCount() > 0) {
-//                  ((TextView) startView.findViewById(R.id.description)).setText(getString(
-//                          R.string.review_data_description, c.getString(c
-//                                  .getColumnIndex(FileDbAdapter.KEY_DISPLAY))));
-//              } else {
-//                  ((TextView) startView.findViewById(R.id.description)).setText(getString(
-//                          R.string.enter_data_description, mFormHandler.getFormTitle()));
-//              }
-//
-//              // clean up cursor
-//              if (c != null) {
-//                  c.close();
-//              }
-//
-//              fda.close();
-//              return startView;
-//          case PromptElement.TYPE_END:
-//              View endView = View.inflate(this, R.layout.form_entry_end, null);
-//              fda = new FileDbAdapter(FormEntryActivity.this);
-//              fda.open();
-//              c = fda.fetchFilesByPath(mInstancePath, null);
-//              if (c != null && c.getCount() > 0) {
-//                  ((TextView) endView.findViewById(R.id.description)).setText(getString(
-//                          R.string.save_data_description, c.getString(c
-//                                  .getColumnIndex(FileDbAdapter.KEY_DISPLAY))));
-//              } else {
-//                  ((TextView) endView.findViewById(R.id.description)).setText(getString(
-//                          R.string.save_data_description, mFormHandler.getFormTitle()));
-//              }
-//              // Create 'save complete' button.
-//              ((Button) endView.findViewById(R.id.complete_exit_button))
-//                      .setOnClickListener(new OnClickListener() {
-//                          public void onClick(View v) {
-//                              // Form is markd as 'done' here.
-//                              if (saveDataToDisk(true)) finish();
-//                          }
-//                      });
-//              // Create 'save for later' button
-//              ((Button) endView.findViewById(R.id.save_exit_button))
-//                      .setOnClickListener(new OnClickListener() {
-//                          public void onClick(View v) {
-//                              // Form is markd as 'saved' here.
-//                              if (saveDataToDisk(false)) finish();
-//                          }
-//                      });
-//
-//              // clean up cursor
-//              if (c != null) {
-//                  c.close();
-//              }
-//
-//              fda.close();
-//              return endView;
-//          case PromptElement.TYPE_QUESTION:
-//          default:
-//              QuestionView qv = new QuestionView(this, prompt, mInstancePath);
-//              qv.buildView(prompt);
-//              return qv;
-//      }
-//  }
-//}

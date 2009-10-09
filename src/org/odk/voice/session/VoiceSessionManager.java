@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+import org.odk.voice.logic.FormVxmlRenderer;
+
 /**
- * A singleton object
+ * A singleton manager object for holding all active sessions.
  * @author Adam Lerer (adam.lerer@gmail.com)
  *
  */
 public class VoiceSessionManager {
   private static VoiceSessionManager m;
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(VoiceSessionManager.class);
   
   public static VoiceSessionManager getManager(){
     if (m == null){
@@ -26,6 +31,7 @@ public class VoiceSessionManager {
   private Map<String, Date> fresh;
   
   private VoiceSessionManager(){
+    log.info("VoiceSessionManager instantiated");
     this.vs = new HashMap<String, VoiceSession>();
     this.fresh = new HashMap<String, Date>();
   }
@@ -33,10 +39,12 @@ public class VoiceSessionManager {
   public void put(String sessionid, VoiceSession s){
     vs.put(sessionid, s);
     fresh.put(sessionid, new Date());
+    log.info("Session put. Sessionid: " + sessionid + ". Size: " + vs.size());
   }
   
   public VoiceSession get(String sessionid){
     fresh.put(sessionid, new Date());
+    log.info("Session get. Sessionid: " + sessionid + ". Size: " + vs.size());
     return vs.get(sessionid);
   }
   

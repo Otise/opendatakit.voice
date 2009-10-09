@@ -1,5 +1,6 @@
 package org.odk.voice.vxml;
 
+import java.io.File;
 import java.util.Map;
 
 import org.odk.voice.constants.FileConstants;
@@ -28,9 +29,10 @@ public class VxmlUtils {
     "  <one-of>\n");
     
     for (int i = 0; i < keys.length; i++) {
-      grammar = grammar.append("<item> " + keys[i] + " <tag> " + tags[i] + "</tag> </item>\n");
+      grammar = grammar.append("    <item> " + keys[i] + " <tag> " + tags[i] + "</tag> </item>\n");
     }
-    grammar.append("</one-of></rule></grammar>");
+    grammar.append("  </one-of></rule>\n");
+    grammar.append("</grammar>\n");
     return grammar.toString();
   }
   
@@ -38,13 +40,13 @@ public class VxmlUtils {
       new String[]{"out.action=\"" + VoiceAction.SAVE_ANSWER + "\";", 
                    "out.action=\"REPEAT\";"});
   
-  public static String confirmFilled = "<if expr=\"action='REPEAT'>" + 
+  public static String confirmFilled = "<if expr=\"action='REPEAT'\">" + 
     VxmlUtils.createGoto("answer") + "<else/>" + 
     VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"}) + 
     "</if>\n";
   
   public static String getWmv(String audio){
-    return FileConstants.PROMPT_AUDIO_PATH + audio.hashCode() + ".wmv";
+    return "audio" + audio.hashCode() + ".wmv";
   }
   
   public static String getAudio(String text, String audio){
@@ -63,7 +65,7 @@ public class VxmlUtils {
   public static String createSubmit(String nextUrl, String... namelist){
     String nl = "";
     for (String name : namelist) {
-      nl = nl + name;
+      nl = nl + name + " ";
     }
     return "<submit next=\"" + nextUrl + "\" namelist=\"" + nl + "\"/>";
   }

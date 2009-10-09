@@ -69,17 +69,17 @@ public class MultiPartFormData {
     FileItemIterator items = upload.getItemIterator(req);
     while (items.hasNext()) {
       FileItemStream item = items.next();
-//      ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-//      BufferedInputStream formStream = new BufferedInputStream(item.openStream());
-//      
-//      // TODO: determine ways to possibly improve efficiency
-//      int nextByte = formStream.read();
-//      while (nextByte != -1) {
-//        byteStream.write(nextByte);
-//        nextByte = formStream.read();
-//      }
+      ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+      BufferedInputStream formStream = new BufferedInputStream(item.openStream());
       
-      MultiPartFormItem data = new MultiPartFormItem(item.getFieldName(), item.getName(), item.getContentType(), item.openStream());
+      // TODO: determine ways to possibly improve efficiency
+      int nextByte = formStream.read();
+      while (nextByte != -1) {
+        byteStream.write(nextByte);
+        nextByte = formStream.read();
+      }
+      
+      MultiPartFormItem data = new MultiPartFormItem(item.getFieldName(), item.getName(), item.getContentType(), byteStream.toByteArray());
       
       String fieldName = item.getFieldName();
       if(fieldName != null) {

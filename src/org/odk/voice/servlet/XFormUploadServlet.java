@@ -1,7 +1,7 @@
 package org.odk.voice.servlet;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,13 +11,12 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.odk.voice.constants.FileConstants;
-import org.odk.voice.logic.FormVxmlRenderer;
 import org.odk.voice.utils.FileUtils;
 import org.odk.voice.utils.MultiPartFormData;
 import org.odk.voice.utils.MultiPartFormItem;
 
 /**
- * Servlet implementation class XFormUploadServlet
+ * Servlet for uploading XForms
  */
 public class XFormUploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -63,15 +62,20 @@ public class XFormUploadServlet extends HttpServlet {
       
       String fileName = saveForm(formXmlData);
       resp.getWriter().write("Form " + fileName + " uploaded successfully.");
-    } catch(FileUploadException e) {
-      log.error("FileUploadException", e);
+    } catch(Exception e) {
+      log.error("Exception", e);
+      e.printStackTrace();
     }
   }
     
-  private String saveForm(MultiPartFormItem item) {
-    InputStream is =  item.getStream();
-    String path = FileConstants.FORMS_PATH + "/" + item.getFilename();
-    String path2 = FileUtils.writeFile(is, path);
-    return path2.substring(path2.lastIndexOf("/") + 1);
+  private String saveForm(MultiPartFormItem item) throws FileUploadException, IOException {
+    String filename = item.getFilename();
+    filename = filename.substring(Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\")) + 1);
+    byte[] data =  item.getData();
+    String path = FileConstants.FORMS_PATH + File.separator + filename;
+    String path2 = FileUtils.writeFile(data, path);
+    if (path2 == null) 
+      throw new FileUploadException();
+    return path2.substring(path2.lastIndexOf(File.separator) + 1);
   }
 }

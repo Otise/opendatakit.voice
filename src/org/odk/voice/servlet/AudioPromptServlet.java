@@ -8,31 +8,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.odk.voice.logic.FormVxmlRenderer;
 import org.odk.voice.session.VoiceSessionManager;
 
 /**
- * Servlet for rendering VoiceXML dialogues
+ * Servlet for serving recorded audio prompts.
  */
-public class FormVxmlServlet extends HttpServlet {
+
+public class AudioPromptServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-  public static final String ADDR = "formVxml";
-
-
+	
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(AudioPromptServlet.class);
+  
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	  
-	  String callerid = req.getParameter("session.callerid");
-	  String sessionid = req.getParameter("session.sessionid");
-	  String action = req.getParameter("action");
-	  String answer = req.getParameter("answer");
-	  InputStream binaryData = null;
-	  
-	  FormVxmlRenderer fvr = new FormVxmlRenderer(resp.getWriter());
-	  fvr.renderDialogue(sessionid, callerid, action, answer, binaryData);
-	  
+	  log.info(req.getServletPath());
+	  //grab the wmv code, and pull the file with it
 	}
 
 
@@ -40,7 +35,6 @@ public class FormVxmlServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		doGet(req, resp);
 	}
 
 }

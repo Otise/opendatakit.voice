@@ -1,13 +1,22 @@
 package org.odk.voice.session;
 
+import java.util.Date;
+
 import org.odk.voice.xform.FormHandler;
 
+/**
+ * A session object containing information for a single phone session.
+ * @author alerer
+ *
+ */
 public class VoiceSession {
   private FormHandler fh;
   private boolean admin;
   private String callerid;
+  private Date date;
   
   public VoiceSession(){
+    this.date = new Date();
   }
   
   public void setFormHandler(FormHandler fh){
@@ -28,5 +37,10 @@ public class VoiceSession {
 
   public String getCallerid() {
     return callerid;
+  }
+
+
+  public Date getDate() {
+    return date;
   }  
 }

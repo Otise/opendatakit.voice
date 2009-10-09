@@ -16,8 +16,8 @@
 
 package org.odk.voice.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Object representation of multi part form data
@@ -44,7 +44,7 @@ public class MultiPartFormItem {
   /**
    * form data's stream
    */
-  private InputStream stream;
+  private byte[] data;
   
   /**
    * Constructor of a multi part of data 
@@ -55,14 +55,14 @@ public class MultiPartFormItem {
    *    form data file name
    * @param contentType
    *    form data content type
-   * @param byteStream
+   * @param data
    *    form data's stream
    */
-  public MultiPartFormItem(String fieldName, String fileName, String contentType, InputStream stream) {
+  public MultiPartFormItem(String fieldName, String fileName, String contentType, byte[] data) {
     this.name = fieldName;
     this.filename = fileName;
     this.contentType = contentType;
-    this.stream = stream;
+    this.data = data;
   }
   
   /**
@@ -101,7 +101,7 @@ public class MultiPartFormItem {
    * @return
    *    stream
    */
-  public InputStream getStream() {
-    return stream;
+  public byte[] getData() {
+    return data;
   }  
 }

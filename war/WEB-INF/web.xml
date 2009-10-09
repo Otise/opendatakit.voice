@@ -29,4 +29,14 @@
     <servlet-name>XFormUploadServlet</servlet-name>
     <url-pattern>/formUpload</url-pattern>
   </servlet-mapping>
+    <servlet>
+    <description></description>
+    <display-name>AudioPromptServlet</display-name>
+    <servlet-name>AudioPromptServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.AudioPromptServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AudioPromptServlet</servlet-name>
+    <url-pattern>/audio</url-pattern>
+  </servlet-mapping>
 </web-app>

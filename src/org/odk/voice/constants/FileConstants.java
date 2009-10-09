@@ -16,6 +16,8 @@
 
 package org.odk.voice.constants;
 
+import java.io.File;
+
 
 /**
  * File constants.
@@ -28,22 +30,22 @@ public class FileConstants {
     /**
      * Forms storage path
      */
-    public static final String FORMS_PATH = "data/forms";
+    public static final String FORMS_PATH = "data" + File.separator + "forms";
 
     /**
      * Prompt audio storage path
      */
-    public static final String PROMPT_AUDIO_PATH = "data/audio";
+    public static final String PROMPT_AUDIO_PATH = "data" + File.separator + "audio";
     
     /**
      * Instances storage path
      */
-    public static final String INSTANCES_PATH = "data/instances";
+    public static final String INSTANCES_PATH = "data" + File.separator + "instances";
 
     /**
      * Temp path
      */
-    public static final String CACHE_PATH = "data/.cache";
+    public static final String CACHE_PATH = "data" + File.separator + "cache";
     
-    public static final int MAX_FILE_SIZE = 1000000;
+    public static final int MAX_FILE_SIZE = 10000000;
 }

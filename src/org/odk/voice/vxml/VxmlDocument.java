@@ -5,10 +5,12 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.odk.voice.servlet.FormVxmlServlet;
+
 public class VxmlDocument {
   
   String contents = "";
-  VxmlForm[] forms = null;;
+  VxmlForm[] forms = null;
   
   public VxmlDocument(VxmlForm... forms){
     this.forms = forms;
@@ -21,7 +23,10 @@ public class VxmlDocument {
   		"<vxml version = \"2.1\" >\n" +
   		"<meta name=\"maintainer\" content=\"" + maintainer + "\"/>\n";
 
-  private static final String vxmlFooter = 
+  private static final String vxmlFooter =
+    "<catch event=\"connection.disconnect.hangup\">\n" +
+    "  " + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=HANGUP") + "\n" +
+    "</catch>\n" +
     "</vxml>\n";
 
   public void setContents(String contents){
