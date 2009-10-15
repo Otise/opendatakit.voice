@@ -7,12 +7,10 @@ import java.io.Writer;
 import org.javarosa.core.model.data.IAnswerData;
 import org.odk.voice.xform.PromptElement;
 
-public class SelectMultiWidget extends WidgetBase {
-  
-  private final PromptElement p;
+public class SelectMultiWidget extends QuestionWidget {
   
   public SelectMultiWidget(PromptElement p) {
-    this.p = p;
+    super(p);
   }
   
   @Override

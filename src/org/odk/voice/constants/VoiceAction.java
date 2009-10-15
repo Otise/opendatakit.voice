@@ -7,5 +7,6 @@ public enum VoiceAction {
   SAVE_ANSWER, 
   RESUME_FORM,
   MAIN_MENU,
+  ADMIN,
   HANGUP
 }

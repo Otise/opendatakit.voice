@@ -12,7 +12,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xform.util.XFormUtils;
 import org.odk.voice.constants.FileConstants;
-import org.odk.voice.utils.FileUtils;
 import org.odk.voice.xform.FormHandler;
 
 

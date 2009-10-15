@@ -11,9 +11,9 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.odk.voice.constants.FileConstants;
-import org.odk.voice.utils.FileUtils;
-import org.odk.voice.utils.MultiPartFormData;
-import org.odk.voice.utils.MultiPartFormItem;
+import org.odk.voice.storage.FileUtils;
+import org.odk.voice.storage.MultiPartFormData;
+import org.odk.voice.storage.MultiPartFormItem;
 
 /**
  * Servlet for uploading XForms

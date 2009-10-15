@@ -2,7 +2,6 @@ package org.odk.voice.widgets;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -13,27 +12,42 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 import org.odk.voice.constants.StringConstants;
-import org.odk.voice.vxml.VxmlArrayPrompt;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlForm;
-import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
-public class SelectOneWidget extends WidgetBase {
+public class SelectOneWidget extends QuestionWidget {
   
-  private final PromptElement prompt;
-  
-  public SelectOneWidget(PromptElement prompt) {
-    this.prompt = prompt;
+  public SelectOneWidget(PromptElement p) {
+    super(p);
   }
   
-  @Override
-  public String[] getPromptStrings() {
-    // TODO Auto-generated method stub
-    return null;
-  }
+//  @Override
+//  public String[] getPromptStrings() {
+//    List<String> ps = new ArrayList<String>();
+//    ps.add(StringConstants.questionXOfY(questionNum, totalNum));
+//    ps.add(StringConstants.select1Instructions);
+//    if (prompt.getSelectItems()!=null) {
+//      OrderedHashtable h = prompt.getSelectItems();
+//      Enumeration items = h.keys();
+//      int i = 1;
+//      while (items.hasMoreElements()) {
+//          ps.add(StringConstants.select1Press(i));
+//          ps.add((String) items.nextElement());
+//          i++;
+//      }
+//    }
+//    ps.add(StringConstants.answerConfirmationKeypad);
+//    ps.add(StringConstants.answerConfirmationOptions);
+//    ps.add(StringConstants.thankYou);
+//    return ps.toArray(new String[]{});
+//  }
   
+  public void addConfAudio(String textAndAudio, StringBuilder confPrompt, List<String> confPromptStrings){
+    confPrompt.append(VxmlUtils.getAudio(textAndAudio));
+    confPromptStrings.add(textAndAudio);
+  }
   public void getPromptVxml(Writer out) throws IOException{
     List<String> promptSegments = new ArrayList<String>();
     List<String> grammarKeys = new ArrayList<String>();
@@ -42,7 +56,9 @@ public class SelectOneWidget extends WidgetBase {
     promptSegments.add(StringConstants.select1Instructions);
     
     StringBuilder confPrompt = new StringBuilder("<prompt>\n");
-    confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad));
+    List<String> confPromptStrings = new ArrayList<String>();
+    
+    addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
     
     if (prompt.getSelectItems() != null) {
       OrderedHashtable h = prompt.getSelectItems();
@@ -61,26 +77,26 @@ public class SelectOneWidget extends WidgetBase {
           grammarTags.add("out.label=\"" + itemLabel + "\"; out.answer=\"" + itemValue + "\";");
           
           confPrompt.append("<" + (i==1?"if":"elseif") + " expr=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
-          confPrompt.append(VxmlUtils.getAudio(itemLabel));
+          addConfAudio(itemLabel, confPrompt, confPromptStrings);
           
           i++;
       }
       confPrompt.append("</if>\n");
-      confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationOptions));
+      addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
       confPrompt.append("</prompt>\n");
       
       VxmlForm answerForm = new VxmlForm("answer", 
-          new VxmlArrayPrompt(promptSegments.toArray(new String[]{})), 
+          createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
           VxmlUtils.createGoto("#confirm")
           );
       
       VxmlForm confirmForm = new VxmlForm("confirm", 
-          new VxmlPrompt(confPrompt.toString()), 
+          createBasicPrompt(confPrompt.toString(), confPromptStrings.toArray(new String[]{})), 
           VxmlUtils.confirmGrammar,
-          VxmlUtils.confirmFilled);
+          VxmlUtils.confirmFilled(this));
       
-      VxmlDocument d = new VxmlDocument(answerForm, confirmForm);
+      VxmlDocument d = new VxmlDocument(questionCountForm, answerForm, confirmForm);
       d.write(out);
     }
   }

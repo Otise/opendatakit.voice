@@ -8,8 +8,8 @@ import junit.framework.TestCase;
 public class VxmlDocumentTest extends TestCase {
 
   public void testSimpleDocument(){
-    VxmlPrompt p = new VxmlArrayPrompt("Testing 1 2 3");
-    VxmlForm f = new VxmlForm("test", p, VxmlUtils.createGrammar(new String[]{"1","2"}, 
+    //VxmlPrompt p = new VxmlArrayPrompt("Testing 1 2 3");
+    VxmlForm f = new VxmlForm("test", null, VxmlUtils.createGrammar(new String[]{"1","2"}, 
                               new String[]{"out.pressed=1","out.pressed=2"}),
                               VxmlUtils.createGoto("next"));
     try {

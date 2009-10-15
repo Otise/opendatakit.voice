@@ -32,8 +32,8 @@ public class WidgetFactory {
      * @param pe prompt element to be rendered
      * @param instancePath path to the instance file
      */
-    static public IQuestionWidget createWidgetFromPrompt(PromptElement pe, String instancePath) {
-        IQuestionWidget questionWidget = null;
+    static public QuestionWidget createWidgetFromPrompt(PromptElement pe, String instancePath) {
+        QuestionWidget questionWidget = null;
         switch (pe.getQuestionType()) {
             case Constants.CONTROL_INPUT:
                 switch (pe.getAnswerType()) {

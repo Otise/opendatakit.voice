@@ -69,4 +69,7 @@ public class StringConstants {
   
   public static String thankYou = 
     "Thank you.";
+
+  public static String recordPromptInstructions = 
+    "Press 1 to start recording this prompt; press any key when you're finished recording.";
 }

@@ -6,21 +6,22 @@ import java.io.InputStream;
 import java.io.Writer;
 
 import org.apache.log4j.Logger;
+import org.javarosa.core.model.FormDef;
 import org.odk.voice.constants.FileConstants;
-import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
 import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
+import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.FormLoader;
-import org.odk.voice.utils.FileUtils;
-import org.odk.voice.vxml.VxmlArrayPrompt;
 import org.odk.voice.vxml.VxmlDocument;
-import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
-import org.odk.voice.widgets.IQuestionWidget;
+import org.odk.voice.widgets.FormEndWidget;
+import org.odk.voice.widgets.FormStartWidget;
+import org.odk.voice.widgets.QuestionWidget;
+import org.odk.voice.widgets.RecordPromptWidget;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
@@ -37,25 +38,29 @@ public class FormVxmlRenderer {
   private static org.apache.log4j.Logger log = Logger
   .getLogger(FormVxmlRenderer.class);
   
-  private Writer out;
-  private VoiceSessionManager vsm;
-  private VoiceSession vs;
-  private FormHandler fh;
-  private boolean evaluateConstraints = true;
+  Writer out;
+  VoiceSessionManager vsm;
+  VoiceSession vs;
+  FormHandler fh;
+  boolean evaluateConstraints = true;
+  final String sessionid, callerid, action, answer;
+  final InputStream binaryData;
 
-  public FormVxmlRenderer(Writer out){
+  public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, InputStream binaryData, Writer out){
     this.out = out;
-    this.vsm = VoiceSessionManager.getManager();
+    this.sessionid = sessionid;
+    this.callerid = callerid;
+    this.action = action;
+    this.answer = answer;
+    this.binaryData = binaryData;
   }
   
-  public void renderDialogue(
-      String sessionid, 
-      String callerid, 
-      String action, 
-      String answer, 
-      InputStream binaryData) {
+  public void renderDialogue() {
     
     log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
+
+    this.vsm = VoiceSessionManager.getManager();
+    
     if (action == null || action.equals("")) {
       vs = newSession(sessionid, callerid);
       beginSession();
@@ -69,39 +74,132 @@ public class FormVxmlRenderer {
         renderError(VoiceError.SESSION_LOST, null);
         return;
     }
+    
     fh = vs.getFormHandler();
     
-    VoiceAction va;
+    if (action.equals(VoiceAction.ADMIN.name())) {
+      boolean isAdmin = Boolean.parseBoolean(answer);
+      vs.setAdmin(isAdmin);
+    }
+    
+    if (vs.isAdmin()) {
+      //renderAdmin();
+    } else {
+      renderUser();
+    }
+    
+  }
+  
+  private VoiceAction getAction(String actionString) {
     try {
-      va = Enum.valueOf(VoiceAction.class, action);
+      return Enum.valueOf(VoiceAction.class, action);
     } catch (IllegalArgumentException e) {
-      log.error("action string was not a valid VoiceAction");
+
+      return null;
+    }
+  }
+  
+  public void renderAdmin() {
+    VoiceAction va = getAction(action);
+    String prompt;
+    switch(va){
+    case ADMIN:
+    case MAIN_MENU:
+      //adminMainMenu();
+      break;
+    case SAVE_ANSWER:
+      savePrompt();
+      // purposely fall through
+    case NEXT_PROMPT:
+      prompt = nextRecordPrompt(false);
+      setCurrentRecordPrompt(prompt);
+      renderRecordPromptDialogue(prompt);
+      break;
+    default:
+      log.error("Invalid adminvaction type: " + va.name());
+      renderError(VoiceError.INTERNAL_ERROR, "Unexpected admin action type");
+    }
+  }
+  
+  private void savePrompt(){
+    //FileUti
+  }
+  
+  private String nextRecordPrompt(boolean rerecord){
+    if(vs.getRecordPromptIndex() < 0) { // if recordPromptIndex uninitialized
+      vs.setRecordPrompts(WidgetFactory.createWidgetFromPrompt(fh.currentPrompt(), null).getPromptStrings());
+      vs.setRecordPromptIndex(0);
+    } else {
+      vs.setRecordPromptIndex(vs.getRecordPromptIndex() + 1);
+    }
+    while (vs.getRecordPrompts() == null || 
+           vs.getRecordPromptIndex() >= vs.getRecordPrompts().length //||
+           //(!rerecord && audioExists(vs.getRecordPrompts()[vs.getRecordPromptIndex()])
+           )
+    {
+      if (fh.isEnd())
+        return null;
+      vs.setRecordPrompts(WidgetFactory.createWidgetFromPrompt(fh.nextQuestionPrompt(), null).getPromptStrings());
+      vs.setRecordPromptIndex(0);
+    }
+    return vs.getRecordPrompts()[vs.getRecordPromptIndex()];
+  }
+ 
+  private void setCurrentRecordPrompt(String prompt) {
+    try {
+      FileUtils.writeFile(prompt.getBytes(), FileConstants.CURRENT_RECORD_PROMPT_PATH);
+    } catch (IOException e) {
+      log.error("IOException writing to the currentRecordPrompt file", e);
+    }
+  }
+  
+  private void renderRecordPromptDialogue(String prompt) {
+    try {
+      (new RecordPromptWidget(prompt)).getPromptVxml(out);
+    } catch (IOException e) { 
+      log.error("",e); renderError(VoiceError.INTERNAL_ERROR,"");
+    }
+  }
+
+  
+  public void renderUser() {
+    VoiceAction va = getAction(action);
+    if (va == null){
+      log.error("action string " + action + "was not a valid VoiceAction");
       renderError(VoiceError.INTERNAL_ERROR, null);
-      return;
     }
     switch(va){
+    case ADMIN:
+      beginSession();
+      break;
     case SELECT_FORM:
       selectForm(answer);
       break;
     case RESUME_FORM:
       continueForm();
+      break;
     case SAVE_ANSWER:
       saveAnswer(answer, binaryData);
-      nextPrompt();
+      renderPrompt(fh.nextPrompt());
       break;
     case NEXT_PROMPT:
-      nextPrompt();
+      renderPrompt(fh.nextPrompt());
       break;
     case PREV_PROMPT:
-      prevPrompt();
-      break;
+      renderPrompt(fh.prevPrompt());
     case HANGUP:
       exportData();
       break;
+    default:
+      log.error("Invalid action type: " + va.name());
+      renderError(VoiceError.INTERNAL_ERROR, "Unexpected action type");
     }
   }
   
   private void beginSession() {
+    // this should eventually allow the user to pick a form, (or pass-through if only one form)
+    // and should go in a widget
+    
     VxmlDocument d = new VxmlDocument();
     d.setContents("<block>" + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=form.xml") + "</block>\n");
     try {
@@ -153,51 +251,44 @@ public class FormVxmlRenderer {
 //      mBeenSwiped = false;
   }
   
-  private void nextPrompt(){
-    createView(fh.nextPrompt());
-  }
-  
-  private void prevPrompt(){
-    createView(fh.prevPrompt()); 
-  }
-  
-  private void selectForm(String answerString) {
-    String formPath = FileConstants.FORMS_PATH + File.separator + answerString;
+  private void selectForm(String formName) {
+    String formPath = FileConstants.FORMS_PATH + File.separator + formName;
     fh = FormLoader.getFormHandler(formPath, null);
     vs.setFormHandler(fh);
-    createView(fh.currentPrompt());
+    
+    preloadForm(fh.getForm(), true);
+    
+    renderPrompt(fh.currentPrompt());
+  }
+  
+  private void preloadForm(FormDef fd, boolean newInstance) {
+    // see PropertyPreloadHandler javadoc for info on what's going on here
+    PropertyPreloadHandler pph = new PropertyPreloadHandler();
+    pph.setProperty(PropertyPreloadHandler.PHONE_NUMBER_PROPERTY, callerid);
+    pph.setProperty(PropertyPreloadHandler.SESSION_ID_PROPERTY, sessionid);
+    fd.getPreloader().addPreloadHandler(pph);
+    fd.initialize(true);
   }
   
   private void continueForm() {
-    
+
   }
   
-  private void createView(PromptElement prompt) {
+  private void renderPrompt(PromptElement prompt) {
     try {
       switch (prompt.getType()) {
       case PromptElement.TYPE_START:
-        String grammar = VxmlUtils.createGrammar(new String[]{"1"}, 
-            new String[]{"out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
-        String filled = 
-          "<if expr=\"action='" + VoiceAction.NEXT_PROMPT + "'>" + 
-          VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action");
-        VxmlForm startForm = new VxmlForm("start", 
-            new VxmlArrayPrompt(StringConstants.formStartPrompt(fh.getFormTitle())),
-                grammar, filled);
-        new VxmlDocument(startForm).write(out);
-        break;
+        (new FormStartWidget(fh.getFormTitle())).getPromptVxml(out);
       case PromptElement.TYPE_END:
-        VxmlForm endForm = new VxmlForm("start", 
-            new VxmlArrayPrompt(StringConstants.formEndPrompt(fh.getFormTitle())),
-                "", "");
-        new VxmlDocument(endForm).write(out);
-        break;
+        (new FormEndWidget(fh.getFormTitle())).getPromptVxml(out);
       case PromptElement.TYPE_QUESTION:
-        IQuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
+        QuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
+        w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount());
         w.getPromptVxml(out);
       }
     } catch (IOException e) {
       log.error("IOException in createView", e);
+      renderError(VoiceError.INTERNAL_ERROR, null);
     }
   }
 

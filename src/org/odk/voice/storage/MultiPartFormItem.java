@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.odk.voice.utils;
+package org.odk.voice.storage;
 
 import java.io.InputStream;
 import java.io.OutputStream;

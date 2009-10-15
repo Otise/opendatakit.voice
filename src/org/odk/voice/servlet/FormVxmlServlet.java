@@ -30,8 +30,8 @@ public class FormVxmlServlet extends HttpServlet {
 	  String answer = req.getParameter("answer");
 	  InputStream binaryData = null;
 	  
-	  FormVxmlRenderer fvr = new FormVxmlRenderer(resp.getWriter());
-	  fvr.renderDialogue(sessionid, callerid, action, answer, binaryData);
+	  FormVxmlRenderer fvr = new FormVxmlRenderer(sessionid, callerid, action, answer, binaryData, resp.getWriter());
+	  fvr.renderDialogue();
 	  
 	}
 

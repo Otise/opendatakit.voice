@@ -7,12 +7,10 @@ import java.io.Writer;
 import org.javarosa.core.model.data.IAnswerData;
 import org.odk.voice.xform.PromptElement;
 
-public class DateWidget extends WidgetBase {
-  
-  private final PromptElement p;
-  
+public class DateWidget extends QuestionWidget {
+
   public DateWidget(PromptElement p) {
-    this.p = p;
+    super(p);
   }
   
   @Override

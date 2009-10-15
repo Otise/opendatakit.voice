@@ -7,6 +7,14 @@ import java.util.List;
 
 import org.odk.voice.servlet.FormVxmlServlet;
 
+/**
+ * VxmlDocument, VxmlForm, VxmlField, VxmlPrompt, etc., are a set of utility classes for constructing 
+ * VXML dialogues. They are used extensively by the {@link org.odk.voice.widgets} classes, but a Widget 
+ * class could also output VXML independently of these helper classes.
+ * 
+ * @author alerer
+ *
+ */
 public class VxmlDocument {
   
   String contents = "";

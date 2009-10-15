@@ -47,5 +47,10 @@ public class FileConstants {
      */
     public static final String CACHE_PATH = "data" + File.separator + "cache";
     
+    /**
+     * See CurrentPromptServlet
+     */
+    public static final String CURRENT_RECORD_PROMPT_PATH = CACHE_PATH + File.separator + "currentPrompt";
+    
     public static final int MAX_FILE_SIZE = 10000000;
 }

@@ -26,7 +26,7 @@ public class VxmlField {
 
   public void write(Writer out) throws IOException{
     out.write("  <field name=\"" + name + "\">\n");
-    prompt.write(out);
+    out.write(prompt.getPromptString());
     out.write(VxmlUtils.indent(grammar, 2));
     out.write("    <noinput>\n");
     out.write("      " + noinput + "\n");

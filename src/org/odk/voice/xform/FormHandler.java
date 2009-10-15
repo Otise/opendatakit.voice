@@ -38,7 +38,7 @@ import org.javarosa.core.services.transport.ByteArrayPayload;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.voice.constants.XFormConstants;
-import org.odk.voice.utils.FileUtils;
+import org.odk.voice.storage.FileUtils;
 
 
 

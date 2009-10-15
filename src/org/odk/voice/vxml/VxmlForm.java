@@ -13,6 +13,8 @@ public class VxmlForm {
   private static final String formFooter = 
     "  </form>\n";
   
+  private String contents;
+  
   String id;
   
   VxmlField[] fields = new VxmlField[]{};
@@ -34,8 +36,17 @@ public class VxmlForm {
   
   public void write(Writer out) throws IOException {
     out.write(String.format(formHeader, id));
+    out.write(contents);
     for (VxmlField f: fields)
       f.write(out);
     out.write(formFooter);
+  }
+
+  public void setContents(String contents) {
+    this.contents = contents;
+  }
+
+  public String getContents() {
+    return contents;
   }
 }

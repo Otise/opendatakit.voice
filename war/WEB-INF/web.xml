@@ -37,6 +37,16 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>AudioPromptServlet</servlet-name>
-    <url-pattern>/audio</url-pattern>
+    <url-pattern>/audio/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>CurrentRecordPromptServlet</display-name>
+    <servlet-name>CurrentRecordPromptServlet</servlet-name>
+    <servlet-class>CurrentRecordPromptServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CurrentRecordPromptServlet</servlet-name>
+    <url-pattern>/currentRecordPrompt</url-pattern>
   </servlet-mapping>
 </web-app>

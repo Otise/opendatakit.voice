@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.odk.voice.constants.FileConstants;
+import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.servlet.FormVxmlServlet;
 
@@ -40,17 +41,24 @@ public class VxmlUtils {
       new String[]{"out.action=\"" + VoiceAction.SAVE_ANSWER + "\";", 
                    "out.action=\"REPEAT\";"});
   
-  public static String confirmFilled = "<if expr=\"action='REPEAT'\">" + 
+  public static String confirmFilled (VxmlPromptCreator c) {
+    return
+    "<if expr=\"action='REPEAT'\">" + 
     VxmlUtils.createGoto("answer") + "<else/>" + 
+    c.createPrompt(StringConstants.thankYou).getPromptString() +
     VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"}) + 
     "</if>\n";
+  }
+    
   
   public static String getWmv(String audio){
     return "audio" + audio.hashCode() + ".wmv";
   }
   
   public static String getAudio(String text, String audio){
-    return "<audio " + (audio==null?"":"src=\"" + VxmlUtils.getWmv(audio) + "\"") + ">\n" + 
+    if (audio == null) return text;
+    else
+      return "<audio src=\"" + VxmlUtils.getWmv(audio) + "\">\n" + 
            "  " + (text==null?"":text) + "\n" +
            "</audio>\n";
   }
@@ -62,6 +70,7 @@ public class VxmlUtils {
   public static String createGoto(String nextUrl){
     return "<goto next=\"" + nextUrl + "\" />";
   }
+  
   public static String createSubmit(String nextUrl, String... namelist){
     String nl = "";
     for (String name : namelist) {
