@@ -51,14 +51,6 @@ public class XFormUploadServlet extends HttpServlet {
   
   //      MultiPartFormItem formNameData = uploadedFormItems.getFormDataByFieldName("formname");
       MultiPartFormItem formXmlData = uploadedFormItems.getFormDataByFieldName("form");
-       
-      String formName = null;
-      String formXml = null;
-  //      String xmlFileName = "default.xml";
-  //
-  //      if(formNameData != null) {
-  //        formName = formNameData.getStream().toString("UTF-8");
-  //      }
       
       String fileName = saveForm(formXmlData);
       resp.getWriter().write("Form " + fileName + " uploaded successfully.");
@@ -73,7 +65,7 @@ public class XFormUploadServlet extends HttpServlet {
     filename = filename.substring(Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\")) + 1);
     byte[] data =  item.getData();
     String path = FileConstants.FORMS_PATH + File.separator + filename;
-    String path2 = FileUtils.writeFile(data, path);
+    String path2 = FileUtils.writeFile(data, path, false);
     if (path2 == null) 
       throw new FileUploadException();
     return path2.substring(path2.lastIndexOf(File.separator) + 1);

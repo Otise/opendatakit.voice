@@ -15,14 +15,14 @@ public class FormEndWidget extends WidgetBase {
     this.formTitle = formTitle;
   }
   
-  @Override
-  public String[] getPromptStrings() {
-    return new String[]{StringConstants.formEndPrompt(formTitle)};
-  }
+//  @Override
+//  public String[] getPromptStrings() {
+//    return new String[]{StringConstants.formEndPrompt(formTitle)};
+//  }
   
   @Override
   public void getPromptVxml(Writer out) throws IOException {
-    VxmlForm endForm = new VxmlForm("start", 
+    VxmlForm endForm = new VxmlForm("end", 
         createPrompt(StringConstants.formEndPrompt(formTitle)),
             "", "");
     new VxmlDocument(endForm).write(out);

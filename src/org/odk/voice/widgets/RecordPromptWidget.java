@@ -7,9 +7,10 @@ import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlPrompt;
-import org.odk.voice.vxml.VxmlPromptCreator;
+import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 
 public class RecordPromptWidget extends WidgetBase {
@@ -24,25 +25,25 @@ public class RecordPromptWidget extends WidgetBase {
   public void getPromptVxml(Writer out) throws IOException {
     
     VxmlPrompt prePrompt = createPrompt(StringConstants.recordPromptInstructions);
-     String preGrammar = VxmlUtils.createGrammar(new String[]{"1"}, 
-        new String[]{"out.action=\"RECORD\";"});
-    String preFilled = "<if expr=\"action='RECORD'\">" + 
-      VxmlUtils.createGoto("answer") +
+     String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
+        new String[]{"out.action=\"RECORD\";", "out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
+    String preFilled = 
+      "<if cond=\"action=='RECORD'\">" + 
+      VxmlUtils.createLocalGoto("main") +
+      "<else/>" +
+      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
       "</if>\n";
-    VxmlForm preForm = new VxmlForm("pre", prePrompt, preGrammar, preFilled);
+    VxmlForm preForm = new VxmlForm("action", prePrompt, preGrammar, preFilled);
     
-    VxmlForm answerForm = new VxmlForm("answer");
-    String contents = 
+    VxmlSection recordSection = new VxmlSection(
       "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" type=\"audio/x-wav\">\n" +
       "<filled>\n" + 
-      "  " + VxmlUtils.createGoto("#confirm") +
       "</filled>\n" + 
-      "</record\n";
-    answerForm.setContents(contents);
+      "</record>\n");
     
     VxmlPrompt p2 = createPrompt(new String[]{
         StringConstants.answerConfirmationVoice, 
-        "<var expr=\"answer\"/>",
+        "<value expr=\"answer\"/>",
         StringConstants.answerConfirmationOptions},
         new String[]{
         StringConstants.answerConfirmationVoice, 
@@ -50,9 +51,11 @@ public class RecordPromptWidget extends WidgetBase {
         StringConstants.answerConfirmationOptions});
     
     
-    VxmlForm confirmForm = new VxmlForm("confirm", p2, VxmlUtils.confirmGrammar, VxmlUtils.confirmFilled(this));
+    VxmlField actionField = new VxmlField("action", p2, VxmlUtils.actionGrammar, VxmlUtils.actionFilled(this, true));
     
-    new VxmlDocument(answerForm, confirmForm).write(out);
+    VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
+    
+    new VxmlDocument(preForm, mainForm).write(out);
   }
 }
 

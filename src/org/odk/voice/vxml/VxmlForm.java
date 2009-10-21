@@ -17,27 +17,27 @@ public class VxmlForm {
   
   String id;
   
-  VxmlField[] fields = new VxmlField[]{};
+  VxmlSection[] sections = new VxmlSection[]{};
   
   public VxmlForm(String id){
     this.id = id;
   }
   
-  public VxmlForm(String id, VxmlField field){
+  public VxmlForm(String id, VxmlSection... sections){
     this(id);
-    this.fields = new VxmlField[]{field};
+    this.sections = sections;
   }
   
   public VxmlForm(String id, VxmlPrompt prompt, String grammar, String filled) {
     this(id);
-    this.fields = new VxmlField[]{new VxmlField("main", prompt, grammar, filled)};
+    this.sections = new VxmlField[]{new VxmlField(id, prompt, grammar, filled)};
   }
-  
-  
+
   public void write(Writer out) throws IOException {
     out.write(String.format(formHeader, id));
-    out.write(contents);
-    for (VxmlField f: fields)
+    if (contents != null)
+      out.write(contents);
+    for (VxmlSection f: sections)
       f.write(out);
     out.write(formFooter);
   }

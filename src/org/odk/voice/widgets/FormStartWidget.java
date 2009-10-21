@@ -18,19 +18,19 @@ public class FormStartWidget extends WidgetBase {
     this.formTitle = formTitle;
   }
   
-  @Override
-  public String[] getPromptStrings() {
-    return new String[]{StringConstants.formStartPrompt(formTitle)};
-  }
+//  @Override
+//  public String[] getPromptStrings() {
+//    return new String[]{StringConstants.formStartPrompt(formTitle)};
+//  }
   
   @Override
   public void getPromptVxml(Writer out) throws IOException {
-    String grammar = VxmlUtils.createGrammar(new String[]{"1"}, 
-        new String[]{"out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
+    String grammar = VxmlUtils.createGrammar(new String[]{"1","9"}, 
+        new String[]{"out.action=\"" + VoiceAction.NEXT_PROMPT + "\";",
+                     "out.action=\"" + VoiceAction.ADMIN + "\";"});
     String filled = 
-      "<if expr=\"action='" + VoiceAction.NEXT_PROMPT + "'>" + 
-      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action");
-    VxmlForm startForm = new VxmlForm("start", 
+      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
+    VxmlForm startForm = new VxmlForm("action", 
         createPrompt(StringConstants.formStartPrompt(formTitle)),
             grammar, filled);
     new VxmlDocument(startForm).write(out);

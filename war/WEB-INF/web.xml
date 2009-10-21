@@ -43,7 +43,7 @@
     <description></description>
     <display-name>CurrentRecordPromptServlet</display-name>
     <servlet-name>CurrentRecordPromptServlet</servlet-name>
-    <servlet-class>CurrentRecordPromptServlet</servlet-class>
+    <servlet-class>org.odk.voice.servlet.CurrentRecordPromptServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>CurrentRecordPromptServlet</servlet-name>

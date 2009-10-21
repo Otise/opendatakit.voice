@@ -1,11 +1,11 @@
 package org.odk.voice.widgets;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.odk.voice.constants.StringConstants;
+import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
@@ -23,9 +23,11 @@ public abstract class QuestionWidget extends WidgetBase{
   public void setQuestionCount(int questionNum, int totalNum){
     this.questionNum = questionNum;
     this.totalNum = totalNum;
-    this.questionCountForm= new VxmlForm("questionCount",
-        createPrompt(StringConstants.questionXOfY(questionNum, totalNum)),
-        "",VxmlUtils.createGoto("#answer"));
+    this.questionCountForm= new VxmlForm("questionCount");
+    this.questionCountForm.setContents("<block>" + 
+        createPrompt(StringConstants.questionXOfY(questionNum, totalNum)).getPromptString() +
+        VxmlUtils.createLocalGoto("main") +
+        "</block>");
         
   }
   
@@ -47,6 +49,6 @@ public abstract class QuestionWidget extends WidgetBase{
    * @return An IAnswerData object.
    * @throws IllegalArgumentException If the returned data is invalid.
    */
-  public abstract IAnswerData getAnswer(String stringData, InputStream binaryData) throws IllegalArgumentException;
+  public abstract IAnswerData getAnswer(String stringData, MultiPartFormData binaryData) throws IllegalArgumentException;
   
 }

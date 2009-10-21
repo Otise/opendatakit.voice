@@ -12,6 +12,7 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 import org.odk.voice.constants.StringConstants;
+import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlPrompt;
@@ -95,12 +96,12 @@ public class AudioCaptureWidget extends QuestionWidget {
 //    }
   }
     
+
   @Override
-  public IAnswerData getAnswer(String stringData, InputStream binaryData)
+  public IAnswerData getAnswer(String stringData, MultiPartFormData binaryData)
       throws IllegalArgumentException {
-    if (stringData == null)
-      return null;
-    return new SelectOneData(new Selection(stringData));
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

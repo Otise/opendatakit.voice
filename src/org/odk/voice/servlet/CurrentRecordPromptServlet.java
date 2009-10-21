@@ -29,7 +29,6 @@ public class CurrentRecordPromptServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	  log.info("CurrentPromptServlet called");
 	  File f = new File(FileConstants.CURRENT_RECORD_PROMPT_PATH);
 	  if (!f.exists()) {
 	    return;

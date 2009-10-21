@@ -17,10 +17,12 @@ import org.odk.voice.servlet.FormVxmlServlet;
  */
 public class VxmlDocument {
   
-  String contents = "";
+  String contents;
   VxmlForm[] forms = null;
   
   public VxmlDocument(VxmlForm... forms){
+    for (VxmlForm f: forms)
+      assert(f != null);
     this.forms = forms;
   }
   
@@ -33,7 +35,7 @@ public class VxmlDocument {
 
   private static final String vxmlFooter =
     "<catch event=\"connection.disconnect.hangup\">\n" +
-    "  " + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=HANGUP") + "\n" +
+    "  " + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=HANGUP") + "\n" +
     "</catch>\n" +
     "</vxml>\n";
 
@@ -42,7 +44,8 @@ public class VxmlDocument {
   }
   public void write(Writer out) throws IOException {
     out.write(vxmlHeader);
-    out.write(contents);
+    if (contents != null)
+      out.write(contents);
     for (VxmlForm f: forms)
       f.write(out);
     out.write(vxmlFooter);

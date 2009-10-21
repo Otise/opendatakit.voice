@@ -42,14 +42,14 @@ public class FileUtils {
    * @param path The path to write to.
    * @return The path of the file written to (which may be different than path, if a file at path already exists).
    */
-  public static String writeFile(byte[] data, String path) throws IOException {
+  public static String writeFile(byte[] data, String path, boolean overwrite) throws IOException {
     OutputStream os = null;
     try {
       if (data == null) throw new IOException("Data is null");
       String path2 = path;
       File f = new File(path2);
       int index = 0;
-      while (f.exists()) {
+      while (f.exists() && !overwrite) {
         index++;
         int ext = path.lastIndexOf(".");
         if (ext == -1)
@@ -60,7 +60,7 @@ public class FileUtils {
       createFolder(path.substring(0, path.lastIndexOf(File.separator)));
       f.createNewFile();
       System.out.println("Path: " + f.getAbsoluteFile());
-      os = new FileOutputStream(f, true);
+      os = new FileOutputStream(f, false);
 //      int i;
 //      while ((i = is.read()) != -1)
 //        os.write(i);
@@ -286,6 +286,11 @@ public class FileUtils {
             return null;
 
         }
+    }
+
+    public static boolean fileExists(String path) {
+      File f = new File(path);
+      return f.exists();
     }
 
 

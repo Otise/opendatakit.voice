@@ -4,7 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.Iterator;
+import java.util.List;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.odk.voice.constants.FileConstants;
@@ -16,12 +22,16 @@ import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
 import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.FormLoader;
+import org.odk.voice.storage.MultiPartFormData;
+import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.widgets.FormEndWidget;
 import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
 import org.odk.voice.widgets.RecordPromptWidget;
+import org.odk.voice.widgets.VxmlWidget;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
@@ -44,9 +54,9 @@ public class FormVxmlRenderer {
   FormHandler fh;
   boolean evaluateConstraints = true;
   final String sessionid, callerid, action, answer;
-  final InputStream binaryData;
+  final MultiPartFormData binaryData;
 
-  public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, InputStream binaryData, Writer out){
+  public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, MultiPartFormData binaryData, Writer out){
     this.out = out;
     this.sessionid = sessionid;
     this.callerid = callerid;
@@ -63,10 +73,11 @@ public class FormVxmlRenderer {
     
     if (action == null || action.equals("")) {
       vs = newSession(sessionid, callerid);
-      beginSession();
+      if (vs != null)
+        beginSession();
       return;
     } else {
-      vs = vsm.get(sessionid);
+      vs = vsm.get(callerid);
     }
     
     if (vs == null) {
@@ -78,12 +89,12 @@ public class FormVxmlRenderer {
     fh = vs.getFormHandler();
     
     if (action.equals(VoiceAction.ADMIN.name())) {
-      boolean isAdmin = Boolean.parseBoolean(answer);
-      vs.setAdmin(isAdmin);
+      log.info("Session entered admin mode");
+      vs.setAdmin(true);
     }
     
     if (vs.isAdmin()) {
-      //renderAdmin();
+      renderAdmin();
     } else {
       renderUser();
     }
@@ -102,17 +113,23 @@ public class FormVxmlRenderer {
   public void renderAdmin() {
     VoiceAction va = getAction(action);
     String prompt;
+    log.info("Rendering admin mode. Action=" + action);
     switch(va){
     case ADMIN:
     case MAIN_MENU:
-      //adminMainMenu();
+      adminMainMenu();
       break;
     case SAVE_ANSWER:
       savePrompt();
       // purposely fall through
     case NEXT_PROMPT:
       prompt = nextRecordPrompt(false);
-      setCurrentRecordPrompt(prompt);
+      writeCurrentRecordPrompt(prompt);
+      renderRecordPromptDialogue(prompt);
+      break;
+    case CURRENT_PROMPT:
+      prompt = currentRecordPrompt();
+      writeCurrentRecordPrompt(prompt);
       renderRecordPromptDialogue(prompt);
       break;
     default:
@@ -121,33 +138,81 @@ public class FormVxmlRenderer {
     }
   }
   
+  private void adminMainMenu() {
+ // this should eventually allow the user to pick a form, (or pass-through if only one form)
+    // and should go in a widget
+    
+    VxmlDocument d = new VxmlDocument();
+    d.setContents("<form id=\"begin\"><block>" + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=NEXT_PROMPT") + "</block></form>\n");
+    try {
+      d.write(out);
+    } catch (IOException e) {
+      log.error("IOException in beginSession", e);
+      e.printStackTrace();
+    }
+  }
+  
   private void savePrompt(){
-    //FileUti
+    if (binaryData == null) {
+      log.error("Tried to save prompt, but binaryData is null");
+      return;
+    }
+    MultiPartFormItem item = binaryData.getFormDataByFieldName("answer");
+    if (item == null) {
+      log.error("Tried to save prompt, but 'answer' item does not exist.");
+      return;
+    }
+    String prompt = currentRecordPrompt();
+    String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + VxmlUtils.getWmv(prompt);
+    try {
+      FileUtils.writeFile(item.getData(), path, true);
+    } catch (IOException e) {
+      log.error("Tried to save prompt, got IOEXception error saving to " + path);
+    }
+    
+  }
+  
+  private String currentRecordPrompt(){
+    if (vs.getRecordPromptIndex() < 0) {
+      return null;
+    }
+    return vs.getRecordPrompts()[vs.getRecordPromptIndex()];
   }
   
   private String nextRecordPrompt(boolean rerecord){
+    if (vs == null) return null;
     if(vs.getRecordPromptIndex() < 0) { // if recordPromptIndex uninitialized
-      vs.setRecordPrompts(WidgetFactory.createWidgetFromPrompt(fh.currentPrompt(), null).getPromptStrings());
+      vs.setRecordPrompts(getWidgetFromPrompt(fh.currentPrompt()).getPromptStrings());
       vs.setRecordPromptIndex(0);
     } else {
       vs.setRecordPromptIndex(vs.getRecordPromptIndex() + 1);
     }
     while (vs.getRecordPrompts() == null || 
-           vs.getRecordPromptIndex() >= vs.getRecordPrompts().length //||
-           //(!rerecord && audioExists(vs.getRecordPrompts()[vs.getRecordPromptIndex()])
+           vs.getRecordPromptIndex() >= vs.getRecordPrompts().length ||
+           vs.getRecordPrompts()[vs.getRecordPromptIndex()].equals("") ||
+           !rerecord && FileUtils.fileExists(
+               FileConstants.PROMPT_AUDIO_PATH + File.separator + 
+               VxmlUtils.getWmv(vs.getRecordPrompts()[vs.getRecordPromptIndex()]))
            )
     {
-      if (fh.isEnd())
-        return null;
-      vs.setRecordPrompts(WidgetFactory.createWidgetFromPrompt(fh.nextQuestionPrompt(), null).getPromptStrings());
-      vs.setRecordPromptIndex(0);
+      if (vs.getRecordPrompts() != null && vs.getRecordPromptIndex() < vs.getRecordPrompts().length)
+        vs.setRecordPromptIndex(vs.getRecordPromptIndex() + 1);
+      else {
+        if (fh.isEnd())
+          return null;
+        vs.setRecordPrompts(getWidgetFromPrompt(fh.nextPrompt()).getPromptStrings());
+        vs.setRecordPromptIndex(0);
+      }
     }
+    log.info("Next record prompt. Index: " + vs.getRecordPromptIndex() + ". Value: " + 
+        vs.getRecordPrompts()[vs.getRecordPromptIndex()]);
     return vs.getRecordPrompts()[vs.getRecordPromptIndex()];
   }
  
-  private void setCurrentRecordPrompt(String prompt) {
+  private void writeCurrentRecordPrompt(String prompt) {
+    log.info("Writing record prompt: " + prompt);
     try {
-      FileUtils.writeFile(prompt.getBytes(), FileConstants.CURRENT_RECORD_PROMPT_PATH);
+      FileUtils.writeFile(prompt.getBytes(), FileConstants.CURRENT_RECORD_PROMPT_PATH, true);
     } catch (IOException e) {
       log.error("IOException writing to the currentRecordPrompt file", e);
     }
@@ -165,13 +230,11 @@ public class FormVxmlRenderer {
   public void renderUser() {
     VoiceAction va = getAction(action);
     if (va == null){
-      log.error("action string " + action + "was not a valid VoiceAction");
-      renderError(VoiceError.INTERNAL_ERROR, null);
+      log.error("action string " + action + " was not a valid VoiceAction");
+      renderError(VoiceError.INTERNAL_ERROR, action + "was not a valid Voice Action");
+      return;
     }
     switch(va){
-    case ADMIN:
-      beginSession();
-      break;
     case SELECT_FORM:
       selectForm(answer);
       break;
@@ -182,6 +245,9 @@ public class FormVxmlRenderer {
       saveAnswer(answer, binaryData);
       renderPrompt(fh.nextPrompt());
       break;
+    case CURRENT_PROMPT:
+      renderPrompt(fh.currentPrompt());
+      break;
     case NEXT_PROMPT:
       renderPrompt(fh.nextPrompt());
       break;
@@ -189,6 +255,7 @@ public class FormVxmlRenderer {
       renderPrompt(fh.prevPrompt());
     case HANGUP:
       exportData();
+      vsm.remove(callerid);
       break;
     default:
       log.error("Invalid action type: " + va.name());
@@ -201,7 +268,7 @@ public class FormVxmlRenderer {
     // and should go in a widget
     
     VxmlDocument d = new VxmlDocument();
-    d.setContents("<block>" + VxmlUtils.createGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=form.xml") + "</block>\n");
+    d.setContents("<form id=\"begin\"><block>" + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=form.xml") + "</block></form>\n");
     try {
       d.write(out);
     } catch (IOException e) {
@@ -210,7 +277,7 @@ public class FormVxmlRenderer {
     }
   }
   
-  private boolean saveAnswer(String answer, InputStream binaryData) {
+  private boolean saveAnswer(String answer, MultiPartFormData binaryData) {
     log.info("Answer: " + answer);
     PromptElement pe = fh.currentPrompt();
 
@@ -221,10 +288,12 @@ public class FormVxmlRenderer {
                 fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(pe, null).getAnswer(answer, binaryData),
                         evaluateConstraints);
         if (evaluateConstraints && saveStatus != XFormConstants.ANSWER_OK) {
+            log.info("Save answer failed because of constraint");
             renderConstraintFailed(pe, saveStatus);
             return false;
         }
     }
+    log.info("Answer saved successfully.");
     return true;
   }
   
@@ -274,35 +343,54 @@ public class FormVxmlRenderer {
 
   }
   
+  private VxmlWidget getWidgetFromPrompt(PromptElement prompt) {
+    switch (prompt.getType()) {
+    case PromptElement.TYPE_START:
+      return new FormStartWidget(fh.getFormTitle());
+    case PromptElement.TYPE_END:
+      return new FormEndWidget(fh.getFormTitle());
+    case PromptElement.TYPE_QUESTION:
+      QuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
+      w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount());
+      return w;
+    default:
+      log.error("Prompt type was not expected: " + prompt.getType());
+      renderError(VoiceError.INTERNAL_ERROR, "Unexpected prompt type.");
+      return null;
+    }
+  }
+    
   private void renderPrompt(PromptElement prompt) {
-    try {
-      switch (prompt.getType()) {
-      case PromptElement.TYPE_START:
-        (new FormStartWidget(fh.getFormTitle())).getPromptVxml(out);
-      case PromptElement.TYPE_END:
-        (new FormEndWidget(fh.getFormTitle())).getPromptVxml(out);
-      case PromptElement.TYPE_QUESTION:
-        QuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
-        w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount());
-        w.getPromptVxml(out);
-      }
+    VxmlWidget w = getWidgetFromPrompt(prompt);
+    if (w == null)
+      return;
+    try{
+      w.getPromptVxml(out);
     } catch (IOException e) {
-      log.error("IOException in createView", e);
-      renderError(VoiceError.INTERNAL_ERROR, null);
+    log.error("IOException in createView", e);
+    renderError(VoiceError.INTERNAL_ERROR, null);
     }
   }
 
   public void renderError(VoiceError error, String details){
     log.error("Voice error rendered. Type: " + error.name() + "; Details: " + details);
-
+    String contents = "<block><prompt>Sorry, an error occured of type " + error.name() + ". Details are: " + details + "</prompt></block>";
+    VxmlForm f = new VxmlForm("errorForm");
+    f.setContents(contents);
+    try {
+      new VxmlDocument(f).write(out);
+    } catch (IOException e) {log.error("",e);}
   }
   
   private VoiceSession newSession(String sessionid, String callerid){
-    if (sessionid == null)
-      renderError(VoiceError.INTERNAL_ERROR, "No sessionid");
+    if (callerid == null && sessionid == null) {
+      renderError(VoiceError.INTERNAL_ERROR, "No callerid or sessionid");
+      return null;
+    }
     VoiceSession vs = new VoiceSession();
     vs.setCallerid(callerid);
-    vsm.put(sessionid, vs);
+    vs.setSessionid(sessionid);
+    vsm.put(callerid, sessionid, vs);
     return vs;
   }
   

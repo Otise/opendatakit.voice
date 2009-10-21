@@ -26,14 +26,16 @@ public class AudioPromptServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	  log.info("AudioPromptServlet called");
 	  String pathInfo = req.getPathInfo();
-	  String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + pathInfo.substring(pathInfo.lastIndexOf("/"));
+	  log.info("AudioPromptServlet called. pathInfo: " + pathInfo);
+	  String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + pathInfo.substring(pathInfo.lastIndexOf("/") + 1);
+	   log.info("Path: " + path);
 	  File f = new File(path);
 	  if (!f.exists()) {
 	    resp.sendError(404);
 	    return;
 	  }
+	  log.info("Found audio");
 	  resp.setContentType("audio/x-ms-wmv");
 	  resp.getOutputStream().write(FileUtils.getFileAsBytes(f));
 	}

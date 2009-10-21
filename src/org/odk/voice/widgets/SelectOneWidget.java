@@ -1,7 +1,6 @@
 package org.odk.voice.widgets;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -12,7 +11,9 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 import org.odk.voice.constants.StringConstants;
+import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
@@ -48,6 +49,7 @@ public class SelectOneWidget extends QuestionWidget {
     confPrompt.append(VxmlUtils.getAudio(textAndAudio));
     confPromptStrings.add(textAndAudio);
   }
+  
   public void getPromptVxml(Writer out) throws IOException{
     List<String> promptSegments = new ArrayList<String>();
     List<String> grammarKeys = new ArrayList<String>();
@@ -55,11 +57,10 @@ public class SelectOneWidget extends QuestionWidget {
     promptSegments.add(prompt.getQuestionText());
     promptSegments.add(StringConstants.select1Instructions);
     
-    StringBuilder confPrompt = new StringBuilder("<prompt>\n");
+    StringBuilder confPrompt = new StringBuilder();
     List<String> confPromptStrings = new ArrayList<String>();
     
     addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
-    
     if (prompt.getSelectItems() != null) {
       OrderedHashtable h = prompt.getSelectItems();
       Enumeration items = h.keys();
@@ -74,35 +75,35 @@ public class SelectOneWidget extends QuestionWidget {
           promptSegments.add(StringConstants.select1Press(i));
           promptSegments.add(itemLabel);
           grammarKeys.add(Integer.toString(i));
-          grammarTags.add("out.label=\"" + itemLabel + "\"; out.answer=\"" + itemValue + "\";");
+          grammarTags.add("out.answer=\"" + itemValue + "\";");
           
-          confPrompt.append("<" + (i==1?"if":"elseif") + " expr=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
+          confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
           addConfAudio(itemLabel, confPrompt, confPromptStrings);
           
           i++;
       }
-      confPrompt.append("</if>\n");
       addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
-      confPrompt.append("</prompt>\n");
-      
-      VxmlForm answerForm = new VxmlForm("answer", 
+      VxmlField answerField = new VxmlField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          VxmlUtils.createGoto("#confirm")
+          ""
           );
       
-      VxmlForm confirmForm = new VxmlForm("confirm", 
-          createBasicPrompt(confPrompt.toString(), confPromptStrings.toArray(new String[]{})), 
-          VxmlUtils.confirmGrammar,
-          VxmlUtils.confirmFilled(this));
       
-      VxmlDocument d = new VxmlDocument(questionCountForm, answerForm, confirmForm);
+      VxmlField actionField = new VxmlField("action", 
+          createBasicPrompt(confPrompt.toString(), confPromptStrings.toArray(new String[]{})), 
+          VxmlUtils.actionGrammar,
+          VxmlUtils.actionFilled(this));
+      
+      VxmlForm mainForm = new VxmlForm("main", answerField, actionField);
+      
+      VxmlDocument d = new VxmlDocument(questionCountForm, mainForm);
       d.write(out);
     }
   }
     
   @Override
-  public IAnswerData getAnswer(String stringData, InputStream binaryData)
+  public IAnswerData getAnswer(String stringData, MultiPartFormData binaryData)
       throws IllegalArgumentException {
     if (stringData == null)
       return null;

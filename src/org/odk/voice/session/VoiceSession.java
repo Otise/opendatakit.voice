@@ -12,7 +12,8 @@ import org.odk.voice.xform.FormHandler;
 public class VoiceSession {
   private FormHandler fh;
   private boolean admin;
-  private String callerid;
+  private String callerid; 
+  private String sessionid;
   private Date date;
   
   private String[] recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
@@ -66,5 +67,15 @@ public class VoiceSession {
 
   public int getRecordPromptIndex() {
     return recordPromptIndex;
-  }  
+  }
+
+  public void setSessionid(String sessionid) {
+    this.sessionid = sessionid;
+    
+  }
+  
+  public String getSessionid(){
+    return sessionid;
+  }
+
 }

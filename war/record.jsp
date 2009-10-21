@@ -16,7 +16,7 @@ function refresh()
       if (xmlhttp.responseText) {
           var promptDiv = document.getElementById("promptDiv");
           var prompt = xmlhttp.responseText;
-          promptDiv.innerHtml = prompt;
+          promptDiv.innerHTML = prompt;
       }
       setTimeout('refresh()',1000);
     }
@@ -25,8 +25,8 @@ function refresh()
   xmlhttp.send(null);
 }</script>
 </head>
-<body>
+<body onload="refresh()">
   <h1>ODK Voice Prompt Recorder</h1>
-  <div id='promptDiv'></div>
+  <div id='promptDiv'>Hello there.</div>
 </body>
 </html>

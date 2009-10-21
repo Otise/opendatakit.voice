@@ -28,6 +28,7 @@ public class VoiceSessionManager {
   //////////////////////////////////////////////////
   
   private Map<String, VoiceSession> vs;
+  private Map<String, String> callerToSession;
   private Map<String, Date> fresh;
   
   private VoiceSessionManager(){
@@ -36,22 +37,31 @@ public class VoiceSessionManager {
     this.fresh = new HashMap<String, Date>();
   }
   
-  public void put(String sessionid, VoiceSession s){
+  public void put(String callerid, String sessionid, VoiceSession s){
+    vs.put(callerid, s);
     vs.put(sessionid, s);
+    fresh.put(callerid, new Date());
     fresh.put(sessionid, new Date());
-    log.info("Session put. Sessionid: " + sessionid + ". Size: " + vs.size());
+    log.info("Session put. Callerid: " + callerid + ". Size: " + vs.size());
   }
   
-  public VoiceSession get(String sessionid){
-    fresh.put(sessionid, new Date());
-    log.info("Session get. Sessionid: " + sessionid + ". Size: " + vs.size());
-    return vs.get(sessionid);
+  public VoiceSession get(String calleridOrSessionid){
+    fresh.put(calleridOrSessionid, new Date());
+    log.info("Session get. Size: " + vs.size());
+    return vs.get(calleridOrSessionid);
+  }
+  
+  public VoiceSession remove(String calleridOrSessionid){
+    VoiceSession v = vs.remove(calleridOrSessionid);
+    vs.remove(v.getCallerid());
+    vs.remove(v.getSessionid());
+    return v;
   }
   
   public void purge(Date stale){
     for (Entry<String, Date> e : fresh.entrySet()) {
       if (e.getValue().before(stale)){
-        vs.remove(e.getKey());
+        remove(e.getKey());
         fresh.remove(e.getKey());
       }
     }

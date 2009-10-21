@@ -12,6 +12,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xform.util.XFormUtils;
 import org.odk.voice.constants.FileConstants;
+import org.odk.voice.logic.PropertyPreloadHandler;
 import org.odk.voice.xform.FormHandler;
 
 
@@ -53,7 +54,6 @@ public class FormLoader {
 	            fis = new FileInputStream(formXml);
 	            fd = XFormUtils.getFormFromInputStream(fis);
 	            fd.setEvaluationContext(new EvaluationContext());
-	            fd.initialize(true);
 	            serializeFormDef(fd, formPath);
 	        } catch (FileNotFoundException e) {
 	            e.printStackTrace();

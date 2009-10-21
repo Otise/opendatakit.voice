@@ -12,11 +12,10 @@ import org.odk.voice.vxml.VxmlUtils;
 
 public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
 
-  private List<String> promptStrings = null;
+  private List<String> promptStrings = new ArrayList<String>();
   
   @Override
   public String[] getPromptStrings(){
-    promptStrings = new ArrayList<String>();
     try {
       getPromptVxml(new OutputStreamWriter(new OutputStream(){
         public void write ( int b ) { }
@@ -32,10 +31,8 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
   }
   
   public VxmlPrompt createBasicPrompt(String vxml, String[] promptAudioStrings){
-    if (promptStrings != null && promptAudioStrings != null) {
-      for (String s: promptAudioStrings)
-        promptStrings.add(s);
-    }
+    for (String s: promptAudioStrings)
+      promptStrings.add(s);
     final String vxml2 = vxml;
     return new VxmlPrompt(){
       public String getPromptString(){

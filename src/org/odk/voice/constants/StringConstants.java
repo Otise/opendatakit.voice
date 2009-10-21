@@ -5,16 +5,15 @@ public class StringConstants {
   public static String formStartPrompt(String formName) {
     return 
     "Welcome to the " + formName + ". You can press star at " +
-    "any time to reach the main menu. Also, if you need to hang up, " + 
-    "you can call back and continue the survey where you left off. " + 
-    "Press 1 to begin the survey, or press 9 at any time for help and " + 
-    "other options.";
+    "any time to reach the main menu. Press 1 to begin the survey." +
+    "If you need to hang up, you can call back and continue the survey "  +
+    "where you left off. ";
   }
   
   public static String formEndPrompt(String formName) {
     return
-    "Thank you for completing the " + formName + ". Press star to review " + 
-    "and change your answers, or press pound to submit this survey.";
+    "Thank you for completing the " + formName + ". You can press star to review " + 
+    "and change your answers, or simply hang up and the survey will be saved.";
   }
   
   public static String reconnectPrompt(String formName) {
@@ -71,5 +70,8 @@ public class StringConstants {
     "Thank you.";
 
   public static String recordPromptInstructions = 
-    "Press 1 to start recording this prompt; press any key when you're finished recording.";
+    "Press 1 to start recording this prompt or 3 to skip it; press any key when you're finished recording.";
+
+  public static String pleaseHold = 
+    "Please hold.";
 }

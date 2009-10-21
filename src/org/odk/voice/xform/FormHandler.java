@@ -528,7 +528,7 @@ public class FormHandler {
             if (read > 0) {
                 // write xml file
                 try {
-                     String filename = path + "/" +
+                     String filename = path + File.separator +
                      path.substring(path.lastIndexOf(File.separator) + 1) + ".xml";
                     log.info("XML path: " + filename);
                     BufferedWriter bw = new BufferedWriter(new FileWriter(filename));

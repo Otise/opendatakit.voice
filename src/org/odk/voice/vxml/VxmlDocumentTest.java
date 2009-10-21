@@ -11,7 +11,7 @@ public class VxmlDocumentTest extends TestCase {
     //VxmlPrompt p = new VxmlArrayPrompt("Testing 1 2 3");
     VxmlForm f = new VxmlForm("test", null, VxmlUtils.createGrammar(new String[]{"1","2"}, 
                               new String[]{"out.pressed=1","out.pressed=2"}),
-                              VxmlUtils.createGoto("next"));
+                              VxmlUtils.createLocalGoto("next"));
     try {
     new VxmlDocument(f).write(new OutputStreamWriter(new FileOutputStream("log.txt")));
     } catch (Exception e) { fail(); }
