@@ -29,9 +29,11 @@ public class VxmlField extends VxmlSection{
   @Override
   public void write(Writer out) throws IOException{
     out.write("  <field name=\"" + name + "\">\n");
-    out.write(prompt.getPromptString());
+    if (prompt != null)
+      out.write(prompt.getPromptString());
     out.write(VxmlUtils.createGrammar(new String[]{"*"}, new String[]{"out.action='MAIN_MENU'"}));
-        out.write(VxmlUtils.indent(grammar, 2));
+    if (grammar != null)
+      out.write(grammar);
     out.write("    <noinput>\n");
     out.write("      " + noinput + "\n");
     out.write("    </noinput>\n");

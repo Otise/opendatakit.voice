@@ -60,7 +60,8 @@ public class SelectOneWidget extends QuestionWidget {
     StringBuilder confPrompt = new StringBuilder();
     List<String> confPromptStrings = new ArrayList<String>();
     
-    addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
+    //addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
+    confPromptStrings.add(StringConstants.answerConfirmationKeypad);
     if (prompt.getSelectItems() != null) {
       OrderedHashtable h = prompt.getSelectItems();
       Enumeration items = h.keys();
@@ -68,7 +69,7 @@ public class SelectOneWidget extends QuestionWidget {
       String itemValue = null;
       
       int i = 1;
-
+      confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad));
       while (items.hasMoreElements()) {
           itemLabel = (String) items.nextElement();
           itemValue = (String) h.get(itemLabel);
@@ -78,20 +79,22 @@ public class SelectOneWidget extends QuestionWidget {
           grammarTags.add("out.answer=\"" + itemValue + "\";");
           
           confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
-          addConfAudio(itemLabel, confPrompt, confPromptStrings);
+          confPrompt.append(VxmlUtils.getAudio(itemLabel));
+          confPromptStrings.add(VxmlUtils.getAudio(itemLabel));
           
           i++;
       }
-      addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
+      //addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
+      confPrompt.append("</if>");
       VxmlField answerField = new VxmlField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          ""
+          createBasicPrompt(confPrompt.toString(), confPromptStrings.toArray(new String[]{})).getPromptString()
           );
       
       
       VxmlField actionField = new VxmlField("action", 
-          createBasicPrompt(confPrompt.toString(), confPromptStrings.toArray(new String[]{})), 
+          createPrompt(StringConstants.answerConfirmationOptions),
           VxmlUtils.actionGrammar,
           VxmlUtils.actionFilled(this));
       
