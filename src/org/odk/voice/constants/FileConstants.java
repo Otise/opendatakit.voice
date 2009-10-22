@@ -38,10 +38,14 @@ public class FileConstants {
     public static final String PROMPT_AUDIO_PATH = "data" + File.separator + "audio";
     
     /**
-     * Instances storage path
+     * Complete instances storage path
      */
-    public static final String INSTANCES_PATH = "data" + File.separator + "instances";
-
+    public static final String COMPLETE_INSTANCES_PATH = "data" + File.separator + "completedSurveys";
+    
+    /**
+     * Incomplete instances storage path
+     */
+    public static final String INCOMPLETE_INSTANCES_PATH = "data" + File.separator + "incompleteSurveys";
     /**
      * Temp path
      */

@@ -51,7 +51,7 @@ public class RecordPromptWidget extends WidgetBase {
         StringConstants.answerConfirmationOptions});
     
     
-    VxmlField actionField = new VxmlField("action", p2, VxmlUtils.actionGrammar, VxmlUtils.actionFilled(this, true));
+    VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));
     
     VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
     

@@ -38,27 +38,6 @@ public class VxmlUtils {
     return grammar.toString();
   }
   
-  public static String actionGrammar = VxmlUtils.createGrammar(new String[]{"1","2"}, 
-      new String[]{"out.action=\"" + VoiceAction.SAVE_ANSWER + "\";", 
-                   "out.action=\"REPEAT\";"});
-  
-  public static String actionFilled (VxmlPromptCreator c, boolean binary) {
-    String submit = binary? VxmlUtils.createMultipartSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"}) :
-      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"});
-    return
-    "<if cond=\"action=='REPEAT'\">" + 
-    "<clear namelist=\"action answer\"/>" +
-    VxmlUtils.createLocalGoto("main") + "<else/>" + 
-    c.createPrompt(StringConstants.thankYou).getPromptString() + 
-    (binary ? c.createPrompt(StringConstants.pleaseHold).getPromptString() : "") +
-    submit + 
-    "</if>\n";
-  }
-    
-  public static String actionFilled (VxmlPromptCreator c) {
-    return actionFilled(c, false);
-  }
-  
   public static String getWmv(String audio){
     return audio.hashCode() + ".wmv";
   }

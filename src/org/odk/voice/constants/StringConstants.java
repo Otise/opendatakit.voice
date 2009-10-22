@@ -29,7 +29,7 @@ public class StringConstants {
   }
   
   public static String intInstructions = 
-    "Please enter the number on the keypad. Press the pound key when you are finished.";
+    "Please enter the number on the keypad.";
   
   public static String select1Instructions = 
     "";

@@ -6,6 +6,10 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.odk.voice.constants.StringConstants;
+import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.servlet.FormVxmlServlet;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlPromptCreator;
 import org.odk.voice.vxml.VxmlUtils;
@@ -30,9 +34,18 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
     return audio.hashCode() + ".wmv";
   }
   
-  public VxmlPrompt createBasicPrompt(String vxml, String[] promptAudioStrings){
-    for (String s: promptAudioStrings)
-      promptStrings.add(s);
+  public void addPromptString(String promptString) {
+    if (promptString != null && !promptString.equals(""))
+      promptStrings.add(promptString);
+  }
+  
+  /**
+   * Note: This does not add the prompt strings to be recorded. You must do that 
+   * manually using the {@link addPromptString} method.
+   * @param vxml
+   * @return
+   */
+  public VxmlPrompt createBasicPrompt(String vxml){
     final String vxml2 = vxml;
     return new VxmlPrompt(){
       public String getPromptString(){
@@ -48,12 +61,37 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
       vxml = vxml + VxmlUtils.indent(VxmlUtils.getAudio(text==null?null:text[i], audio==null?null:audio[i]), 4);
     }
     vxml = vxml + "      </prompt>\n";
-    return createBasicPrompt(vxml, audio);
+    for (String s: audio)
+      addPromptString(s);
+    return createBasicPrompt(vxml);
   }
   
   public VxmlPrompt createPrompt(String... textAndAudio) {
     return createPrompt(textAndAudio, textAndAudio);
   }
   
+  VxmlField getActionField(boolean binary) {
+    return new VxmlField("action", 
+      createPrompt(StringConstants.answerConfirmationOptions),
+      actionGrammar,
+      actionFilled(binary));
+  }
+  
+  String actionFilled (boolean binary) {
+    String submit = binary? VxmlUtils.createMultipartSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"}) :
+      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"});
+    return
+    "<if cond=\"action=='REPEAT'\">" + 
+    "<clear namelist=\"action answer\"/>" +
+    VxmlUtils.createLocalGoto("main") + "<else/>" + 
+    createPrompt(StringConstants.thankYou).getPromptString() + 
+    (binary ? createPrompt(StringConstants.pleaseHold).getPromptString() : "") +
+    submit + 
+    "</if>\n";
+  }
+  
+  String actionGrammar = VxmlUtils.createGrammar(new String[]{"1","2"}, 
+      new String[]{"out.action=\"" + VoiceAction.SAVE_ANSWER + "\";", 
+                   "out.action=\"REPEAT\";"});
 
 }

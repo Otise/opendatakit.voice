@@ -45,11 +45,6 @@ public class SelectOneWidget extends QuestionWidget {
 //    return ps.toArray(new String[]{});
 //  }
   
-  public void addConfAudio(String textAndAudio, StringBuilder confPrompt, List<String> confPromptStrings){
-    confPrompt.append(VxmlUtils.getAudio(textAndAudio));
-    confPromptStrings.add(textAndAudio);
-  }
-  
   public void getPromptVxml(Writer out) throws IOException{
     List<String> promptSegments = new ArrayList<String>();
     List<String> grammarKeys = new ArrayList<String>();
@@ -58,10 +53,9 @@ public class SelectOneWidget extends QuestionWidget {
     promptSegments.add(StringConstants.select1Instructions);
     
     StringBuilder confPrompt = new StringBuilder();
-    List<String> confPromptStrings = new ArrayList<String>();
     
     //addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
-    confPromptStrings.add(StringConstants.answerConfirmationKeypad);
+    addPromptString(StringConstants.answerConfirmationKeypad);
     if (prompt.getSelectItems() != null) {
       OrderedHashtable h = prompt.getSelectItems();
       Enumeration items = h.keys();
@@ -80,7 +74,7 @@ public class SelectOneWidget extends QuestionWidget {
           
           confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
           confPrompt.append(VxmlUtils.getAudio(itemLabel));
-          confPromptStrings.add(VxmlUtils.getAudio(itemLabel));
+          addPromptString(VxmlUtils.getAudio(itemLabel));
           
           i++;
       }
@@ -89,16 +83,15 @@ public class SelectOneWidget extends QuestionWidget {
       VxmlField answerField = new VxmlField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          createBasicPrompt(confPrompt.toString(), confPromptStrings.toArray(new String[]{})).getPromptString()
-          );
+          createBasicPrompt(confPrompt.toString()).getPromptString());
       
+//      
+//      VxmlField actionField = new VxmlField("action", 
+//          createPrompt(StringConstants.answerConfirmationOptions),
+//          VxmlUtils.actionGrammar,
+//          VxmlUtils.actionFilled(this));
       
-      VxmlField actionField = new VxmlField("action", 
-          createPrompt(StringConstants.answerConfirmationOptions),
-          VxmlUtils.actionGrammar,
-          VxmlUtils.actionFilled(this));
-      
-      VxmlForm mainForm = new VxmlForm("main", answerField, actionField);
+      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(false));
       
       VxmlDocument d = new VxmlDocument(questionCountForm, mainForm);
       d.write(out);

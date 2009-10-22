@@ -31,7 +31,7 @@ public class VxmlField extends VxmlSection{
     out.write("  <field name=\"" + name + "\">\n");
     if (prompt != null)
       out.write(prompt.getPromptString());
-    out.write(VxmlUtils.createGrammar(new String[]{"*"}, new String[]{"out.action='MAIN_MENU'"}));
+    //out.write(VxmlUtils.createGrammar(new String[]{"*"}, new String[]{"out.action='MAIN_MENU'"}));
     if (grammar != null)
       out.write(grammar);
     out.write("    <noinput>\n");
@@ -41,9 +41,9 @@ public class VxmlField extends VxmlSection{
     out.write("      " + nomatch + "\n");
     out.write("    </nomatch>\n");
     out.write("    <filled>\n");
-    out.write("      <if cond=\"action=='MAIN_MENU'\">\n");
-    out.write(VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
-    out.write("      </if>\n");
+    //out.write("      <if cond=\"action=='MAIN_MENU'\">\n");
+    //out.write(VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
+    //out.write("      </if>\n");
     out.write("      " + filled + "\n");
     out.write("    </filled>\n");
     out.write("    </field>\n");

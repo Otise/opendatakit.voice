@@ -254,7 +254,7 @@ public class FormVxmlRenderer {
     case PREV_PROMPT:
       renderPrompt(fh.prevPrompt());
     case HANGUP:
-      exportData();
+      exportData(fh.currentPrompt().getType() == PromptElement.TYPE_END);
       vsm.remove(callerid);
       break;
     default:
@@ -323,6 +323,10 @@ public class FormVxmlRenderer {
   private void selectForm(String formName) {
     String formPath = FileConstants.FORMS_PATH + File.separator + formName;
     fh = FormLoader.getFormHandler(formPath, null);
+    if (fh == null) {
+      log.error("Could not find form at " + formPath);
+      renderError(VoiceError.FORM_NOT_FOUND, null);
+    }
     vs.setFormHandler(fh);
     
     preloadForm(fh.getForm(), true);
@@ -351,7 +355,7 @@ public class FormVxmlRenderer {
       return new FormEndWidget(fh.getFormTitle());
     case PromptElement.TYPE_QUESTION:
       QuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
-      w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount());
+      w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
       return w;
     default:
       log.error("Prompt type was not expected: " + prompt.getType());
@@ -394,8 +398,8 @@ public class FormVxmlRenderer {
     return vs;
   }
   
-  private void exportData() {
-    String path = FileConstants.INSTANCES_PATH + 
+  private void exportData(boolean complete) {
+    String path = (complete ? FileConstants.INCOMPLETE_INSTANCES_PATH : FileConstants.COMPLETE_INSTANCES_PATH) + 
         File.separator + ((vs.getCallerid()==null)?"unknown":vs.getCallerid()) +
         File.separator + vs.getDate().getTime();
     FileUtils.createFolder(path);

@@ -61,13 +61,18 @@ public class XFormUploadServlet extends HttpServlet {
   }
     
   private String saveForm(MultiPartFormItem item) throws FileUploadException, IOException {
-    String filename = item.getFilename();
-    filename = filename.substring(Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\")) + 1);
-    byte[] data =  item.getData();
+    String filename = "form.xml";
     String path = FileConstants.FORMS_PATH + File.separator + filename;
-    String path2 = FileUtils.writeFile(data, path, false);
-    if (path2 == null) 
-      throw new FileUploadException();
-    return path2.substring(path2.lastIndexOf(File.separator) + 1);
+    byte[] data =  item.getData();
+    FileUtils.writeFile(data, path, true);
+    return filename;
+//    String filename = item.getFilename();
+//    filename = filename.substring(Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\")) + 1);
+//    byte[] data =  item.getData();
+//    String path = FileConstants.FORMS_PATH + File.separator + filename;
+//    String path2 = FileUtils.writeFile(data, path, false);
+//    if (path2 == null) 
+//      throw new FileUploadException();
+//    return path2.substring(path2.lastIndexOf(File.separator) + 1);
   }
 }
