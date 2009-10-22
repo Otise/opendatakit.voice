@@ -18,11 +18,6 @@ public class FormStartWidget extends WidgetBase {
     this.formTitle = formTitle;
   }
   
-//  @Override
-//  public String[] getPromptStrings() {
-//    return new String[]{StringConstants.formStartPrompt(formTitle)};
-//  }
-  
   @Override
   public void getPromptVxml(Writer out) throws IOException {
     String grammar = VxmlUtils.createGrammar(new String[]{"1","9"}, 

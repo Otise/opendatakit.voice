@@ -2,24 +2,15 @@ package org.odk.voice.widgets;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.util.OrderedHashtable;
 import org.odk.voice.constants.StringConstants;
-import org.odk.voice.logic.FormVxmlRenderer;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
-import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
 public class DateWidget extends QuestionWidget {

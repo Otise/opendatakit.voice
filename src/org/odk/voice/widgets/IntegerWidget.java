@@ -37,12 +37,6 @@ public class IntegerWidget extends QuestionWidget {
               .getPromptString()
       );
       
-      
-  //      VxmlField actionField = new VxmlField("action", 
-  //          createPrompt(StringConstants.answerConfirmationOptions),
-  //          VxmlUtils.actionGrammar,
-  //          VxmlUtils.actionFilled(this));
-      
       VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(false));
       
       VxmlDocument d = new VxmlDocument(questionCountForm, mainForm);
