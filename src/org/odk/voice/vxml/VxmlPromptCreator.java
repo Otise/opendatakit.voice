@@ -7,7 +7,7 @@ package org.odk.voice.vxml;
  *
  */
 public interface VxmlPromptCreator {
-  public void addPromptString(String promptString);
+  public void addPromptString(String... promptStrings);
   public VxmlPrompt createBasicPrompt(String vxml);
   public VxmlPrompt createPrompt(String... textAndAudio);
   public VxmlPrompt createPrompt(String[] text, String[] audio);

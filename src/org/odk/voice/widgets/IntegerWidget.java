@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
@@ -53,7 +54,11 @@ public class IntegerWidget extends QuestionWidget {
       throws IllegalArgumentException {
     if (stringData == null)
       return null;
-    return new SelectOneData(new Selection(stringData));
+    try {
+      return new IntegerData(Integer.parseInt(stringData));
+    } catch (Exception NumberFormatException) {
+      throw new IllegalArgumentException(stringData + " is not a number.");
+    }
   }
 
 }

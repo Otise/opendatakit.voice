@@ -277,24 +277,29 @@ public class FormVxmlRenderer {
     }
   }
   
-  private boolean saveAnswer(String answer, MultiPartFormData binaryData) {
+  private int saveAnswer(String answer, MultiPartFormData binaryData) {
     log.info("Answer: " + answer);
     PromptElement pe = fh.currentPrompt();
-
+    int saveStatus = XFormConstants.ANSWER_NOT_SAVED;
     // If the question is readonly there's nothing to save.
     if (!pe.isReadonly()) {
-
-        int saveStatus =
+      try {
+        saveStatus =
                 fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(pe, null).getAnswer(answer, binaryData),
                         evaluateConstraints);
-        if (evaluateConstraints && saveStatus != XFormConstants.ANSWER_OK) {
-            log.info("Save answer failed because of constraint");
-            renderConstraintFailed(pe, saveStatus);
-            return false;
-        }
+      } catch (IllegalArgumentException e) {
+        log.error("Illegal argument exception saving answer", e);
+        saveStatus = XFormConstants.ANSWER_INVALID;
+      }
+      if (saveStatus == XFormConstants.ANSWER_OK) {
+        log.info("Answer saved successfully.");
+      } else {
+          log.warn("Save answer failed. Error code: " + saveStatus);
+          // if (evaluateConstraints && ...) renderConstraintFailed(pe, saveStatus);        
+      }
     }
-    log.info("Answer saved successfully.");
-    return true;
+    
+    return saveStatus;
   }
   
   /**
@@ -399,7 +404,7 @@ public class FormVxmlRenderer {
   }
   
   private void exportData(boolean complete) {
-    String path = (complete ? FileConstants.INCOMPLETE_INSTANCES_PATH : FileConstants.COMPLETE_INSTANCES_PATH) + 
+    String path = (complete ? FileConstants.COMPLETE_INSTANCES_PATH : FileConstants.INCOMPLETE_INSTANCES_PATH) + 
         File.separator + ((vs.getCallerid()==null)?"unknown":vs.getCallerid()) +
         File.separator + vs.getDate().getTime();
     FileUtils.createFolder(path);
