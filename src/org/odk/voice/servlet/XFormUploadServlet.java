@@ -56,6 +56,7 @@ public class XFormUploadServlet extends HttpServlet {
       resp.getWriter().write("Form " + fileName + " uploaded successfully.");
     } catch(Exception e) {
       log.error("Exception", e);
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
       e.printStackTrace();
     }
   }

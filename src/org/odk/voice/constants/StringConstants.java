@@ -52,7 +52,8 @@ public class StringConstants {
     "Now, enter the two-digit day of the month. You can also press pound to skip the day.";
   
   public static String audioInstructions = 
-    "Please record your answer after the beep, and press the pound key when you are finished recording.";
+    "Press 1 to begin recording, and record your answer after the beep. You can press any key when " +
+    "you are finished recording.";
   
   public static String answerConfirmationKeypad =
     "You entered ";

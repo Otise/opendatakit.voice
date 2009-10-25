@@ -27,29 +27,20 @@ import java.io.File;
  */
 public class FileConstants {
     
+    public static final String FILE_BASE = "data";
     /**
      * Forms storage path
      */
-    public static final String FORMS_PATH = "data" + File.separator + "forms";
+    public static final String FORMS_PATH = FILE_BASE + File.separator + "forms";
 
     /**
      * Prompt audio storage path
      */
-    public static final String PROMPT_AUDIO_PATH = "data" + File.separator + "audio";
-    
-    /**
-     * Complete instances storage path
-     */
-    public static final String COMPLETE_INSTANCES_PATH = "data" + File.separator + "completedSurveys";
-    
-    /**
-     * Incomplete instances storage path
-     */
-    public static final String INCOMPLETE_INSTANCES_PATH = "data" + File.separator + "incompleteSurveys";
+    public static final String PROMPT_AUDIO_PATH = FILE_BASE + File.separator + "audio";
     /**
      * Temp path
      */
-    public static final String CACHE_PATH = "data" + File.separator + "cache";
+    public static final String CACHE_PATH = FILE_BASE + File.separator + "cache";
     
     /**
      * See CurrentPromptServlet
@@ -57,4 +48,8 @@ public class FileConstants {
     public static final String CURRENT_RECORD_PROMPT_PATH = CACHE_PATH + File.separator + "currentPrompt";
     
     public static final int MAX_FILE_SIZE = 10000000;
+
+    public static final String INSTANCES_PATH = FILE_BASE + File.separator + "instances";
+    
+    public static final String UPLOAD_URL = "http://open-data-kit.appspot.com/submission";
 }

@@ -2,15 +2,8 @@ package org.odk.voice.logic;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.odk.voice.constants.FileConstants;
@@ -22,6 +15,7 @@ import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
 import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.FormLoader;
+import org.odk.voice.storage.InstanceUploader;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
@@ -254,7 +248,12 @@ public class FormVxmlRenderer {
     case PREV_PROMPT:
       renderPrompt(fh.prevPrompt());
     case HANGUP:
-      exportData(fh.currentPrompt().getType() == PromptElement.TYPE_END);
+      try {
+        new VxmlDocument().write(out);
+      } catch (IOException e) {
+        log.error(e);
+      }
+      exportData(fh.isEnd());
       vsm.remove(callerid);
       break;
     default:
@@ -285,7 +284,7 @@ public class FormVxmlRenderer {
     if (!pe.isReadonly()) {
       try {
         saveStatus =
-                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(pe, null).getAnswer(answer, binaryData),
+                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(pe, getExportPath()).getAnswer(answer, binaryData),
                         evaluateConstraints);
       } catch (IllegalArgumentException e) {
         log.error("Illegal argument exception saving answer", e);
@@ -404,13 +403,31 @@ public class FormVxmlRenderer {
   }
   
   private void exportData(boolean complete) {
-    String path = (complete ? FileConstants.COMPLETE_INSTANCES_PATH : FileConstants.INCOMPLETE_INSTANCES_PATH) + 
+    /*String path = (complete ? FileConstants.COMPLETE_INSTANCES_PATH : FileConstants.INCOMPLETE_INSTANCES_PATH) + 
         File.separator + ((vs.getCallerid()==null)?"unknown":vs.getCallerid()) +
-        File.separator + vs.getDate().getTime();
+        File.separator + vs.getDate().getTime(); */
+    // this will all get replaced with database stuff soon so don't worry about how well it works
+    // in complex situations
+    String path = getExportPath();
     FileUtils.createFolder(path);
     log.info("Export data path: " + path);
-    fh.exportData(path, fh.isEnd());
+    fh.exportData(path, complete);
     // probably markCompleted true iff they actually finished the survey
     // but this is dependent on an instances DB...are we making one?
+    if (complete) {
+      InstanceUploader iu = new InstanceUploader();
+      iu.setServerUrl(FileConstants.UPLOAD_URL);
+      if (iu.uploadInstance(path) == InstanceUploader.STATUS_OK) {
+        log.info("Instance uploaded to server at " + FileConstants.UPLOAD_URL + " successfully.");
+      } else {
+        log.warn("Instance upload to server at " + FileConstants.UPLOAD_URL + " failed.");
+      }
+      
+    }
+  }
+  
+  private String getExportPath() {
+    return FileConstants.INSTANCES_PATH + File.separator + (vs.getCallerid()==null ? "unknown" : vs.getCallerid()) + 
+    File.separator + vs.getDate().getTime();
   }
 }

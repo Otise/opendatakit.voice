@@ -1,6 +1,7 @@
 package org.odk.voice.session;
 
 import java.util.Date;
+import java.util.Random;
 
 import org.odk.voice.xform.FormHandler;
 
@@ -10,6 +11,7 @@ import org.odk.voice.xform.FormHandler;
  *
  */
 public class VoiceSession {
+  private static Random rand = new Random((new Date()).getTime());
   private FormHandler fh;
   private boolean admin;
   private String callerid; 
@@ -22,6 +24,7 @@ public class VoiceSession {
   
   public VoiceSession(){
     this.date = new Date();
+    sessionid = String.valueOf(rand.nextLong()); // default sessionid in case one is not provided
   }
   
   public void setFormHandler(FormHandler fh){

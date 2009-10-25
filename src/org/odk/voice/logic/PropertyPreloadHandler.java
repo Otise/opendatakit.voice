@@ -3,7 +3,6 @@ package org.odk.voice.logic;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.javarosa.core.JavaRosaServiceProvider;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.TreeElement;
