@@ -52,7 +52,7 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                questionWidget = new AudioCaptureWidget(pe);
+                questionWidget = new AudioCaptureWidget(pe, instancePath);
                 break;
             case Constants.CONTROL_SELECT_ONE:
                 questionWidget = new SelectOneWidget(pe);

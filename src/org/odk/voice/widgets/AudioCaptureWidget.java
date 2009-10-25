@@ -1,107 +1,90 @@
 package org.odk.voice.widgets;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.model.data.StringData;
 import org.odk.voice.constants.StringConstants;
+import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.servlet.FormVxmlServlet;
+import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.MultiPartFormData;
+import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlPrompt;
+import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
 public class AudioCaptureWidget extends QuestionWidget {
+ 
+  public static final String AUDIO_EXTENSION = "wav";
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(AudioCaptureWidget.class);
   
-  public AudioCaptureWidget(PromptElement p) {
-    super(p);
+  PromptElement prompt;
+  String instancePath;
+  
+  public AudioCaptureWidget(PromptElement prompt, String instancePath) {
+    super(prompt);
+    this.prompt = prompt;
+    this.instancePath = instancePath;
   }
   
   @Override
-  public String[] getPromptStrings() {
-    List<String> ps = new ArrayList<String>();
-    ps.add(StringConstants.questionXOfY(questionNum, totalNum));
-    ps.add(StringConstants.select1Instructions);
-    if (prompt.getSelectItems()!=null) {
-      OrderedHashtable h = prompt.getSelectItems();
-      Enumeration items = h.keys();
-      int i = 1;
-      while (items.hasMoreElements()) {
-          ps.add(StringConstants.select1Press(i));
-          ps.add((String) items.nextElement());
-          i++;
-      }
-    }
-    ps.add(StringConstants.answerConfirmationKeypad);
-    ps.add(StringConstants.answerConfirmationOptions);
-    return ps.toArray(new String[]{});
-  }
-  
-  public void getPromptVxml(Writer out) throws IOException{
-//    List<String> promptSegments = new ArrayList<String>();
-//    List<String> grammarKeys = new ArrayList<String>();
-//    List<String> grammarTags = new ArrayList<String>();
-//    promptSegments.add(prompt.getQuestionText());
-//    promptSegments.add(StringConstants.select1Instructions);
-//    
-//    StringBuilder confPrompt = new StringBuilder("<prompt>\n");
-//    confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad));
-//    
-//    if (prompt.getSelectItems() != null) {
-//      OrderedHashtable h = prompt.getSelectItems();
-//      Enumeration items = h.keys();
-//      String itemLabel = null;
-//      String itemValue = null;
-//      
-//      int i = 1;
-//
-//      while (items.hasMoreElements()) {
-//          itemLabel = (String) items.nextElement();
-//          itemValue = (String) h.get(itemLabel);
-//          promptSegments.add(StringConstants.select1Press(i));
-//          promptSegments.add(itemLabel);
-//          grammarKeys.add(Integer.toString(i));
-//          grammarTags.add("out.label=\"" + itemLabel + "\"; out.answer=\"" + itemValue + "\";");
-//          
-//          confPrompt.append("<" + (i==1?"if":"elseif") + " expr=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
-//          confPrompt.append(VxmlUtils.getAudio(itemLabel));
-//          
-//          i++;
-//      }
-//      confPrompt.append("</if>\n");
-//      confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationOptions));
-//      confPrompt.append("</prompt>\n");
-//      
-//      VxmlForm answerForm = new VxmlForm("answer", 
-//          new VxmlArrayPrompt(promptSegments.toArray(new String[]{})), 
-//          VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-//          VxmlUtils.createGoto("#confirm")
-//          );
-//      
-//      VxmlForm confirmForm = new VxmlForm("confirm", 
-//          new VxmlPrompt(confPrompt.toString()), 
-//          VxmlUtils.confirmGrammar,
-//          VxmlUtils.confirmFilled);
-//      
-//      VxmlDocument d = new VxmlDocument(questionCountForm, answerForm, confirmForm);
-//      d.write(out);
-//    }
-  }
+  public void getPromptVxml(Writer out) throws IOException {
     
+    VxmlPrompt prePrompt = createPrompt(prompt.getQuestionText(), StringConstants.audioInstructions);
+     String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
+        new String[]{"out.action=\"RECORD\";", "out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
+    String preFilled = 
+      "<if cond=\"action=='RECORD'\">" + 
+      VxmlUtils.createLocalGoto("main2") +
+      "<else/>" +
+      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
+      "</if>\n";
+    VxmlForm preForm = new VxmlForm("main", new VxmlField("action", prePrompt, preGrammar, preFilled));
+    
+    VxmlSection recordSection = new VxmlSection(
+      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" type=\"audio/x-wav\">\n" +
+      "<filled>\n" + 
+      createPrompt(new String[]{StringConstants.answerConfirmationVoice, "<value expr=\"answer\"/>"},
+        new String[]{StringConstants.answerConfirmationVoice, null}).getPromptString() + 
+     // notice that the recorded audio for the answer is null, because we want it to play the answer
+      "</filled>\n" + 
+      "</record>\n");
+    
+    VxmlPrompt p2 = createPrompt(StringConstants.answerConfirmationOptions);
+    
+    
+    VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));
+    
+    VxmlForm mainForm = new VxmlForm("main2", recordSection, actionField);
+    
+    new VxmlDocument(questionCountForm, preForm, mainForm).write(out);
+  }
 
   @Override
   public IAnswerData getAnswer(String stringData, MultiPartFormData binaryData)
       throws IllegalArgumentException {
-    // TODO Auto-generated method stub
-    return null;
+    MultiPartFormItem item = binaryData.getFormDataByFieldName("answer");
+    if (item == null)
+      return null;
+    byte[] data = item.getData();
+    String filename = prompt.getInstanceNode().getName() + "." + AUDIO_EXTENSION;
+    String path = instancePath + File.separator + filename;
+    log.info("Path for saving audio data: " + path);
+    try {
+      FileUtils.writeFile(data, path, true);
+    } catch (IOException e){
+      log.error("IOException writing audio data to " + path + ".", e);
+    }
+    return new StringData(filename);
   }
-
+  
 }
