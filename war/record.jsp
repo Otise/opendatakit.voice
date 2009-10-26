@@ -27,6 +27,6 @@ function refresh()
 </head>
 <body onload="refresh()">
   <h1>ODK Voice Prompt Recorder</h1>
-  <div id='promptDiv'>Hello there.</div>
+  <div id='promptDiv'></div>
 </body>
 </html>

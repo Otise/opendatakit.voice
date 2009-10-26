@@ -83,11 +83,11 @@ public class InstanceUploader  {
               File f = files[j];
               if (f.getName().endsWith(".xml")) {
                   // uploading xml file
-                  entity.addPart("xml_submission_file", new FileBody(f));
+                  entity.addPart("xml_submission_file", new FileBody(f,"text/xml"));
                   log.info("added xml file " + f.getName());
               } else if (f.getName().endsWith(".wav")) {
                   // upload audio file
-                  entity.addPart(f.getName(), new FileBody(f));
+                  entity.addPart(f.getName(), new FileBody(f, "audio/wav"));
                   log.info("added audio file" + f.getName());
               } else {
                 log.info("unsupported file type, not adding file: " + f.getName());

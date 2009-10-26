@@ -174,7 +174,10 @@ public class FormVxmlRenderer {
   }
   
   private String nextRecordPrompt(boolean rerecord){
-    if (vs == null) return null;
+    if (vs == null) {
+      log.warn("VoiceSession null trying to get record prompt");
+      return null;
+    }
     if(vs.getRecordPromptIndex() < 0) { // if recordPromptIndex uninitialized
       vs.setRecordPrompts(getWidgetFromPrompt(fh.currentPrompt()).getPromptStrings());
       vs.setRecordPromptIndex(0);
@@ -184,18 +187,23 @@ public class FormVxmlRenderer {
     while (vs.getRecordPrompts() == null || 
            vs.getRecordPromptIndex() >= vs.getRecordPrompts().length ||
            vs.getRecordPrompts()[vs.getRecordPromptIndex()].equals("") ||
-           !rerecord && FileUtils.fileExists(
+           (!rerecord && FileUtils.fileExists(
                FileConstants.PROMPT_AUDIO_PATH + File.separator + 
-               VxmlUtils.getWmv(vs.getRecordPrompts()[vs.getRecordPromptIndex()]))
+               VxmlUtils.getWmv(vs.getRecordPrompts()[vs.getRecordPromptIndex()])))
            )
     {
-      if (vs.getRecordPrompts() != null && vs.getRecordPromptIndex() < vs.getRecordPrompts().length)
+      if (vs.getRecordPrompts() != null && vs.getRecordPromptIndex() < vs.getRecordPrompts().length) {
         vs.setRecordPromptIndex(vs.getRecordPromptIndex() + 1);
-      else {
-        if (fh.isEnd())
+        //log.debug("Incrementing again, now prompt is " + vs.getRecordPrompts()[vs.getRecordPromptIndex()]);
+      } else {
+        
+        if (fh.isEnd()) {
+          log.info("Tried to get record prompt, but at the end, so returned null.");
           return null;
+        }
         vs.setRecordPrompts(getWidgetFromPrompt(fh.nextPrompt()).getPromptStrings());
         vs.setRecordPromptIndex(0);
+        //log.debug("Incrementing question, now prompt is " + vs.getRecordPrompts()[vs.getRecordPromptIndex()]);
       }
     }
     log.info("Next record prompt. Index: " + vs.getRecordPromptIndex() + ". Value: " + 
@@ -205,6 +213,7 @@ public class FormVxmlRenderer {
  
   private void writeCurrentRecordPrompt(String prompt) {
     log.info("Writing record prompt: " + prompt);
+    if (prompt == null) return;
     try {
       FileUtils.writeFile(prompt.getBytes(), FileConstants.CURRENT_RECORD_PROMPT_PATH, true);
     } catch (IOException e) {

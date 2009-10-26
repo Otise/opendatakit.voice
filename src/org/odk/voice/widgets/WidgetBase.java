@@ -34,8 +34,8 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
     return audio.hashCode() + ".wmv";
   }
   
-  public void addPromptString(String... promptString) {
-    for (String p: promptStrings) {
+  public void addPromptString(String... ps) {
+    for (String p: ps) {
     if (p != null && !p.equals(""))
       promptStrings.add(p);
     }

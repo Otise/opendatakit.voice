@@ -17,6 +17,7 @@
 package org.odk.voice.constants;
 
 import java.io.File;
+import java.util.Properties;
 
 
 /**
@@ -26,8 +27,10 @@ import java.io.File;
  * 
  */
 public class FileConstants {
+  
     
-    public static final String FILE_BASE = "data";
+    public static final String FILE_BASE = System.getProperty("user.home") + File.separator + "odkvoicedata";
+
     /**
      * Forms storage path
      */

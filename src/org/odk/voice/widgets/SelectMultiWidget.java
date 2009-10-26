@@ -57,7 +57,8 @@ public class SelectMultiWidget extends QuestionWidget {
         concatScript += "if (" + itemValue + " == 'true') answer = answer + '" + itemValue + "' + '" + ANSWER_SEPARATOR + "';\n";
       }
     }
-    VxmlSection repeat = new VxmlSection("<block>" + StringConstants.answerConfirmationKeypad + 
+    addPromptString(StringConstants.answerConfirmationKeypad);
+    VxmlSection repeat = new VxmlSection("<block>" + VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad) + 
         confirmPrompts + "</block>");
     String concat = "<script>var answer = '';\n" + concatScript + "</script>\n";
     sections.add(repeat);

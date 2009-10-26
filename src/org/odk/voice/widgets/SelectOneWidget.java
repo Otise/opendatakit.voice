@@ -74,7 +74,7 @@ public class SelectOneWidget extends QuestionWidget {
           
           confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
           confPrompt.append(VxmlUtils.getAudio(itemLabel));
-          addPromptString(VxmlUtils.getAudio(itemLabel));
+          addPromptString(itemLabel);
           
           i++;
       }

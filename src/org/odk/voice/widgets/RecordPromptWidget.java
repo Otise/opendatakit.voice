@@ -15,7 +15,7 @@ import org.odk.voice.vxml.VxmlUtils;
 
 public class RecordPromptWidget extends WidgetBase {
  
-  String prompt;
+  private String prompt;
   
   public RecordPromptWidget(String promptToRecord) {
     this.prompt = promptToRecord;
@@ -23,7 +23,7 @@ public class RecordPromptWidget extends WidgetBase {
   
   @Override
   public void getPromptVxml(Writer out) throws IOException {
-    
+
     VxmlPrompt prePrompt = createPrompt(StringConstants.recordPromptInstructions);
      String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
         new String[]{"out.action=\"RECORD\";", "out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
@@ -54,8 +54,11 @@ public class RecordPromptWidget extends WidgetBase {
     VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));
     
     VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
-    
-    new VxmlDocument(preForm, mainForm).write(out);
+    if (prompt == null) {
+      new VxmlDocument().write(out);
+    } else {
+      new VxmlDocument(preForm, mainForm).write(out);
+    }
   }
 }
 
