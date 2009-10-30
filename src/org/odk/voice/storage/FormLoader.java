@@ -41,7 +41,7 @@ public class FormLoader {
 	      return null;
 	    }
 	    File formBin =
-	            new File(FileConstants.CACHE_PATH + FileUtils.getMd5Hash(formXml) + ".formdef");
+	            new File(FileConstants.CACHE_PATH + File.separator + FileUtils.getMd5Hash(formXml) + ".formdef");
 	
 //	    if (formBin.exists()) {
 //	      log.info("Form binary exists");
