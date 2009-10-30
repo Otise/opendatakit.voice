@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
+import org.odk.voice.audio.AudioSample;
 import org.odk.voice.constants.FileConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
@@ -38,6 +41,9 @@ import org.odk.voice.xform.PromptElement;
  *
  */
 public class FormVxmlRenderer {
+  
+  // The amount to clip at the end of prompts (in seconds) to remove the beep from the DTMF termination of the prompt recording
+  private static final float PROMPT_END_CLIP = 0.2F;
 
   private static org.apache.log4j.Logger log = Logger
   .getLogger(FormVxmlRenderer.class);
@@ -157,13 +163,16 @@ public class FormVxmlRenderer {
       return;
     }
     String prompt = currentRecordPrompt();
-    String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + VxmlUtils.getWmv(prompt);
+    String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + VxmlUtils.getWav(prompt);
     try {
       FileUtils.writeFile(item.getData(), path, true);
+      AudioSample as = new AudioSample(path);
+      as.clipAudio(0, PROMPT_END_CLIP);
     } catch (IOException e) {
       log.error("Tried to save prompt, got IOEXception error saving to " + path);
+    } catch (UnsupportedAudioFileException e) {
+      log.error("Unsupported Audio File: " + path, e);
     }
-    
   }
   
   private String currentRecordPrompt(){
@@ -189,7 +198,7 @@ public class FormVxmlRenderer {
            vs.getRecordPrompts()[vs.getRecordPromptIndex()].equals("") ||
            (!rerecord && FileUtils.fileExists(
                FileConstants.PROMPT_AUDIO_PATH + File.separator + 
-               VxmlUtils.getWmv(vs.getRecordPrompts()[vs.getRecordPromptIndex()])))
+               VxmlUtils.getWav(vs.getRecordPrompts()[vs.getRecordPromptIndex()])))
            )
     {
       if (vs.getRecordPrompts() != null && vs.getRecordPromptIndex() < vs.getRecordPrompts().length) {

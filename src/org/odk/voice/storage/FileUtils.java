@@ -57,7 +57,8 @@ public class FileUtils {
         path2 = path.substring(0, ext) + Integer.toString(index) + path.substring(ext, path.length());
         f = new File(path2);
       }
-      createFolder(path.substring(0, path.lastIndexOf(File.separator)));
+      if (path.lastIndexOf(File.separator) > 0)
+        createFolder(path.substring(0, path.lastIndexOf(File.separator)));
       f.createNewFile();
       System.out.println("Path: " + f.getAbsoluteFile());
       os = new FileOutputStream(f, false);

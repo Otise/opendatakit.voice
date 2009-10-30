@@ -38,14 +38,14 @@ public class VxmlUtils {
     return grammar.toString();
   }
   
-  public static String getWmv(String audio){
-    return audio.hashCode() + ".wmv";
+  public static String getWav(String audio){
+    return audio.hashCode() + ".wav";
   }
   
   public static String getAudio(String text, String audio){
     if (audio == null || audio == "") return text;
     else
-      return "<audio src=\"audio/" + VxmlUtils.getWmv(audio) + "\">\n" + 
+      return "<audio src=\"audio/" + VxmlUtils.getWav(audio) + "\">\n" + 
            "  " + (text==null?"":text) + "\n" +
            "</audio>\n";
   }
