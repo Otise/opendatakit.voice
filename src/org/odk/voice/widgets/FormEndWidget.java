@@ -24,9 +24,10 @@ public class FormEndWidget extends WidgetBase {
 //    VxmlForm endForm = new VxmlForm("end", 
 //        createPrompt(StringConstants.formEndPrompt(formTitle)),
 //            "", "");
-    VxmlSection endSection = new VxmlSection("<block>" + createPrompt(StringConstants.formEndPrompt(formTitle)).getPromptString() +
-        VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=" + VoiceAction.HANGUP) + "</block>");
-    VxmlForm endForm = new VxmlForm("main", endSection);
+   
+    VxmlForm endForm = new VxmlForm("main", createPrompt(StringConstants.formEndPrompt(formTitle)),
+        VxmlUtils.createGrammar(new String[]{"*"}, new String[]{""}),
+        "Sorry, not yet implemented.<reprompt/>");
     new VxmlDocument(endForm).write(out);
   }
 }
