@@ -59,14 +59,19 @@ public class SelectMultiWidget extends QuestionWidget {
     }
     addPromptString(StringConstants.answerConfirmationKeypad);
     addPromptString(StringConstants.selectNone);
-    concatScript += "<prompt cond=\"answer==''\">" + VxmlUtils.getAudio(StringConstants.selectNone) + "</prompt>";
-    VxmlSection concat = new VxmlSection("<script>var answer = '';\n" + concatScript + "</script>\n");
-    sections.add(concat);
-    VxmlSection repeat = new VxmlSection("<block>" + VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad) + 
-        confirmPrompts + "</block>");
-    sections.add(repeat);
+    String concat = "<script>function concat(){var answer = '';\n" + concatScript + " return answer;}</script>\n";
+    //sections.add(concat);
+    confirmPrompts += "<prompt cond=\"concat()==''\">" + VxmlUtils.getAudio(StringConstants.selectNone) + "</prompt>";
+    //VxmlSection repeat = new VxmlSection("<block>" + VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad) + 
+    //    confirmPrompts + "</block>");
+    //sections.add(repeat);
+    
+    VxmlSection confirmSection = new VxmlSection(concat + "<block>" + 
+        createPrompt(StringConstants.answerConfirmationKeypad).getPromptString()
+        + confirmPrompts + "</block>");
+    sections.add(confirmSection);
     VxmlField actionField = new VxmlField("action",createPrompt(StringConstants.answerConfirmationOptions), 
-        actionGrammar, concat + actionFilled(false));
+        actionGrammar, "<var name=\"answer\" expr=\"concat()\"/>" + actionFilled(false));
     sections.add(actionField);
     VxmlForm mainForm = new VxmlForm("main", sections.toArray(new VxmlSection[]{}));
       
