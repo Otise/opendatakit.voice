@@ -23,7 +23,16 @@ public class AudioSample {
     
   }
   
-  
+  /**
+   * Clips from the beginning and end of the audio file.
+   * 
+   * NOTE: clipping from the beginning is not currently supported.
+   * 
+   * @param clipBegin Amount to clip from the beginning, in seconds.
+   * @param clipEnd Amount to clip from the end, in seconds.
+   * @throws IOException
+   * @throws UnsupportedAudioFileException
+   */
   public void clipAudio(float clipBegin, float clipEnd) throws IOException, UnsupportedAudioFileException {
     if (clipBegin < 0 || clipEnd < 0)
       throw new IllegalArgumentException("clipBegin and clipEnd must be non-negative");
@@ -39,7 +48,7 @@ public class AudioSample {
 
     float frameRate = inFileAIS.getFormat().getFrameRate();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-         AudioSystem.write(inFileAIS,
+    AudioSystem.write(inFileAIS,
            AudioFileFormat.Type.WAVE, out);
 
     inFileAIS.close();
@@ -47,7 +56,7 @@ public class AudioSample {
     byte[] clipped = new byte[0];
     if (frameRate * (clipBegin + clipEnd) < full.length) {
       clipped = Arrays.copyOfRange(full, 
-          (int) (frameRate * clipBegin), 
+          0, //(int) (frameRate * clipBegin), 
           (int) (full.length - frameRate * clipEnd));
     }
     FileUtils.writeFile(clipped, audioFile.getAbsolutePath(), true);
