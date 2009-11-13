@@ -26,7 +26,7 @@ public class RecordPromptWidget extends WidgetBase {
 
     VxmlPrompt prePrompt = createPrompt(StringConstants.recordPromptInstructions);
      String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
-        new String[]{"out.action=\"RECORD\";", "out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
+        new String[]{"RECORD", VoiceAction.NEXT_PROMPT.name()});
     String preFilled = 
       "<if cond=\"action=='RECORD'\">" + 
       VxmlUtils.createLocalGoto("main") +
@@ -55,76 +55,9 @@ public class RecordPromptWidget extends WidgetBase {
     
     VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
     if (prompt == null) {
-      new VxmlDocument().write(out);
+      new VxmlDocument(sessionid).write(out);
     } else {
-      new VxmlDocument(preForm, mainForm).write(out);
+      new VxmlDocument(sessionid, preForm, mainForm).write(out);
     }
   }
 }
-
-
-//<?xml version="1.0" encoding="UTF-8"?>
-//
-//<vxml version = "2.1">
-//
-//<meta name="author" content="Matthew Henry"/>
-//<meta name="copyright" content="2005 voxeo corporation"/>
-//<meta name="maintainer" content="YOUR_EMAIL@HERE.COM"/>
-//
-//<form id="F1">
-//
-//  <record name="R_1" beep="true" dtmfterm="true">
-//    <prompt>
-//      here you will hear a beep indicating
-//      that you should start your recording.
-//    </prompt>
-//
-//    <prompt>
-//      after you are finished, you may press any DTMF key to indicate that you are done recording.
-//    </prompt>
-//
-//    <filled>
-//      <log expr="R_1$.duration"/>
-//      <log expr="R_1$.termchar"/>
-//      <log expr="R_1$.size"/>
-//
-//      <prompt> your recording was <value expr="R_1"/> </prompt>
-//    </filled>
-//
-//  </record>
-//
-//</form>
-//
-//</vxml>
-
-
-//<?xml version="1.0" encoding="UTF-8"?>
-//
-//<vxml version = "2.1">
-//
-//<meta name="author" content="Matthew Henry"/>
-//<meta name="copyright" content="2005 voxeo corporation"/>
-//<meta name="maintainer" content="YOUR_EMAIL@HERE.COM"/>
-//
-//<form id="F1">
-//
-//  <record name="R_1" maxtime="20s" finalsilence="5s">
-//    <prompt>
-//      the maximum length of his message is 20 seconds.
-//      In addition, the longest a caller can remain silent is
-//      no more than 5 seconds, else the recording will be submitted.
-//    </prompt>
-//
-//    <filled>
-//      <log expr="R_1$.duration"/>
-//      <log expr="R_1$.termchar"/>
-//      <log expr="R_1$.size"/>
-//
-//      <prompt> your recording was <value expr="R_1"/> </prompt>
-//  </filled>
-//
-//  </record>
-//
-//</form>
-//
-//</vxml>

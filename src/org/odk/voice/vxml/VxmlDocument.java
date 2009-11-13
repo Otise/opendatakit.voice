@@ -16,11 +16,12 @@ import org.odk.voice.servlet.FormVxmlServlet;
  *
  */
 public class VxmlDocument {
-  
+  String sessionid;
   String contents;
   VxmlForm[] forms = null;
   
-  public VxmlDocument(VxmlForm... forms){
+  public VxmlDocument(String sessionid, VxmlForm... forms){
+    this.sessionid = sessionid;
     for (VxmlForm f: forms)
       assert(f != null);
     this.forms = forms;
@@ -30,7 +31,7 @@ public class VxmlDocument {
   
   private static final String vxmlHeader = 
   		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-  		"<vxml version = \"2.1\" >\n" +
+  		"<vxml version=\"2.0\" xmlns=\"http://www.w3.org/2001/vxml\">\n" +
   		"<meta name=\"maintainer\" content=\"" + maintainer + "\"/>\n";
 
   private static final String vxmlFooter =
@@ -44,6 +45,9 @@ public class VxmlDocument {
   }
   public void write(Writer out) throws IOException {
     out.write(vxmlHeader);
+    out.write("<property name=\"inputmodes\" value=\"dtmf\"/>");
+    if (sessionid != null)
+      out.write("<var name=\"sessionid\" expr=\"'" + sessionid + "'\"/>");
     if (contents != null)
       out.write(contents);
     for (VxmlForm f: forms)

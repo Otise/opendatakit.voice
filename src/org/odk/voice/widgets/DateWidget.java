@@ -65,7 +65,7 @@ public class DateWidget extends QuestionWidget {
       
       VxmlForm mainForm = new VxmlForm("main", yearField, monthField, dateField, actionField);
       
-      VxmlDocument d = new VxmlDocument(questionCountForm, mainForm);
+      VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);
   }
     

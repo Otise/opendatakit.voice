@@ -32,7 +32,7 @@ public class WidgetFactory {
      * @param pe prompt element to be rendered
      * @param instancePath path to the instance file
      */
-    static public QuestionWidget createWidgetFromPrompt(PromptElement pe, String instancePath) {
+    static public QuestionWidget createWidgetFromPrompt(String sessionid, PromptElement pe, String instancePath) {
         QuestionWidget questionWidget = null;
         switch (pe.getQuestionType()) {
             case Constants.CONTROL_INPUT:
@@ -64,6 +64,7 @@ public class WidgetFactory {
                 questionWidget = new StringWidget(pe);
                 break;
         }
+        questionWidget.setSessionid(sessionid);
         return questionWidget;
     }
 

@@ -24,7 +24,7 @@ public class VoiceSession {
   
   public VoiceSession(){
     this.date = new Date();
-    sessionid = String.valueOf(rand.nextLong()); // default sessionid in case one is not provided
+    sessionid = "session" + String.valueOf(rand.nextLong()); // default sessionid in case one is not provided
   }
   
   public void setFormHandler(FormHandler fh){

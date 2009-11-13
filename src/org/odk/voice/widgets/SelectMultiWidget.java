@@ -50,7 +50,7 @@ public class SelectMultiWidget extends QuestionWidget {
         VxmlField f = new VxmlField(itemValue,
             createPrompt(itemLabel),
             VxmlUtils.createGrammar(new String[]{"1","2"} ,
-                new String[]{"out." + itemValue + " = \"true\";", "out." + itemValue + " = \"false\";"}),
+                new String[]{"'true'", "'false'"}),
             "");
         sections.add(f);
         confirmPrompts += "<prompt cond=\"" + itemValue + "=='true'\">" + VxmlUtils.getAudio(itemLabel) + "</prompt>";
@@ -58,16 +58,19 @@ public class SelectMultiWidget extends QuestionWidget {
       }
     }
     addPromptString(StringConstants.answerConfirmationKeypad);
+    addPromptString(StringConstants.selectNone);
+    concatScript += "<prompt cond=\"answer==''\">" + VxmlUtils.getAudio(StringConstants.selectNone) + "</prompt>";
+    VxmlSection concat = new VxmlSection("<script>var answer = '';\n" + concatScript + "</script>\n");
+    sections.add(concat);
     VxmlSection repeat = new VxmlSection("<block>" + VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad) + 
         confirmPrompts + "</block>");
-    String concat = "<script>var answer = '';\n" + concatScript + "</script>\n";
     sections.add(repeat);
     VxmlField actionField = new VxmlField("action",createPrompt(StringConstants.answerConfirmationOptions), 
         actionGrammar, concat + actionFilled(false));
     sections.add(actionField);
     VxmlForm mainForm = new VxmlForm("main", sections.toArray(new VxmlSection[]{}));
       
-    VxmlDocument d = new VxmlDocument(questionCountForm, mainForm);
+    VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
     d.write(out);
   }
 

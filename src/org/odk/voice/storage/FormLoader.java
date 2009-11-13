@@ -43,12 +43,12 @@ public class FormLoader {
 	    File formBin =
 	            new File(FileConstants.CACHE_PATH + File.separator + FileUtils.getMd5Hash(formXml) + ".formdef");
 	
-//	    if (formBin.exists()) {
-//	      log.info("Form binary exists");
-//	        // if we have binary, deserialize binary
-////	        fd = deserializeFormDef(formBin);
-//	    } else {
-	        // no binary, read from xml
+	    if (formBin.exists()) {
+	      log.info("Form binary exists");
+	        // if we have binary, deserialize binary
+//	        fd = deserializeFormDef(formBin);
+	    } else {
+	         // no binary, read from xml
 	        try {
 	          log.info("Form binary does not exist");
 	            fis = new FileInputStream(formXml);
@@ -62,7 +62,7 @@ public class FormLoader {
 	            fis.close();
 	          } catch (IOException e) { }
 	        }
-//	    }
+	    }
 	
 	    if (fd == null) {
 	      log.error("FormDef was null from " + formPath);

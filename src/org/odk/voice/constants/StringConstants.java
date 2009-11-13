@@ -2,6 +2,7 @@ package org.odk.voice.constants;
 
 public class StringConstants {
   
+
   public static String formStartPrompt(String formName) {
     return 
     "Welcome to the " + formName + ". You can press star at " +
@@ -40,6 +41,9 @@ public class StringConstants {
   
   public static String selectInstructions = 
     "For each option, press 1 for yes and 2 for no.";
+  
+  public static final String selectNone = 
+    "none of the above.";
   
   public static String dateInstructionsYear = 
     "First, enter the four-digit year.";

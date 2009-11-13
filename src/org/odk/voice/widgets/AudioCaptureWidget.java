@@ -41,7 +41,7 @@ public class AudioCaptureWidget extends QuestionWidget {
     
     VxmlPrompt prePrompt = createPrompt(prompt.getQuestionText(), StringConstants.audioInstructions);
      String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
-        new String[]{"out.action=\"RECORD\";", "out.action=\"" + VoiceAction.NEXT_PROMPT + "\";"});
+        new String[]{"RECORD", VoiceAction.NEXT_PROMPT.name()});
     String preFilled = 
       "<if cond=\"action=='RECORD'\">" + 
       VxmlUtils.createLocalGoto("main2") +
@@ -66,7 +66,7 @@ public class AudioCaptureWidget extends QuestionWidget {
     
     VxmlForm mainForm = new VxmlForm("main2", recordSection, actionField);
     
-    new VxmlDocument(questionCountForm, preForm, mainForm).write(out);
+    new VxmlDocument(sessionid, questionCountForm, preForm, mainForm).write(out);
   }
 
   @Override

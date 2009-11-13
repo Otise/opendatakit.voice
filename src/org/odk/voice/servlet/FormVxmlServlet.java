@@ -40,9 +40,14 @@ public class FormVxmlServlet extends HttpServlet {
           binaryData = new MultiPartFormData(req);
           callerid = getMultipartParam("session.callerid", binaryData);
           sessionid = getMultipartParam("session.sessionid", binaryData);
+          if (callerid == null) {
+            callerid = getMultipartParam("callerid", binaryData);
+          }
+          if (sessionid == null) {
+            sessionid = getMultipartParam("sessionid", binaryData);
+          }
           action = getMultipartParam("action", binaryData);
         //TODO(alerer): receiving and storing the entire request stream before continuing is very inefficient.
-        // We should probably 
       } catch (FileUploadException e) {
         log.error("Multipart data in request produced FileUploadException", e);
         return;
@@ -50,11 +55,26 @@ public class FormVxmlServlet extends HttpServlet {
 	  } else {
 	    callerid = req.getParameter("session.callerid");
 	    sessionid = req.getParameter("session.sessionid");
+	    if (callerid == null) {
+	      callerid = req.getParameter("callerid");
+	    }
+	    if (sessionid == null) {
+	      sessionid = req.getParameter("sessionid");
+	    }
+	    
 	    action = req.getParameter("action");
 	    answer = req.getParameter("answer");
 	    binaryData = null;
 	  }
-	  
+//	  if (sessionid != null)
+//	    sessionid = sessionid.trim();
+//	  if (callerid != null)
+//	    callerid = callerid.trim();
+//	  if (action != null)
+//	    action = action.trim();
+//	  if (answer != null)
+//	    answer = answer.trim();
+	  resp.setContentType("application/vxml+xml");
 	  FormVxmlRenderer fvr = new FormVxmlRenderer(sessionid, callerid, action, answer, binaryData, resp.getWriter());
 	  fvr.renderDialogue();
 	  

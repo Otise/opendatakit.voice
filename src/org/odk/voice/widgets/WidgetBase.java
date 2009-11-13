@@ -16,7 +16,12 @@ import org.odk.voice.vxml.VxmlUtils;
 
 public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
 
+  String sessionid;
   private List<String> promptStrings = new ArrayList<String>();
+  
+  public void setSessionid(String sessionid){
+    this.sessionid = sessionid;
+  }
   
   @Override
   public String[] getPromptStrings(){
@@ -93,7 +98,7 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
   }
   
   String actionGrammar = VxmlUtils.createGrammar(new String[]{"1","2"}, 
-      new String[]{"out.action=\"" + VoiceAction.SAVE_ANSWER + "\";", 
-                   "out.action=\"REPEAT\";"});
+      new String[]{VoiceAction.SAVE_ANSWER.name(), 
+                   "REPEAT"});
 
 }

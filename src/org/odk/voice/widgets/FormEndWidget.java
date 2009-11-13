@@ -28,6 +28,6 @@ public class FormEndWidget extends WidgetBase {
     VxmlForm endForm = new VxmlForm("main", createPrompt(StringConstants.formEndPrompt(formTitle)),
         VxmlUtils.createGrammar(new String[]{"*"}, new String[]{""}),
         "Sorry, not yet implemented.<reprompt/>");
-    new VxmlDocument(endForm).write(out);
+    new VxmlDocument(sessionid, endForm).write(out);
   }
 }

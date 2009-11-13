@@ -53,7 +53,7 @@ public class FormVxmlRenderer {
   VoiceSession vs;
   FormHandler fh;
   boolean evaluateConstraints = true;
-  final String sessionid, callerid, action, answer;
+  String sessionid, callerid, action, answer;
   final MultiPartFormData binaryData;
 
   public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, MultiPartFormData binaryData, Writer out){
@@ -73,17 +73,22 @@ public class FormVxmlRenderer {
     
     if (action == null || action.equals("")) {
       vs = newSession(sessionid, callerid);
-      if (vs != null)
+      if (vs != null) {
+        sessionid = vs.getSessionid();
         beginSession();
-      return;
+        return;
+      }
     } else {
-      vs = vsm.get(callerid);
+      vs = vsm.get(sessionid);
     }
     
     if (vs == null) {
       log.error("session lost");
         renderError(VoiceError.SESSION_LOST, null);
         return;
+    } else {
+      sessionid = vs.getSessionid();
+      callerid = vs.getCallerid();
     }
     
     fh = vs.getFormHandler();
@@ -133,7 +138,7 @@ public class FormVxmlRenderer {
       renderRecordPromptDialogue(prompt);
       break;
     default:
-      log.error("Invalid adminvaction type: " + va.name());
+      log.error("Invalid admin action type: " + va.name());
       renderError(VoiceError.INTERNAL_ERROR, "Unexpected admin action type");
     }
   }
@@ -142,7 +147,7 @@ public class FormVxmlRenderer {
  // this should eventually allow the user to pick a form, (or pass-through if only one form)
     // and should go in a widget
     
-    VxmlDocument d = new VxmlDocument();
+    VxmlDocument d = new VxmlDocument(sessionid);
     d.setContents("<form id=\"begin\"><block>" + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=NEXT_PROMPT") + "</block></form>\n");
     try {
       d.write(out);
@@ -243,7 +248,7 @@ public class FormVxmlRenderer {
     VoiceAction va = getAction(action);
     if (va == null){
       log.error("action string " + action + " was not a valid VoiceAction");
-      renderError(VoiceError.INTERNAL_ERROR, action + "was not a valid Voice Action");
+      renderError(VoiceError.INTERNAL_ERROR, action + " was not a valid Voice Action");
       return;
     }
     switch(va){
@@ -267,7 +272,7 @@ public class FormVxmlRenderer {
       renderPrompt(fh.prevPrompt());
     case HANGUP:
       try {
-        new VxmlDocument().write(out);
+        new VxmlDocument(null).write(out);
       } catch (IOException e) {
         log.error(e);
       }
@@ -283,9 +288,13 @@ public class FormVxmlRenderer {
   private void beginSession() {
     // this should eventually allow the user to pick a form, (or pass-through if only one form)
     // and should go in a widget
-    
-    VxmlDocument d = new VxmlDocument();
-    d.setContents("<form id=\"begin\"><block>" + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=SELECT_FORM&answer=form.xml") + "</block></form>\n");
+    log.info("Sessionid = " + sessionid);
+    VxmlDocument d = new VxmlDocument(sessionid);
+    d.setContents(
+        "<var name=\"action\" expr=\"'" + VoiceAction.SELECT_FORM + "'\"/>" +
+    		"<var name=\"answer\" expr=\"'form.xml'\"/>" +
+    		"<form id=\"begin\">" +    
+    		"<block>" + VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action", "answer") + "</block></form>\n");
     try {
       d.write(out);
     } catch (IOException e) {
@@ -302,7 +311,7 @@ public class FormVxmlRenderer {
     if (!pe.isReadonly()) {
       try {
         saveStatus =
-                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(pe, getExportPath()).getAnswer(answer, binaryData),
+                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(sessionid, pe, getExportPath()).getAnswer(answer, binaryData),
                         evaluateConstraints);
       } catch (IllegalArgumentException e) {
         log.error("Illegal argument exception saving answer", e);
@@ -372,11 +381,15 @@ public class FormVxmlRenderer {
   private VxmlWidget getWidgetFromPrompt(PromptElement prompt) {
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      return new FormStartWidget(fh.getFormTitle());
+      FormStartWidget fsw = new FormStartWidget(fh.getFormTitle());
+      fsw.setSessionid(sessionid);
+      return fsw;
     case PromptElement.TYPE_END:
-      return new FormEndWidget(fh.getFormTitle());
+      FormEndWidget few = new FormEndWidget(fh.getFormTitle());
+      few.setSessionid(sessionid);
+      return few;
     case PromptElement.TYPE_QUESTION:
-      QuestionWidget w = WidgetFactory.createWidgetFromPrompt(prompt, null);
+      QuestionWidget w = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, null);
       w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
       return w;
     default:
@@ -404,19 +417,21 @@ public class FormVxmlRenderer {
     VxmlForm f = new VxmlForm("errorForm");
     f.setContents(contents);
     try {
-      new VxmlDocument(f).write(out);
+      new VxmlDocument(null, f).write(out);
     } catch (IOException e) {log.error("",e);}
   }
   
   private VoiceSession newSession(String sessionid, String callerid){
     if (callerid == null && sessionid == null) {
-      renderError(VoiceError.INTERNAL_ERROR, "No callerid or sessionid");
+      log.error("No callerid or sessionid");
       return null;
     }
     VoiceSession vs = new VoiceSession();
-    vs.setCallerid(callerid);
-    vs.setSessionid(sessionid);
-    vsm.put(callerid, sessionid, vs);
+    if (callerid != null)
+      vs.setCallerid(callerid);
+    if (sessionid != null)
+      vs.setSessionid(sessionid);
+    vsm.put(vs.getCallerid(), vs.getSessionid(), vs);
     return vs;
   }
   

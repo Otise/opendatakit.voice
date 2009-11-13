@@ -21,14 +21,14 @@ public class FormStartWidget extends WidgetBase {
   @Override
   public void getPromptVxml(Writer out) throws IOException {
     String grammar = VxmlUtils.createGrammar(new String[]{"1","9"}, 
-        new String[]{"out.action=\"" + VoiceAction.NEXT_PROMPT + "\";",
-                     "out.action=\"" + VoiceAction.ADMIN + "\";"});
+        new String[]{VoiceAction.NEXT_PROMPT.name(),
+                     VoiceAction.ADMIN.name()});
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
     VxmlForm startForm = new VxmlForm("action", 
         createPrompt(StringConstants.formStartPrompt(formTitle)),
             grammar, filled);
-    new VxmlDocument(startForm).write(out);
+    new VxmlDocument(sessionid, startForm).write(out);
   }
 
 }

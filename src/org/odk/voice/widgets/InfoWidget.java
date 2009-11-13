@@ -19,9 +19,9 @@ import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
-public class IntegerWidget extends QuestionWidget {
+public class InfoWidget extends QuestionWidget {
   
-  public IntegerWidget(PromptElement p) {
+  public InfoWidget(PromptElement p) {
     super(p);
   }
   

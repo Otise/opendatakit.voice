@@ -54,5 +54,5 @@ public class FileConstants {
 
     public static final String INSTANCES_PATH = FILE_BASE + File.separator + "instances";
     
-    public static final String UPLOAD_URL = "http://open-data-kit.appspot.com/submission";
+    public static final String UPLOAD_URL = "http://odk-voice.appspot.com/submission";
 }

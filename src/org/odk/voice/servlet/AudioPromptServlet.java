@@ -36,7 +36,7 @@ public class AudioPromptServlet extends HttpServlet {
 	    return;
 	  }
 	  log.info("Found audio");
-	  resp.setContentType("audio/x-ms-wmv");
+	  resp.setContentType("audio/x-wav");
 	  resp.getOutputStream().write(FileUtils.getFileAsBytes(f));
 	}
 

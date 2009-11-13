@@ -24,27 +24,6 @@ public class SelectOneWidget extends QuestionWidget {
     super(p);
   }
   
-//  @Override
-//  public String[] getPromptStrings() {
-//    List<String> ps = new ArrayList<String>();
-//    ps.add(StringConstants.questionXOfY(questionNum, totalNum));
-//    ps.add(StringConstants.select1Instructions);
-//    if (prompt.getSelectItems()!=null) {
-//      OrderedHashtable h = prompt.getSelectItems();
-//      Enumeration items = h.keys();
-//      int i = 1;
-//      while (items.hasMoreElements()) {
-//          ps.add(StringConstants.select1Press(i));
-//          ps.add((String) items.nextElement());
-//          i++;
-//      }
-//    }
-//    ps.add(StringConstants.answerConfirmationKeypad);
-//    ps.add(StringConstants.answerConfirmationOptions);
-//    ps.add(StringConstants.thankYou);
-//    return ps.toArray(new String[]{});
-//  }
-  
   public void getPromptVxml(Writer out) throws IOException{
     List<String> promptSegments = new ArrayList<String>();
     List<String> grammarKeys = new ArrayList<String>();
@@ -70,7 +49,7 @@ public class SelectOneWidget extends QuestionWidget {
           promptSegments.add(StringConstants.select1Press(i));
           promptSegments.add(itemLabel);
           grammarKeys.add(Integer.toString(i));
-          grammarTags.add("out.answer=\"" + itemValue + "\";");
+          grammarTags.add(itemValue);
           
           confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
           confPrompt.append(VxmlUtils.getAudio(itemLabel));
@@ -93,7 +72,7 @@ public class SelectOneWidget extends QuestionWidget {
       
       VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(false));
       
-      VxmlDocument d = new VxmlDocument(questionCountForm, mainForm);
+      VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);
     }
   }

@@ -31,7 +31,7 @@ public class VxmlUtils {
     "  <one-of>\n");
     
     for (int i = 0; i < keys.length; i++) {
-      grammar = grammar.append("    <item> " + keys[i] + " <tag> " + tags[i] + "</tag> </item>\n");
+      grammar = grammar.append("    <item> " + keys[i] + " <tag>" + tags[i] + "</tag> </item>\n");
     }
     grammar.append("  </one-of></rule>\n");
     grammar.append("</grammar>\n");
@@ -39,7 +39,7 @@ public class VxmlUtils {
   }
   
   public static String getWav(String audio){
-    return audio.hashCode() + ".wav";
+    return (int) Math.abs(audio.hashCode()) + ".wav";
   }
   
   public static String getAudio(String text, String audio){
@@ -59,11 +59,11 @@ public class VxmlUtils {
   }
   
   public static String createRemoteGoto(String nextUrl){
-    return "<submit next=\"" + StringEscapeUtils.escapeHtml(nextUrl) + "\" namelist=\"session.sessionid session.callerid\" />";
+    return "<submit next=\"" + StringEscapeUtils.escapeHtml(nextUrl) + "\" namelist=\"sessionid\" />";
   }
   
   public static String createSubmit(String nextUrl, String... namelist){
-    String nl = "session.sessionid session.callerid";
+    String nl = "sessionid";
     for (String name : namelist) {
       nl = nl + " " + name;
     }
@@ -71,7 +71,7 @@ public class VxmlUtils {
   }
   
   public static String createMultipartSubmit(String nextUrl, String... namelist) {
-    String nl = "session.sessionid session.callerid";
+    String nl = "sessionid";
     for (String name : namelist) {
       nl = nl + " " + name;
     }

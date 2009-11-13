@@ -13,7 +13,7 @@ public class VxmlDocumentTest extends TestCase {
                               new String[]{"out.pressed=1","out.pressed=2"}),
                               VxmlUtils.createLocalGoto("next"));
     try {
-    new VxmlDocument(f).write(new OutputStreamWriter(new FileOutputStream("log.txt")));
+    new VxmlDocument(null, f).write(new OutputStreamWriter(new FileOutputStream("log.txt")));
     } catch (Exception e) { fail(); }
   }
 }
