@@ -50,10 +50,10 @@ public class StringConstants {
   
   public static String dateInstructionsMonth = 
     "Now, enter the two-digit month; for example, you can enter zero one for January, " + 
-    "or eleven for November. You can also press pound to skip the month and date.";
+    "or eleven for November.";
   
   public static String dateInstructionsDay = 
-    "Now, enter the two-digit day of the month. You can also press pound to skip the day.";
+    "Now, enter the two-digit day of the month.";
   
   public static String audioInstructions = 
     "Press 1 to begin recording, and record your answer after the beep. You can press any key when " +
@@ -71,6 +71,9 @@ public class StringConstants {
   public static String answerConfirmationOptions = 
     "Press 1 if that is correct, or 2 to try again.";
   
+  public static String infoConfirmation = 
+    "Press 1 to continue, or 2 to repeat this information.";
+  
   public static String thankYou = 
     "Thank you.";
 
@@ -79,4 +82,5 @@ public class StringConstants {
 
   public static String pleaseHold = 
     "Please hold.";
+
 }

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class VxmlSection {
-  String contents;
+  String contents = null;
   
   public VxmlSection(){}
   public VxmlSection(String contents){

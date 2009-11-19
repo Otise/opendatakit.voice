@@ -44,7 +44,7 @@ public class IntegerWidget extends QuestionWidget {
       VxmlField answerField = new VxmlField("answer", 
           createPrompt(prompt.getQuestionText(), StringConstants.intInstructions),
           intGrammar,
-          createPrompt(StringConstants.answerConfirmationKeypad).getPromptString() +
+          createPrompt(StringConstants.answerConfirmationKeypad) +
           digitsReader
       );
       

@@ -30,36 +30,46 @@ public class DateWidget extends QuestionWidget {
     VxmlField yearField = new VxmlField("year", 
           createPrompt(prompt.getQuestionText(), StringConstants.dateInstructionsYear),
           yearGrammar,
-          createPrompt(
-              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"year\"/>"},
-              new String[]{StringConstants.answerConfirmationKeypad, null})
-              .getPromptString()
+          createPrompt(StringConstants.thankYou).toString()
+//          createPrompt(StringConstants.thankYou;
+//              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"year\"/>"},
+//              new String[]{StringConstants.answerConfirmationKeypad, null})
+//              .getPromptString()
       );
       
       VxmlField monthField = new VxmlField("month", 
           createPrompt(StringConstants.dateInstructionsMonth),
           monthGrammar,
-          createPrompt(
-              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"month\"/>"},
-              new String[]{StringConstants.answerConfirmationKeypad, null})
-              .getPromptString()
+          createPrompt(StringConstants.thankYou).toString()
+//          createPrompt(
+//              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"month\"/>"},
+//              new String[]{StringConstants.answerConfirmationKeypad, null})
+//              .getPromptString()
       );
+      String genConfirmationDate = 
+        "<script>var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];" +
+        "var confDate = months[parseInt(month)] + ' ' + date + ' ' + year; </script>";
       
       VxmlField dateField = new VxmlField("date", 
           createPrompt(StringConstants.dateInstructionsDay),
           dayGrammar,
-          createPrompt(
-              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"date\"/>"},
-              new String[]{StringConstants.answerConfirmationKeypad, null})
-              .getPromptString()
+          genConfirmationDate + 
+              createPrompt(StringConstants.thankYou) + 
+              createPrompt(StringConstants.answerConfirmationKeypad) +
+              "<prompt><value expr=\"confDate\"/></prompt>"
+              
+//          createPrompt(StringConstants.thankYou).getPromptString()
+//          createPrompt(
+//              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"date\"/>"},
+//              new String[]{StringConstants.answerConfirmationKeypad, null})
+//              .getPromptString()
       );
       
       String concatAnswer = //"<var name=\"answer\" expr=\"year.toString() + '/' + month.toString() + '/' date.toString()\"/>";
-        "<script>var answer = year + '/' + month + '/' + date;</script>";
+        "<script>var answer = year + '/' + month + '/' + date + '.';</script>";
 
-        
       VxmlField actionField = new VxmlField("action", 
-          createPrompt(StringConstants.answerConfirmationOptions), 
+          createPrompt(StringConstants.answerConfirmationOptions),
           actionGrammar, 
           concatAnswer + actionFilled(false));
       

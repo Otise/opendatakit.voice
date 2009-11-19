@@ -10,7 +10,5 @@ import java.io.Writer;
  * @return
  */
 public interface VxmlPrompt {
-  
-  public String getPromptString();
-  
+
 }

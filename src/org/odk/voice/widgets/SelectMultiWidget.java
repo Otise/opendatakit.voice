@@ -37,7 +37,7 @@ public class SelectMultiWidget extends QuestionWidget {
     String concatScript = "";
       
     VxmlSection pre = new VxmlSection("<block>" + 
-        createPrompt(prompt.getQuestionText(), StringConstants.selectInstructions).getPromptString() +
+        createPrompt(prompt.getQuestionText(), StringConstants.selectInstructions) +
         "</block>");
     sections.add(pre);
     
@@ -67,7 +67,7 @@ public class SelectMultiWidget extends QuestionWidget {
     //sections.add(repeat);
     
     VxmlSection confirmSection = new VxmlSection(concat + "<block>" + 
-        createPrompt(StringConstants.answerConfirmationKeypad).getPromptString()
+        createPrompt(StringConstants.answerConfirmationKeypad)
         + confirmPrompts + "</block>");
     sections.add(confirmSection);
     VxmlField actionField = new VxmlField("action",createPrompt(StringConstants.answerConfirmationOptions), 

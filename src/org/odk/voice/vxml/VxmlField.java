@@ -30,7 +30,7 @@ public class VxmlField extends VxmlSection{
   public void write(Writer out) throws IOException{
     out.write("  <field name=\"" + name + "\">\n");
     if (prompt != null)
-      out.write(prompt.getPromptString());
+      out.write(prompt.toString());
     //out.write(VxmlUtils.createGrammar(new String[]{"*"}, new String[]{"out.action='MAIN_MENU'"}));
     if (grammar != null)
       out.write(grammar);

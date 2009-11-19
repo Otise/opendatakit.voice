@@ -54,7 +54,7 @@ public class AudioCaptureWidget extends QuestionWidget {
       "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" type=\"audio/x-wav\">\n" +
       "<filled>\n" + 
       createPrompt(new String[]{StringConstants.answerConfirmationVoice, "<value expr=\"answer\"/>"},
-        new String[]{StringConstants.answerConfirmationVoice, null}).getPromptString() + 
+        new String[]{StringConstants.answerConfirmationVoice, null}) + 
      // notice that the recorded audio for the answer is null, because we want it to play the answer
       "</filled>\n" + 
       "</record>\n");

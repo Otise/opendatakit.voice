@@ -62,7 +62,7 @@ public class SelectOneWidget extends QuestionWidget {
       VxmlField answerField = new VxmlField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          createBasicPrompt(confPrompt.toString()).getPromptString());
+          createBasicPrompt(confPrompt.toString()).toString());
       
 //      
 //      VxmlField actionField = new VxmlField("action", 

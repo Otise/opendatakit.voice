@@ -11,10 +11,9 @@ import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlPrompt;
-import org.odk.voice.vxml.VxmlPromptCreator;
 import org.odk.voice.vxml.VxmlUtils;
 
-public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
+public abstract class WidgetBase implements VxmlWidget{
 
   String sessionid;
   private List<String> promptStrings = new ArrayList<String>();
@@ -25,6 +24,7 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
   
   @Override
   public String[] getPromptStrings(){
+    
     try {
       getPromptVxml(new OutputStreamWriter(new OutputStream(){
         public void write ( int b ) { }
@@ -55,7 +55,8 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
   public VxmlPrompt createBasicPrompt(String vxml){
     final String vxml2 = vxml;
     return new VxmlPrompt(){
-      public String getPromptString(){
+      @Override
+      public String toString(){
         return vxml2;
       }
     };
@@ -91,8 +92,8 @@ public abstract class WidgetBase implements VxmlWidget, VxmlPromptCreator{
     "<if cond=\"action=='REPEAT'\">" + 
     "<clear namelist=\"action answer\"/>" +
     VxmlUtils.createLocalGoto("main") + "<else/>" + 
-    createPrompt(StringConstants.thankYou).getPromptString() + 
-    (binary ? createPrompt(StringConstants.pleaseHold).getPromptString() : "") +
+    createPrompt(StringConstants.thankYou) + 
+    (binary ? createPrompt(StringConstants.pleaseHold) : "") +
     submit + 
     "</if>\n";
   }

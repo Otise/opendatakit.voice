@@ -36,19 +36,23 @@ public class WidgetFactory {
         QuestionWidget questionWidget = null;
         switch (pe.getQuestionType()) {
             case Constants.CONTROL_INPUT:
-                switch (pe.getAnswerType()) {
-                    case Constants.DATATYPE_DATE:
-                        questionWidget = new DateWidget(pe);
-                        break;
-                    case Constants.DATATYPE_DECIMAL:
-                        questionWidget = new DecimalWidget(pe);
-                        break;
-                    case Constants.DATATYPE_INTEGER:
-                        questionWidget = new IntegerWidget(pe);
-                        break;
-                    default:
-                        questionWidget = new StringWidget(pe);
-                        break;
+                if (pe.isReadonly()){
+                  questionWidget = new InfoWidget(pe);
+                } else {
+                  switch (pe.getAnswerType()) {
+                      case Constants.DATATYPE_DATE:
+                          questionWidget = new DateWidget(pe);
+                          break;
+                      case Constants.DATATYPE_DECIMAL:
+                          questionWidget = new DecimalWidget(pe);
+                          break;
+                      case Constants.DATATYPE_INTEGER:
+                          questionWidget = new IntegerWidget(pe);
+                          break;
+                      default:
+                          questionWidget = new StringWidget(pe);
+                          break;
+                  }
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:

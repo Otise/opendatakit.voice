@@ -25,7 +25,7 @@ public abstract class QuestionWidget extends WidgetBase{
     this.totalNum = totalNum;
     this.questionCountForm= new VxmlForm("questionCount");
     this.questionCountForm.setContents("<block>" + 
-        createPrompt(StringConstants.questionXOfY(questionNum, totalNum)).getPromptString() +
+        createPrompt(StringConstants.questionXOfY(questionNum, totalNum)) +
         VxmlUtils.createLocalGoto("main") +
         "</block>");
         

@@ -192,6 +192,7 @@ public class FormVxmlRenderer {
       log.warn("VoiceSession null trying to get record prompt");
       return null;
     }
+    
     if(vs.getRecordPromptIndex() < 0) { // if recordPromptIndex uninitialized
       vs.setRecordPrompts(getWidgetFromPrompt(fh.currentPrompt()).getPromptStrings());
       vs.setRecordPromptIndex(0);

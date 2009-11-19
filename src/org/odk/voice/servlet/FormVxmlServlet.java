@@ -1,9 +1,7 @@
 package org.odk.voice.servlet;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.Writer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -74,7 +72,8 @@ public class FormVxmlServlet extends HttpServlet {
 //	    action = action.trim();
 //	  if (answer != null)
 //	    answer = answer.trim();
-	  resp.setContentType("application/vxml+xml");
+	  //resp.setContentType("application/vxml+xml");
+	  
 	  FormVxmlRenderer fvr = new FormVxmlRenderer(sessionid, callerid, action, answer, binaryData, resp.getWriter());
 	  fvr.renderDialogue();
 	  
@@ -94,4 +93,28 @@ public class FormVxmlServlet extends HttpServlet {
 		doGet(req, resp);
 	}
 
+}
+
+class WriterWithLog extends Writer{
+  Writer w;
+  org.apache.log4j.Logger l;
+  
+  public WriterWithLog(Writer w, org.apache.log4j.Logger l){
+    this.w = w;
+    this.l = l;
+  }
+  @Override
+  public void close() throws IOException {
+    w.close();
+  }
+  @Override
+  public void flush() throws IOException {
+    w.flush();
+  }
+  @Override
+  public void write(char[] cbuf, int off, int len) throws IOException {
+    l.info(new String(cbuf,off,len));
+    w.write(cbuf,off,len);
+    
+  }
 }
