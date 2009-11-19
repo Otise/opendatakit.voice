@@ -11,6 +11,7 @@ import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlSection;
+import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
 public class IntegerWidget extends QuestionWidget {
@@ -23,22 +24,28 @@ public class IntegerWidget extends QuestionWidget {
 
     final String intGrammar = "<grammar src=\"builtin:dtmf/number\"/>";
     
+    String digitsReader = "<foreach item=\"digit\" array=\"digitsArray(answer)\">";
+    for (int i = 0; i <= 9; i++){
+      addPromptString(String.valueOf(i));
+      digitsReader += "<prompt cond=\"digit =='" + i + "'\">" + VxmlUtils.getAudio(String.valueOf(i)) + "</prompt>";
+    }
+    digitsReader += "</foreach>";
+    
     final String sayasDigitsScript = "<script><![CDATA[" + 
-          "function sayasDigits(number){" + 
-            "var digitNumber = number.charAt(0);" + 
-            "for(var i = 1; i < number.length; i++)" + 
-            "{digitNumber += ' ' + number.charAt(i);}" +
-            "return digitNumber;" + 
+          "function digitsArray(number){" + 
+            "var array=new Array();" +
+            "for(var i = 0; i < number.length; i++)" + 
+            "{array[i] = number.charAt(i);}" +
+            "return array;" + 
           "}]]></script>";
       
+    
       VxmlSection digitsSection = new VxmlSection(sayasDigitsScript);
       VxmlField answerField = new VxmlField("answer", 
           createPrompt(prompt.getQuestionText(), StringConstants.intInstructions),
           intGrammar,
-          createPrompt(
-              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"sayasDigits(answer)\"/>"},
-              new String[]{StringConstants.answerConfirmationKeypad, null})
-              .getPromptString()
+          createPrompt(StringConstants.answerConfirmationKeypad).getPromptString() +
+          digitsReader
       );
       
       VxmlForm mainForm = new VxmlForm("main", digitsSection, answerField, getActionField(false));
