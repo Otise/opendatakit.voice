@@ -24,6 +24,8 @@ public abstract class QuestionWidget extends WidgetBase{
     } catch (NullPointerException e){
       //unfortunately, if there is no constraint, it throws nullpointer
     }
+    if (p.isRequired())
+      addPromptString(StringConstants.answerRequiredButEmpty);
   }
   
   public void setQuestionCount(int questionNum, int totalNum){
