@@ -33,13 +33,13 @@ public abstract class WidgetBase implements VxmlWidget{
     return promptStrings.toArray(new String[]{});
   }
   
-  public String getWmvPath(String audio) {
+  String getWmvPath(String audio) {
     if (promptStrings != null)
       promptStrings.add(audio);
     return audio.hashCode() + ".wmv";
   }
   
-  public void addPromptString(String... ps) {
+  void addPromptString(String... ps) {
     for (String p: ps) {
     if (p != null && !p.equals(""))
       promptStrings.add(p);
@@ -52,7 +52,7 @@ public abstract class WidgetBase implements VxmlWidget{
    * @param vxml
    * @return
    */
-  public VxmlPrompt createBasicPrompt(String vxml){
+  VxmlPrompt createBasicPrompt(String vxml){
     final String vxml2 = vxml;
     return new VxmlPrompt(){
       @Override
@@ -62,7 +62,7 @@ public abstract class WidgetBase implements VxmlWidget{
     };
   }
   
-  public VxmlPrompt createPrompt(String[] text, String[] audio) {
+  VxmlPrompt createPrompt(String[] text, String[] audio) {
     int length = text==null? audio.length : text.length;
     String vxml = "      <prompt>\n";
     for (int i = 0; i < length; i++){
@@ -74,7 +74,7 @@ public abstract class WidgetBase implements VxmlWidget{
     return createBasicPrompt(vxml);
   }
   
-  public VxmlPrompt createPrompt(String... textAndAudio) {
+  VxmlPrompt createPrompt(String... textAndAudio) {
     return createPrompt(textAndAudio, textAndAudio);
   }
   
