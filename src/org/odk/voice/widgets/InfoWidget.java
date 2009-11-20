@@ -29,7 +29,7 @@ public class InfoWidget extends QuestionWidget {
       VxmlField actionField = new VxmlField("action", 
           createPrompt(StringConstants.infoConfirmation),
           actionGrammar,
-          actionFilled(false));
+          "<var name=\"answer\" expr=\"''\" />" + actionFilled(false));
 
       VxmlForm mainForm = new VxmlForm("main", infoSection, actionField);
       
