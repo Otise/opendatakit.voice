@@ -7,6 +7,7 @@ public enum VoiceAction {
   PREV_PROMPT,
   SAVE_ANSWER, 
   RESUME_FORM,
+  CHANGE_LANGUAGE,
   MAIN_MENU,
   ADMIN,
   HANGUP

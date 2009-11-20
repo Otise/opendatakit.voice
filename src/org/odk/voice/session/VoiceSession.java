@@ -20,7 +20,7 @@ public class VoiceSession {
   
   private String[] recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
   private int recordPromptIndex = -1; //the index in recordPrompts that is currently being recorded
-  private int recordLanguageIndex = 0;
+  private int recordLanguageIndex = -1;
   
   public VoiceSession(){
     this.date = new Date();
@@ -79,6 +79,14 @@ public class VoiceSession {
   
   public String getSessionid(){
     return sessionid;
+  }
+
+  public void setRecordLanguageIndex(int recordLanguageIndex) {
+    this.recordLanguageIndex = recordLanguageIndex;
+  }
+
+  public int getRecordLanguageIndex() {
+    return recordLanguageIndex;
   }
 
 }

@@ -24,11 +24,13 @@ import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
+import org.odk.voice.widgets.ConstraintFailedWidget;
 import org.odk.voice.widgets.FormEndWidget;
 import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
 import org.odk.voice.widgets.RecordPromptWidget;
 import org.odk.voice.widgets.VxmlWidget;
+import org.odk.voice.widgets.WidgetBase;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
@@ -192,7 +194,12 @@ public class FormVxmlRenderer {
       log.warn("VoiceSession null trying to get record prompt");
       return null;
     }
-    
+    if (vs.getRecordLanguageIndex() == -1){
+      if (fh.getLanguages() != null && fh.getLanguages().length > 0){
+        vs.setRecordLanguageIndex(0);
+        fh.setLanguage(fh.getLanguages()[0]);
+      }
+    }
     if(vs.getRecordPromptIndex() < 0) { // if recordPromptIndex uninitialized
       vs.setRecordPrompts(getWidgetFromPrompt(fh.currentPrompt()).getPromptStrings());
       vs.setRecordPromptIndex(0);
@@ -213,8 +220,15 @@ public class FormVxmlRenderer {
       } else {
         
         if (fh.isEnd()) {
-          log.info("Tried to get record prompt, but at the end, so returned null.");
-          return null;
+          String[] langs = fh.getLanguages();
+          if (langs == null || vs.getRecordLanguageIndex() == langs.length - 1){
+            log.info("Tried to get record prompt, but at the end, so returned null.");
+            return null;
+          }
+          vs.setRecordLanguageIndex(vs.getRecordLanguageIndex() + 1);
+          fh.setLanguage(langs[vs.getRecordLanguageIndex()]);
+          vs.setRecordPromptIndex(-1);
+          return nextRecordPrompt(rerecord);
         }
         vs.setRecordPrompts(getWidgetFromPrompt(fh.nextPrompt()).getPromptStrings());
         vs.setRecordPromptIndex(0);
@@ -259,9 +273,23 @@ public class FormVxmlRenderer {
     case RESUME_FORM:
       continueForm();
       break;
+    case CHANGE_LANGUAGE:
+      // we need to rethink how we do Strings before we can change language, because StringConstants is 
+      // not language-specific. We can use ResourceBundles, or we can define our own localization package 
+      // org.odk.voice.i13n, that has e.g. StringConstants.get().intInstructions, and a function 
+      // StringConstants.addLanguage(Language l). Then we lose all the static checking (that the String 
+      // resources actually exist in each language). Alternatively, we can define an interface with String 
+      // methods for each String we want; then it becomes extremely verbose.
+      fh.setLanguage(answer);
+      renderPrompt(fh.currentPrompt());
+      break;
     case SAVE_ANSWER:
-      saveAnswer(answer, binaryData);
-      renderPrompt(fh.nextPrompt());
+      int saveStatus = saveAnswer(answer, binaryData);
+      if (saveStatus == XFormConstants.ANSWER_OK || saveStatus == XFormConstants.ANSWER_NOT_SAVED) {
+        renderPrompt(fh.nextPrompt());
+      } else {
+        renderConstraintFailed(fh.currentPrompt(), saveStatus);
+      }
       break;
     case CURRENT_PROMPT:
       renderPrompt(fh.currentPrompt());
@@ -271,6 +299,7 @@ public class FormVxmlRenderer {
       break;
     case PREV_PROMPT:
       renderPrompt(fh.prevPrompt());
+      break;
     case HANGUP:
       try {
         new VxmlDocument(null).write(out);
@@ -321,11 +350,9 @@ public class FormVxmlRenderer {
       if (saveStatus == XFormConstants.ANSWER_OK) {
         log.info("Answer saved successfully.");
       } else {
-          log.warn("Save answer failed. Error code: " + saveStatus);
-          // if (evaluateConstraints && ...) renderConstraintFailed(pe, saveStatus);        
+          log.warn("Save answer failed. Error code: " + saveStatus);      
       }
     }
-    
     return saveStatus;
   }
   
@@ -333,23 +360,13 @@ public class FormVxmlRenderer {
    * Creates and displays a dialog displaying the violated constraint.
    */
   private void renderConstraintFailed(PromptElement p, int saveStatus) {
-    log.warn("Constraint failed: " + p.getConstraintText());
-//      String constraintText = null;
-//      switch (saveStatus) {
-//          case XFormConstants.ANSWER_CONSTRAINT_VIOLATED:
-//              if (p.getConstraintText() != null) {
-//                  constraintText = p.getConstraintText();
-//              } else {
-//                  constraintText = getString(R.string.invalid_answer_error);
-//              }
-//              break;
-//          case XFormConstants.ANSWER_REQUIRED_BUT_EMPTY:
-//              constraintText = getString(R.string.required_answer_error);
-//              break;
-//      }
-//
-//      showCustomToast(constraintText);
-//      mBeenSwiped = false;
+    log.warn("Constraint failed: Savestatus=" + saveStatus + ". ConstraintText: " + p.getConstraintText());
+    try {
+      (new ConstraintFailedWidget(p, saveStatus)).getPromptVxml(out);
+    } catch (IOException e) {
+      log.error(e);
+      this.renderError(VoiceError.INTERNAL_ERROR, "IOException");
+    }
   }
   
   private void selectForm(String formName) {

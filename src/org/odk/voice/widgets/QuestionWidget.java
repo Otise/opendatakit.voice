@@ -18,12 +18,18 @@ public abstract class QuestionWidget extends WidgetBase{
   
   public QuestionWidget(PromptElement p) {
     this.prompt = p;
+    try {
+      if (p.getConstraintText() != null)
+        addPromptString(p.getConstraintText());
+    } catch (NullPointerException e){
+      //unfortunately, if there is no constraint, it throws nullpointer
+    }
   }
   
   public void setQuestionCount(int questionNum, int totalNum){
     this.questionNum = questionNum;
     this.totalNum = totalNum;
-    this.questionCountForm= new VxmlForm("questionCount");
+    this.questionCountForm = new VxmlForm("questionCount");
     this.questionCountForm.setContents("<block>" + 
         createPrompt(StringConstants.questionXOfY(questionNum, totalNum)) +
         VxmlUtils.createLocalGoto("main") +

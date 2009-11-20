@@ -44,6 +44,12 @@ public class StringConstants {
   
   public static final String selectNone = 
     "none of the above.";
+
+  public static final String answerInvalid = 
+    "Sorry, this answer was invalid. Please try again.";
+
+  public static final String answerRequiredButEmpty = 
+    "Sorry, this question is required. Please answer before continuing the survey.";
   
   public static String dateInstructionsYear = 
     "First, enter the four-digit year.";
