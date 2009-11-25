@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/httpcore-4.0.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/apache-mime4j-0.6.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
