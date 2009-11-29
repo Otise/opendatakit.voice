@@ -1,12 +1,14 @@
 package org.odk.voice.db;
 
-import java.sql.Blob;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -16,14 +18,16 @@ public class DbAdapter {
   public static final String DB_URL = "jdbc:mysql://localhost:3306";
   public static final String DB_NAME = "odkvoice";
   public static final String DB_USER = "root";
-  public static final String DB_PASS = "odkvoice";
+  public static final String DB_PASS = "odk-voice";
   
   Connection con = null;
   
   public DbAdapter() throws SQLException, ClassNotFoundException {
     Class.forName("com.mysql.jdbc.Driver");
+    createDb();
     String url = DB_URL + "/" + DB_NAME;
     con = DriverManager.getConnection(url, DB_USER, DB_PASS);
+    initDb();
   }
   
 //      try {
@@ -134,8 +138,146 @@ public class DbAdapter {
 //  }//end class Jdbc10
   
 
+  /**
+   * preconditions: callerid.length < 50
+   */
+  public int createInstance(String callerid) throws SQLException {
+    String q = "INSERT INTO instance (callerid) VALUES (?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, callerid);
+    stmt.executeUpdate();
+    stmt = con.prepareStatement("SELECT callerid, id, MAX(id) FROM instance");
+    stmt.executeQuery();
+    
+    // a hack to get the id of the inserted (auto_incremented) row
+    stmt = con.prepareStatement("SELECT MAX(id) FROM instance");
+    ResultSet rs = stmt.executeQuery();
+    rs.next();
+    return rs.getInt("MAX(id)");
+  }
+  
+  public int[] getUncompletedInstances(String callerid) throws SQLException {
+    String q = "SELECT id FROM instance WHERE callerid=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, callerid);
+    ResultSet rs;
+    rs = stmt.executeQuery();
+    
+    List<Integer> l = new ArrayList<Integer>();
+    
+    while (rs.next()) {
+      l.add(rs.getInt("id"));
+    }
+    
+    int[] res = new int[l.size()];
+    for (int i = 0; i < l.size(); i ++) res[i] = l.get(i);
+      
+    return res;
+  }
+  
+  public void setInstanceXml(int instanceId, InputStream xml) throws SQLException {
+    String q = "UPDATE instance SET xml=? WHERE id=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setBinaryStream(1, xml);
+    stmt.setInt(2, instanceId);
+    stmt.executeUpdate();
+  }
+  
+  public void markInstanceCompleted(int instanceId, boolean completed) throws SQLException {
+    String q = "UPDATE instance SET completed=? WHERE instance=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setBoolean(1, completed);
+    stmt.setInt(2, instanceId);
+    stmt.executeUpdate();
+  }
+  
+  public byte[] getInstanceXml(int instanceId) throws SQLException {
+    String q = "SELECT xml FROM instance WHERE id=?;";
+    
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setInt(1, instanceId);
+    ResultSet rs;
+  
+    rs = stmt.executeQuery();
+    
+    if (rs.next()) {
+      return rs.getBytes("xml");
+//      Blob dataBlob = rs.getBlob("xml");
+//      return dataBlob.getBytes(1L, (int) dataBlob.length());
+    } else {
+      return null;
+    }
+  }
+  
+  public int addBinaryToInstance(int instanceId, byte[] binary) throws SQLException {
+    String q = "INSERT INTO instance_binary (instanceid, data) " +
+      "VALUES (?,?)";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setInt(1, instanceId);
+    stmt.setObject(2, binary);
+    stmt.executeUpdate();
+    
+    // a hack to get the id of the inserted (auto_incremented) row
+    stmt = con.prepareStatement("SELECT MAX(id) FROM instance_binary");
+    ResultSet rs = stmt.executeQuery();
+    rs.next();
+    return rs.getInt("MAX(id)");
+  }
+  
+  static class InstanceBinary{
+    public int id;
+    public byte[] binary;
+    InstanceBinary (int id, byte[] binary){
+      this.id = id;
+      this.binary = binary;
+    } 
+  }
+  
+  public List<InstanceBinary> getBinariesForInstance(int instanceId) throws SQLException {
+    String q = "SELECT id, data FROM instance_binary WHERE instanceid=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setInt(1, instanceId);
+    ResultSet rs;
+    rs = stmt.executeQuery();
+    
+    List<InstanceBinary> l = new ArrayList<InstanceBinary>();
+    
+    while (rs.next()) {
+      int id = rs.getInt("id");
+      byte[] data = rs.getBytes("data");
+      l.add(new InstanceBinary(id,data));
+    }
+    return l;
+  }
+  
+  public int addForm(String name, byte[] xml) throws SQLException {
+    String q = "REPLACE INTO form (name, xml) VALUES (?,?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, name);
+    stmt.setObject(2, xml);
+    return stmt.executeUpdate();
+  }
+  
+  public byte[] getForm(String name) throws SQLException {
+    String q = "SELECT xml FROM form WHERE name=?;";
+    
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, name);
+    ResultSet rs;
+  
+    rs = stmt.executeQuery();
+    
+    if (rs.next()) {
+      return rs.getBytes("xml");
+//      Blob dataBlob = rs.getBlob("xml");
+//      return dataBlob.getBytes(1L, (int) dataBlob.length());
+    } else {
+      return null;
+    }
+  }
+  
   public byte[] getAudioPrompt(String prompt) throws SQLException {
-    String q = "SELECT data FROM audio_prompts WHERE prompt=?";
+    String q = "SELECT data FROM audio_prompt WHERE prompt=?;";
     
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setString(1, prompt);
@@ -144,23 +286,110 @@ public class DbAdapter {
     rs = stmt.executeQuery();
     
     if (rs.next()) {
-      Blob dataBlob = rs.getBlob("data");
-      return dataBlob.getBytes(1L, (int) dataBlob.length());
+      return rs.getBytes("data");
+//      Blob dataBlob = rs.getBlob("data");
+//      return dataBlob.getBytes(1L, (int) dataBlob.length());
     } else {
       return null;
     }
   }
+  
+  public byte[] getAudioPrompt(int prompthash) throws SQLException {
+    String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
+    
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setInt(1, prompthash);
+    ResultSet rs;
+  
+    rs = stmt.executeQuery();
+    
+    if (rs.next()) {
+      return rs.getBytes("data");
+//      Blob dataBlob = rs.getBlob("data");
+//      return dataBlob.getBytes(1L, (int) dataBlob.length());
+    } else {
+      return null;
+    }
+  }
+  
+  /**
+   * Note: getPromptHash(null) == getPromptHash("");
+   * @param prompt The audio prompt.
+   * @return The hash of the audio prompt used by the database.
+   */
+  public int getPromptHash(String prompt) {
+    if (prompt == null) return 0;
+    return prompt.hashCode();
+  }
     
   public void putAudioPrompt(String prompt, byte[] data) throws SQLException {
-    String q = "INSERT INTO audio_prompts (prompt, " +
-    "data) VALUES(?,?)";
+    String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
+    "data) VALUES (?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setString(1, prompt);
-    stmt.setObject(2, data);
+    
+    stmt.setInt(1, getPromptHash(prompt));
+    stmt.setString(2, prompt);
+    stmt.setObject(3, data);
     stmt.executeUpdate();
   }
   
   private String escape(String s) {
     return StringEscapeUtils.escapeSql(s);
   }
+  
+  private void createDb() throws SQLException {
+    Connection con =
+      DriverManager.getConnection(
+                  DB_URL, DB_USER, DB_PASS);
+
+    Statement stmt = con.createStatement();
+    stmt.executeUpdate(
+        "CREATE DATABASE IF NOT EXISTS " + DB_NAME + ";");
+    con.close();
+  }
+  
+  public void close() throws SQLException {
+    con.close();
+    con = null;
+  }
+  
+  protected void initDb() throws SQLException {
+    Statement stmt = con.createStatement();
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS instance (" + 
+             "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," + 
+             "callerid VARCHAR(50)," +
+             "completed BOOLEAN DEFAULT FALSE," +
+             "xml MEDIUMTEXT );"
+      );
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS instance_binary (" + 
+            "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," + 
+            "instanceid INT," + 
+            "data MEDIUMBLOB," + 
+            "FOREIGN KEY (instanceid) REFERENCES instance(id) );"
+      );
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS form ( " + 
+            "name VARCHAR(100) NOT NULL PRIMARY KEY," +
+            "xml MEDIUMTEXT );"
+      );
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS audio_prompt (" + 
+            "prompthash INT NOT NULL PRIMARY KEY," +
+            "prompt VARCHAR(10000)," + 
+            "data BLOB );"
+        );
+  }
+  
+  protected void resetDb() throws SQLException {
+    Statement stmt = con.createStatement();
+    //stmt.execute("DROP DATABASE " + DB_NAME);
+    stmt.execute("DROP TABLE instance_binary");
+    stmt.execute("DROP TABLE instance;");
+    stmt.execute("DROP TABLE form;");
+    stmt.execute("DROP TABLE audio_prompt;");
+    initDb();
+  }
+
 }

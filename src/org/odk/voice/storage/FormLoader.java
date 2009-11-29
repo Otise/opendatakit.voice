@@ -125,7 +125,7 @@ public class FormLoader {
 //    }
     
     /**
-     * Write the FormDef to the file system as a binary blog.
+     * Write the FormDef to the file system as a binary blob.
      * 
      * @param filepath path to the form file
      */
