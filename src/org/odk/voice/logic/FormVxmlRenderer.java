@@ -3,6 +3,7 @@ package org.odk.voice.logic;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.SQLException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -13,6 +14,7 @@ import org.odk.voice.constants.FileConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
 import org.odk.voice.constants.XFormConstants;
+import org.odk.voice.db.DbAdapter;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
@@ -30,7 +32,6 @@ import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
 import org.odk.voice.widgets.RecordPromptWidget;
 import org.odk.voice.widgets.VxmlWidget;
-import org.odk.voice.widgets.WidgetBase;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
@@ -57,14 +58,27 @@ public class FormVxmlRenderer {
   boolean evaluateConstraints = true;
   String sessionid, callerid, action, answer;
   final MultiPartFormData binaryData;
+  DbAdapter dba;
 
-  public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, MultiPartFormData binaryData, Writer out){
+  public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, MultiPartFormData binaryData, Writer out) {
     this.out = out;
     this.sessionid = sessionid;
     this.callerid = callerid;
     this.action = action;
     this.answer = answer;
     this.binaryData = binaryData;
+    try {
+      this.dba = new DbAdapter();
+    } catch (SQLException e) {
+      log.error("SQLException creating DbAdapter!!!", e);
+    }
+  }
+  
+  /**
+   *  frees system resources (i.e. database)
+   */
+  public void close() {
+    dba.close();
   }
   
   public void renderDialogue() {
@@ -139,6 +153,9 @@ public class FormVxmlRenderer {
       writeCurrentRecordPrompt(prompt);
       renderRecordPromptDialogue(prompt);
       break;
+    case HANGUP:
+      writeCurrentRecordPrompt(null);
+      break;
     default:
       log.error("Invalid admin action type: " + va.name());
       renderError(VoiceError.INTERNAL_ERROR, "Unexpected admin action type");
@@ -170,15 +187,24 @@ public class FormVxmlRenderer {
       return;
     }
     String prompt = currentRecordPrompt();
-    String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + VxmlUtils.getWav(prompt);
-    try {
-      FileUtils.writeFile(item.getData(), path, true);
-      AudioSample as = new AudioSample(path);
+    byte[] data = item.getData();
+    try { 
+      AudioSample as = new AudioSample(data);
       as.clipAudio(0, PROMPT_END_CLIP);
-    } catch (IOException e) {
-      log.error("Tried to save prompt, got IOEXception error saving to " + path);
+      data = as.getAudio();
+      dba.putAudioPrompt(prompt, data);
+    
+//    String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + VxmlUtils.getWav(prompt);
+//    try {
+//      FileUtils.writeFile(item.getData(), path, true);
+//      AudioSample as = new AudioSample(path);
+//      as.clipAudio(0, PROMPT_END_CLIP);
+    } catch (SQLException e) {
+      log.error("Tried to save prompt, got SQLException: " + prompt);
     } catch (UnsupportedAudioFileException e) {
-      log.error("Unsupported Audio File: " + path, e);
+      log.error("Unsupported Audio File: " + prompt, e);
+    } catch (IOException e) {
+      log.error("IOException: " + prompt, e);
     }
   }
   
@@ -209,10 +235,12 @@ public class FormVxmlRenderer {
     while (vs.getRecordPrompts() == null || 
            vs.getRecordPromptIndex() >= vs.getRecordPrompts().length ||
            vs.getRecordPrompts()[vs.getRecordPromptIndex()].equals("") ||
-           (!rerecord && FileUtils.fileExists(
-               FileConstants.PROMPT_AUDIO_PATH + File.separator + 
-               VxmlUtils.getWav(vs.getRecordPrompts()[vs.getRecordPromptIndex()])))
-           )
+           (!rerecord && dba.getAudioPrompt(vs.getRecordPrompts()[vs.getRecordPromptIndex()])!=null))
+               // TODO(alerer): create audioPromptExists
+//               FileUtils.fileExists(
+//               FileConstants.PROMPT_AUDIO_PATH + File.separator + 
+//               VxmlUtils.getWav(vs.getRecordPrompts()[vs.getRecordPromptIndex()])))
+//           )
     {
       if (vs.getRecordPrompts() != null && vs.getRecordPromptIndex() < vs.getRecordPrompts().length) {
         vs.setRecordPromptIndex(vs.getRecordPromptIndex() + 1);
@@ -242,17 +270,24 @@ public class FormVxmlRenderer {
  
   private void writeCurrentRecordPrompt(String prompt) {
     log.info("Writing record prompt: " + prompt);
-    if (prompt == null) return;
     try {
-      FileUtils.writeFile(prompt.getBytes(), FileConstants.CURRENT_RECORD_PROMPT_PATH, true);
-    } catch (IOException e) {
-      log.error("IOException writing to the currentRecordPrompt file", e);
+      dba.setCurrentRecordPrompt(prompt);
+    } catch (SQLException e) {
+      log.error(e);
     }
+//    if (prompt == null) return;
+//    try {
+//      FileUtils.writeFile(prompt.getBytes(), FileConstants.CURRENT_RECORD_PROMPT_PATH, true);
+//    } catch (IOException e) {
+//      log.error("IOException writing to the currentRecordPrompt file", e);
+//    }
   }
   
   private void renderRecordPromptDialogue(String prompt) {
     try {
-      (new RecordPromptWidget(prompt)).getPromptVxml(out);
+      RecordPromptWidget w = new RecordPromptWidget(prompt);
+      w.setSessionid(sessionid);
+      w.getPromptVxml(out);
     } catch (IOException e) { 
       log.error("",e); renderError(VoiceError.INTERNAL_ERROR,"");
     }

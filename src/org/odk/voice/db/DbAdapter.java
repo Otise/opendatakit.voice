@@ -11,143 +11,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 
 public class DbAdapter {
  
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(DbAdapter.class);
+  
+  public static final String DB_CLASS = "com.mysql.jdbc.Driver";
   public static final String DB_URL = "jdbc:mysql://localhost:3306";
   public static final String DB_NAME = "odkvoice";
   public static final String DB_USER = "root";
   public static final String DB_PASS = "odk-voice";
+  private static boolean initialized = false;;
   
   Connection con = null;
   
-  public DbAdapter() throws SQLException, ClassNotFoundException {
-    Class.forName("com.mysql.jdbc.Driver");
-    createDb();
+  public DbAdapter() throws SQLException {
+    try {
+      Class.forName(DB_CLASS);
+    } catch (ClassNotFoundException e) {
+      throw new SQLException("Class not found: " + DB_CLASS);
+    }
+    if (!initialized)
+      createDb();
     String url = DB_URL + "/" + DB_NAME;
     con = DriverManager.getConnection(url, DB_USER, DB_PASS);
-    initDb();
+    if (!initialized)
+      initDb();
+    initialized = true;
   }
-  
-//      try {
-//        Statement stmt;
-//        ResultSet rs;
-//
-//        //Register the JDBC driver for MySQL.
-//        Class.forName("com.mysql.jdbc.Driver");
-//
-//        //Define URL of database server for
-//        // database named JunkDB on the localhost
-//        // with the default port number 3306.
-//        
-//
-//        //Get a connection to the database for a
-//        // user named auser with the password
-//        // drowssap, which is password spelled
-//        // backwards.
-//        Connection con =
-//                       DriverManager.getConnection(
-//                          url,"auser", "drowssap");
-//
-//        //Display URL and connection information
-//        System.out.println("URL: " + url);
-//        System.out.println("Connection: " + con);
-//
-//        //Get a Statement object
-//        stmt = con.createStatement();
-//
-//        //As a precaution, delete myTable if it
-//        // already exists as residue from a
-//        // previous run.  Otherwise, if the table
-//        // already exists and an attempt is made
-//        // to create it, an exception will be
-//        // thrown.
-//        try{
-//          stmt.executeUpdate("DROP TABLE myTable");
-//        }catch(Exception e){
-//          System.out.print(e);
-//          System.out.println(
-//                    "No existing table to delete");
-//        }//end catch
-//
-//        //Create a table in the database named
-//        // myTable.
-//        stmt.executeUpdate(
-//              "CREATE TABLE myTable(test_id int," +
-//                    "test_val char(15) not null)");
-//
-//        //Insert some values into the table
-//        stmt.executeUpdate(
-//                  "INSERT INTO myTable(test_id, " +
-//                      "test_val) VALUES(1,'One')");
-//        stmt.executeUpdate(
-//                  "INSERT INTO myTable(test_id, " +
-//                      "test_val) VALUES(2,'Two')");
-//        stmt.executeUpdate(
-//                  "INSERT INTO myTable(test_id, " +
-//                    "test_val) VALUES(3,'Three')");
-//        stmt.executeUpdate(
-//                  "INSERT INTO myTable(test_id, " +
-//                     "test_val) VALUES(4,'Four')");
-//        stmt.executeUpdate(
-//                  "INSERT INTO myTable(test_id, " +
-//                     "test_val) VALUES(5,'Five')");
-//
-//        //Get another statement object initialized
-//        // as shown.
-//        stmt = con.createStatement(
-//                 ResultSet.TYPE_SCROLL_INSENSITIVE,
-//                       ResultSet.CONCUR_READ_ONLY);
-//
-//        //Query the database, storing the result
-//        // in an object of type ResultSet
-//        rs = stmt.executeQuery("SELECT * " +
-//                  "from myTable ORDER BY test_id");
-//
-//        //Use the methods of class ResultSet in a
-//        // loop to display all of the data in the
-//        // database.
-//        System.out.println("Display all results:");
-//        while(rs.next()){
-//          int theInt= rs.getInt("test_id");
-//          String str = rs.getString("test_val");
-//          System.out.println("\ttest_id= " + theInt
-//                               + "\tstr = " + str);
-//        }//end while loop
-//
-//        //Display the data in a specific row using
-//        // the rs.absolute method.
-//        System.out.println(
-//                          "Display row number 2:");
-//        if( rs.absolute(2) ){
-//          int theInt= rs.getInt("test_id");
-//          String str = rs.getString("test_val");
-//          System.out.println("\ttest_id= " + theInt
-//                               + "\tstr = " + str);
-//        }//end if
-//
-//        //Delete the table and close the connection
-//        // to the database
-//        stmt.executeUpdate("DROP TABLE myTable");
-//        con.close();
-//      }catch( Exception e ) {
-//        e.printStackTrace();
-//      }//end catch
-//    }//end main
-//  }//end class Jdbc10
-  
 
   /**
+   * Creates a new XForm instance.
    * preconditions: callerid.length < 50
+   * @param callerid
+   * @return the id of the new instance.
+   * @throws SQLException
    */
   public int createInstance(String callerid) throws SQLException {
     String q = "INSERT INTO instance (callerid) VALUES (?);";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setString(1, callerid);
     stmt.executeUpdate();
-    stmt = con.prepareStatement("SELECT callerid, id, MAX(id) FROM instance");
-    stmt.executeQuery();
     
     // a hack to get the id of the inserted (auto_incremented) row
     stmt = con.prepareStatement("SELECT MAX(id) FROM instance");
@@ -156,12 +63,18 @@ public class DbAdapter {
     return rs.getInt("MAX(id)");
   }
   
+  /**
+   * 
+   * @param callerid The callerid of a voice session.
+   * @return An array of instance ids of any uncompleted instances (surveys)
+   * from that callerid. 
+   * @throws SQLException
+   */
   public int[] getUncompletedInstances(String callerid) throws SQLException {
     String q = "SELECT id FROM instance WHERE callerid=?;";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setString(1, callerid);
-    ResultSet rs;
-    rs = stmt.executeQuery();
+    ResultSet rs = stmt.executeQuery();
     
     List<Integer> l = new ArrayList<Integer>();
     
@@ -175,6 +88,13 @@ public class DbAdapter {
     return res;
   }
   
+  /**
+   * 
+   * @param instanceId The instanceId for the instance.
+   * @param xml The XML representation of the (partially or fully) completed 
+   * XForm data model for this instance.
+   * @throws SQLException
+   */
   public void setInstanceXml(int instanceId, InputStream xml) throws SQLException {
     String q = "UPDATE instance SET xml=? WHERE id=?;";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -183,6 +103,14 @@ public class DbAdapter {
     stmt.executeUpdate();
   }
   
+  /**
+   * Marks an instance as completed or uncompleted in the database.
+   * 
+   * @param instanceId
+   * @param completed True if this instance is completed (i.e. the survey was completed).
+   * False otherwise.
+   * @throws SQLException
+   */
   public void markInstanceCompleted(int instanceId, boolean completed) throws SQLException {
     String q = "UPDATE instance SET completed=? WHERE instance=?;";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -191,24 +119,35 @@ public class DbAdapter {
     stmt.executeUpdate();
   }
   
+  /**
+   * Get the XML representation of the data model of an XForm instance.
+   * @param instanceId
+   * @return A byte array representation of the XForm data model, or null if (a) the instance 
+   * does not exist, or (b) the instance has no associated xml.
+   * @throws SQLException
+   */
   public byte[] getInstanceXml(int instanceId) throws SQLException {
     String q = "SELECT xml FROM instance WHERE id=?;";
     
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setInt(1, instanceId);
-    ResultSet rs;
-  
-    rs = stmt.executeQuery();
+    ResultSet rs = stmt.executeQuery();
     
     if (rs.next()) {
       return rs.getBytes("xml");
-//      Blob dataBlob = rs.getBlob("xml");
-//      return dataBlob.getBytes(1L, (int) dataBlob.length());
     } else {
       return null;
     }
   }
   
+  /**
+   * Stores a binary blob (e.g. audio file, image) associated with a given instance.
+   * 
+   * @param instanceId
+   * @param binary The binary file.
+   * @return The id of the binary, which can be used to identify it when it is requrested from the db.
+   * @throws SQLException
+   */
   public int addBinaryToInstance(int instanceId, byte[] binary) throws SQLException {
     String q = "INSERT INTO instance_binary (instanceid, data) " +
       "VALUES (?,?)";
@@ -224,6 +163,11 @@ public class DbAdapter {
     return rs.getInt("MAX(id)");
   }
   
+  /**
+   * A data structure for an instance binary.
+   * @author alerer
+   *
+   */
   static class InstanceBinary{
     public int id;
     public byte[] binary;
@@ -233,12 +177,19 @@ public class DbAdapter {
     } 
   }
   
+  /**
+   * 
+   * @param instanceId
+   * @return A List of all instance binaries associated with the given instanceId.
+   * Each InstanceBinary contains an id (returned from {@link addBinaryToInstance},
+   * and a byte array of data.
+   * @throws SQLException
+   */
   public List<InstanceBinary> getBinariesForInstance(int instanceId) throws SQLException {
     String q = "SELECT id, data FROM instance_binary WHERE instanceid=?;";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setInt(1, instanceId);
-    ResultSet rs;
-    rs = stmt.executeQuery();
+    ResultSet rs = stmt.executeQuery();
     
     List<InstanceBinary> l = new ArrayList<InstanceBinary>();
     
@@ -250,64 +201,90 @@ public class DbAdapter {
     return l;
   }
   
-  public int addForm(String name, byte[] xml) throws SQLException {
+  /**
+   * Add an XForm to the database. If a form with this name already exists, 
+   * it is overwritten.
+   * @param name Form name.
+   * @param xml The XML representation of the XForm.
+   * @throws SQLException
+   */
+  public void addForm(String name, byte[] xml) throws SQLException {
     String q = "REPLACE INTO form (name, xml) VALUES (?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setString(1, name);
     stmt.setObject(2, xml);
-    return stmt.executeUpdate();
+    stmt.executeUpdate();
   }
   
+  /**
+   * @param name Name of the XForm.
+   * @return the XForm from the database with this name. If no form with this name exists,
+   * returns null.
+   * @throws SQLException
+   */
   public byte[] getForm(String name) throws SQLException {
     String q = "SELECT xml FROM form WHERE name=?;";
     
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setString(1, name);
-    ResultSet rs;
-  
-    rs = stmt.executeQuery();
+    ResultSet rs = stmt.executeQuery();
     
     if (rs.next()) {
       return rs.getBytes("xml");
-//      Blob dataBlob = rs.getBlob("xml");
-//      return dataBlob.getBytes(1L, (int) dataBlob.length());
     } else {
       return null;
     }
   }
   
-  public byte[] getAudioPrompt(String prompt) throws SQLException {
-    String q = "SELECT data FROM audio_prompt WHERE prompt=?;";
+  /**
+   * 
+   * @param formname
+   * @param formdef
+   * @throws SQLException
+   */
+  public void setFormdefBinary(String formname, byte[] formdef) throws SQLException {
+    String q = "REPLACE INTO form (name, formdef) VALUES (?,?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, formname);
+    stmt.setObject(2, formdef);
+    stmt.executeUpdate();
+  }
+  
+  public byte[] getFormdefBinary(String formname) throws SQLException {
+    String q = "SELECT formdef FROM form WHERE name=?;";
     
     PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setString(1, prompt);
-    ResultSet rs;
-  
-    rs = stmt.executeQuery();
+    stmt.setString(1, formname);
+    ResultSet rs = stmt.executeQuery();
     
     if (rs.next()) {
-      return rs.getBytes("data");
-//      Blob dataBlob = rs.getBlob("data");
-//      return dataBlob.getBytes(1L, (int) dataBlob.length());
+      return rs.getBytes("formdef");
     } else {
       return null;
     }
   }
   
-  public byte[] getAudioPrompt(int prompthash) throws SQLException {
-    String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
-    
-    PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setInt(1, prompthash);
-    ResultSet rs;
+  public byte[] getAudioPrompt(String prompt) {
+    return getAudioPrompt(getPromptHash(prompt));
+  }
   
-    rs = stmt.executeQuery();
-    
-    if (rs.next()) {
-      return rs.getBytes("data");
-//      Blob dataBlob = rs.getBlob("data");
-//      return dataBlob.getBytes(1L, (int) dataBlob.length());
-    } else {
+  public byte[] getAudioPrompt(int prompthash) {
+    try {
+      String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
+      log.info("get audio prompt: " + prompthash);
+      PreparedStatement stmt = con.prepareStatement(q);
+      stmt.setInt(1, prompthash);
+      ResultSet rs = stmt.executeQuery();
+      
+      if (rs.next()) {
+        return rs.getBytes("data");
+  //      Blob dataBlob = rs.getBlob("data");
+  //      return dataBlob.getBytes(1L, (int) dataBlob.length());
+      } else {
+        return null;
+      }
+    } catch (SQLException e) {
+      log.error(e);
       return null;
     }
   }
@@ -326,12 +303,36 @@ public class DbAdapter {
     String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
     "data) VALUES (?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
-    
     stmt.setInt(1, getPromptHash(prompt));
     stmt.setString(2, prompt);
     stmt.setObject(3, data);
     stmt.executeUpdate();
   }
+  
+  private static final String CURRENT_RECORD_PROMPT_KEY = "currentrecordprompt";
+  
+  public void setCurrentRecordPrompt(String prompt) throws SQLException {
+    String q = "REPLACE INTO misc (k, v) VALUES (?,?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    log.info("set record prompt: " + prompt);
+    stmt.setString(1, CURRENT_RECORD_PROMPT_KEY);
+    stmt.setString(2, prompt);
+    stmt.executeUpdate();
+  }
+  public String getCurrentRecordPrompt() throws SQLException {
+    String q = "SELECT v FROM misc WHERE k=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, CURRENT_RECORD_PROMPT_KEY);
+    ResultSet rs = stmt.executeQuery();
+    
+    if (rs.next()) {
+      return rs.getString("v");
+    } else {
+      return null;
+    }
+  }
+  
+  //--------------------- INTERNAL METHODS --------------------------
   
   private String escape(String s) {
     return StringEscapeUtils.escapeSql(s);
@@ -348,9 +349,14 @@ public class DbAdapter {
     con.close();
   }
   
-  public void close() throws SQLException {
-    con.close();
-    con = null;
+  public void close() {
+    try {
+      con.close();
+      con = null;
+    } catch (SQLException e) {
+      // not much we can do here
+      log.error(e);
+    }
   }
   
   protected void initDb() throws SQLException {
@@ -372,13 +378,19 @@ public class DbAdapter {
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS form ( " + 
             "name VARCHAR(100) NOT NULL PRIMARY KEY," +
-            "xml MEDIUMTEXT );"
+            "xml MEDIUMTEXT," +
+            "formdef MEDIUMBLOB );"
       );
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS audio_prompt (" + 
             "prompthash INT NOT NULL PRIMARY KEY," +
             "prompt VARCHAR(10000)," + 
-            "data BLOB );"
+            "data MEDIUMBLOB );"
+        );
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS misc (" + 
+            "k VARCHAR(100) NOT NULL PRIMARY KEY," + 
+            "v VARCHAR(10000) );"
         );
   }
   
@@ -389,6 +401,7 @@ public class DbAdapter {
     stmt.execute("DROP TABLE instance;");
     stmt.execute("DROP TABLE form;");
     stmt.execute("DROP TABLE audio_prompt;");
+    stmt.execute("DROP TABLE misc;");
     initDb();
   }
 

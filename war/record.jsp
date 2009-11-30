@@ -28,5 +28,11 @@ function refresh()
 <body onload="refresh()">
   <h1>ODK Voice Prompt Recorder</h1>
   <div id='promptDiv'></div>
+  <div id='listDiv'>
+    <form method="post" action="currentRecordPrompt">
+      <input type="hidden" name="deleteall" value="true"/>
+      <input type="submit" value="Delete all prompts"/>
+    </form>
+  </div>
 </body>
 </html>

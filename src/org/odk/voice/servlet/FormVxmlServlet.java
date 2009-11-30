@@ -30,20 +30,17 @@ public class FormVxmlServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	  
+	  log.info("Entered FormVxmlServlet");
 	  String callerid=null, sessionid=null, action=null, answer=null;
 	  MultiPartFormData binaryData;
 	  if (ServletFileUpload.isMultipartContent(req)) {
 	    try {
           binaryData = new MultiPartFormData(req);
           callerid = getMultipartParam("session.callerid", binaryData);
-          sessionid = getMultipartParam("session.sessionid", binaryData);
           if (callerid == null) {
             callerid = getMultipartParam("callerid", binaryData);
           }
-          if (sessionid == null) {
-            sessionid = getMultipartParam("sessionid", binaryData);
-          }
+          sessionid = getMultipartParam("sessionid", binaryData);
           action = getMultipartParam("action", binaryData);
         //TODO(alerer): receiving and storing the entire request stream before continuing is very inefficient.
       } catch (FileUploadException e) {
@@ -52,13 +49,9 @@ public class FormVxmlServlet extends HttpServlet {
       }
 	  } else {
 	    callerid = req.getParameter("session.callerid");
-	    sessionid = req.getParameter("session.sessionid");
-	    if (callerid == null) {
+	    if (callerid == null)
 	      callerid = req.getParameter("callerid");
-	    }
-	    if (sessionid == null) {
-	      sessionid = req.getParameter("sessionid");
-	    }
+	    sessionid = req.getParameter("sessionid");
 	    
 	    action = req.getParameter("action");
 	    answer = req.getParameter("answer");
@@ -76,7 +69,8 @@ public class FormVxmlServlet extends HttpServlet {
 	  
 	  FormVxmlRenderer fvr = new FormVxmlRenderer(sessionid, callerid, action, answer, binaryData, resp.getWriter());
 	  fvr.renderDialogue();
-	  
+	  fvr.close();
+	  fvr = null;
 	}
   
   // this is fine because these should be very short strings

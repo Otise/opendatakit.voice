@@ -1,8 +1,9 @@
 package org.odk.voice.audio;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -14,13 +15,14 @@ import org.odk.voice.storage.FileUtils;
 
 public class AudioSample {
 
-  private File audioFile;
+  private byte[] data;
   
-  public AudioSample (String path) {
-    this.audioFile = new File(path);
-    if (!audioFile.exists())
-      throw new IllegalArgumentException("Audio file does not exist.");
-    
+  public AudioSample (byte[] data) {
+    this.data = data;
+  }
+  
+  public byte[] getAudio(){
+    return data;
   }
   
   /**
@@ -34,17 +36,19 @@ public class AudioSample {
    * @throws UnsupportedAudioFileException
    */
   public void clipAudio(float clipBegin, float clipEnd) throws IOException, UnsupportedAudioFileException {
+    InputStream in = new ByteArrayInputStream(data);
+    
     if (clipBegin < 0 || clipEnd < 0)
       throw new IllegalArgumentException("clipBegin and clipEnd must be non-negative");
 
-    AudioFileFormat inFileFormat = AudioSystem.getAudioFileFormat(audioFile);
+    AudioFileFormat inFileFormat = AudioSystem.getAudioFileFormat(in);
     if (inFileFormat.getType() != AudioFileFormat.Type.WAVE) 
     {
       throw new UnsupportedAudioFileException("Only wave files supported");
     }
     
     AudioInputStream inFileAIS = 
-      AudioSystem.getAudioInputStream(audioFile);
+      AudioSystem.getAudioInputStream(in);
 
     float frameRate = inFileAIS.getFormat().getFrameRate();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -55,10 +59,9 @@ public class AudioSample {
     byte[] full = out.toByteArray();
     byte[] clipped = new byte[0];
     if (frameRate * (clipBegin + clipEnd) < full.length) {
-      clipped = Arrays.copyOfRange(full, 
+      data = Arrays.copyOfRange(full, 
           0, //(int) (frameRate * clipBegin), 
           (int) (full.length - frameRate * clipEnd));
     }
-    FileUtils.writeFile(clipped, audioFile.getAbsolutePath(), true);
   }
 }
