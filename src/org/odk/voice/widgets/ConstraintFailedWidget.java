@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.apache.log4j.Logger;
-import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.XFormConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
-import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
-import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
@@ -38,9 +36,9 @@ public class ConstraintFailedWidget extends WidgetBase {
       constraintPrompt = prompt.getConstraintText();
       break;
     case XFormConstants.ANSWER_INVALID:
-      constraintPrompt = StringConstants.answerInvalid;
+      constraintPrompt = getString(ResourceKeys.ANSWER_INVALID);
     case XFormConstants.ANSWER_REQUIRED_BUT_EMPTY:
-      constraintPrompt = StringConstants.answerRequiredButEmpty;
+      constraintPrompt = getString(ResourceKeys.ANSWER_REQUIRED_BUT_EMPTY);
     default:
       log.error("Invalid saveStatus: " + saveStatus);
     }

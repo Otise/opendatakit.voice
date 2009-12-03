@@ -3,8 +3,8 @@ package org.odk.voice.widgets;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -24,7 +24,7 @@ public class RecordPromptWidget extends WidgetBase {
   @Override
   public void getPromptVxml(Writer out) throws IOException {
 
-    VxmlPrompt prePrompt = createPrompt(StringConstants.recordPromptInstructions);
+    VxmlPrompt prePrompt = createPrompt(getString(ResourceKeys.RECORD_PROMPT_INSTRUCTIONS));
      String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
         new String[]{"RECORD", VoiceAction.NEXT_PROMPT.name()});
     String preFilled = 
@@ -42,13 +42,13 @@ public class RecordPromptWidget extends WidgetBase {
       "</record>\n");
     
     VxmlPrompt p2 = createPrompt(new String[]{
-        StringConstants.answerConfirmationVoice, 
+        getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), 
         "<value expr=\"answer\"/>",
-        StringConstants.answerConfirmationOptions},
+        getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)},
         new String[]{
-        StringConstants.answerConfirmationVoice, 
+        getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), 
         null, // notice that the recorded audio for the answer is null, because we want it to play the answer
-        StringConstants.answerConfirmationOptions});
+        getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)});
     
     
     VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));

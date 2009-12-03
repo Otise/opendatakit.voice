@@ -5,14 +5,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.Vector;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
-import org.odk.voice.constants.StringConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -37,7 +36,7 @@ public class SelectMultiWidget extends QuestionWidget {
     String concatScript = "";
       
     VxmlSection pre = new VxmlSection("<block>" + 
-        createPrompt(prompt.getQuestionText(), StringConstants.selectInstructions) +
+        createPrompt(prompt.getQuestionText(), getString(ResourceKeys.SELECT_INSTRUCTIONS)) +
         "</block>");
     sections.add(pre);
     
@@ -57,20 +56,20 @@ public class SelectMultiWidget extends QuestionWidget {
         concatScript += "if (" + itemValue + " == 'true') answer = answer + '" + itemValue + "' + '" + ANSWER_SEPARATOR + "';\n";
       }
     }
-    addPromptString(StringConstants.answerConfirmationKeypad);
-    addPromptString(StringConstants.selectNone);
+    addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
+    addPromptString(getString(ResourceKeys.SELECT_NONE));
     String concat = "<script>function concat(){var answer = '';\n" + concatScript + " return answer;}</script>\n";
     //sections.add(concat);
-    confirmPrompts += "<prompt cond=\"concat()==''\">" + VxmlUtils.getAudio(StringConstants.selectNone) + "</prompt>";
+    confirmPrompts += "<prompt cond=\"concat()==''\">" + VxmlUtils.getAudio(getString(ResourceKeys.SELECT_NONE)) + "</prompt>";
     //VxmlSection repeat = new VxmlSection("<block>" + VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad) + 
     //    confirmPrompts + "</block>");
     //sections.add(repeat);
     
     VxmlSection confirmSection = new VxmlSection(concat + "<block>" + 
-        createPrompt(StringConstants.answerConfirmationKeypad)
+        createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD))
         + confirmPrompts + "</block>");
     sections.add(confirmSection);
-    VxmlField actionField = new VxmlField("action",createPrompt(StringConstants.answerConfirmationOptions), 
+    VxmlField actionField = new VxmlField("action",createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)), 
         actionGrammar, "<var name=\"answer\" expr=\"concat()\"/>" + actionFilled(false));
     sections.add(actionField);
     VxmlForm mainForm = new VxmlForm("main", sections.toArray(new VxmlSection[]{}));

@@ -7,8 +7,8 @@ import java.io.Writer;
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.MultiPartFormData;
@@ -39,7 +39,7 @@ public class AudioCaptureWidget extends QuestionWidget {
   @Override
   public void getPromptVxml(Writer out) throws IOException {
     
-    VxmlPrompt prePrompt = createPrompt(prompt.getQuestionText(), StringConstants.audioInstructions);
+    VxmlPrompt prePrompt = createPrompt(prompt.getQuestionText(), getString(ResourceKeys.AUDIO_INSTRUCTIONS));
      String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
         new String[]{"RECORD", VoiceAction.NEXT_PROMPT.name()});
     String preFilled = 
@@ -53,13 +53,13 @@ public class AudioCaptureWidget extends QuestionWidget {
     VxmlSection recordSection = new VxmlSection(
       "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" type=\"audio/x-wav\">\n" +
       "<filled>\n" + 
-      createPrompt(new String[]{StringConstants.answerConfirmationVoice, "<value expr=\"answer\"/>"},
-        new String[]{StringConstants.answerConfirmationVoice, null}) + 
+      createPrompt(new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), "<value expr=\"answer\"/>"},
+        new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), null}) + 
      // notice that the recorded audio for the answer is null, because we want it to play the answer
       "</filled>\n" + 
       "</record>\n");
     
-    VxmlPrompt p2 = createPrompt(StringConstants.answerConfirmationOptions);
+    VxmlPrompt p2 = createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS));
     
     
     VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));

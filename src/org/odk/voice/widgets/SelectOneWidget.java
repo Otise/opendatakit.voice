@@ -10,7 +10,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
-import org.odk.voice.constants.StringConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -29,12 +29,12 @@ public class SelectOneWidget extends QuestionWidget {
     List<String> grammarKeys = new ArrayList<String>();
     List<String> grammarTags = new ArrayList<String>();
     promptSegments.add(prompt.getQuestionText());
-    promptSegments.add(StringConstants.select1Instructions);
+    promptSegments.add(getString(ResourceKeys.SELECT_1_INSTRUCTIONS));
     
     StringBuilder confPrompt = new StringBuilder();
     
     //addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
-    addPromptString(StringConstants.answerConfirmationKeypad);
+    addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
     if (prompt.getSelectItems() != null) {
       OrderedHashtable h = prompt.getSelectItems();
       Enumeration items = h.keys();
@@ -42,11 +42,11 @@ public class SelectOneWidget extends QuestionWidget {
       String itemValue = null;
       
       int i = 1;
-      confPrompt.append(VxmlUtils.getAudio(StringConstants.answerConfirmationKeypad));
+      confPrompt.append(VxmlUtils.getAudio(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)));
       while (items.hasMoreElements()) {
           itemLabel = (String) items.nextElement();
           itemValue = (String) h.get(itemLabel);
-          promptSegments.add(StringConstants.select1Press(i));
+          promptSegments.add(String.format(getString(ResourceKeys.SELECT_1_PRESS),i));
           promptSegments.add(itemLabel);
           grammarKeys.add(Integer.toString(i));
           grammarTags.add(itemValue);

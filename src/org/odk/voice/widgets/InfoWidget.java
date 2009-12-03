@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.IntegerData;
-import org.odk.voice.constants.StringConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -27,7 +26,7 @@ public class InfoWidget extends QuestionWidget {
           "</block>");
       
       VxmlField actionField = new VxmlField("action", 
-          createPrompt(StringConstants.infoConfirmation),
+          createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
           actionGrammar,
           "<var name=\"answer\" expr=\"''\" />" + actionFilled(false));
 

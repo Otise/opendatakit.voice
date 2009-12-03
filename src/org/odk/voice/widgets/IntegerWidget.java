@@ -5,7 +5,7 @@ import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
-import org.odk.voice.constants.StringConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -42,9 +42,9 @@ public class IntegerWidget extends QuestionWidget {
     
       VxmlSection digitsSection = new VxmlSection(sayasDigitsScript);
       VxmlField answerField = new VxmlField("answer", 
-          createPrompt(prompt.getQuestionText(), StringConstants.intInstructions),
+          createPrompt(prompt.getQuestionText(), getString(ResourceKeys.INT_INSTRUCTIONS)),
           intGrammar,
-          createPrompt(StringConstants.answerConfirmationKeypad) +
+          createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)) +
           digitsReader
       );
       

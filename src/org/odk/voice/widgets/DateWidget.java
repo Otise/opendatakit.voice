@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
-import org.odk.voice.constants.StringConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -28,9 +28,9 @@ public class DateWidget extends QuestionWidget {
     final String dayGrammar = "<grammar src=\"builtin:dtmf/digits?minlength=1;maxlength=2\"/>";
     
     VxmlField yearField = new VxmlField("year", 
-          createPrompt(prompt.getQuestionText(), StringConstants.dateInstructionsYear),
+          createPrompt(prompt.getQuestionText(), getString(ResourceKeys.DATE_INSTRUCTIONS_YEAR)),
           yearGrammar,
-          createPrompt(StringConstants.thankYou).toString()
+          createPrompt(getString(ResourceKeys.THANK_YOU)).toString()
 //          createPrompt(StringConstants.thankYou;
 //              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"year\"/>"},
 //              new String[]{StringConstants.answerConfirmationKeypad, null})
@@ -38,9 +38,9 @@ public class DateWidget extends QuestionWidget {
       );
       
       VxmlField monthField = new VxmlField("month", 
-          createPrompt(StringConstants.dateInstructionsMonth),
+          createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_MONTH)),
           monthGrammar,
-          createPrompt(StringConstants.thankYou).toString()
+          createPrompt(getString(ResourceKeys.THANK_YOU)).toString()
 //          createPrompt(
 //              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"month\"/>"},
 //              new String[]{StringConstants.answerConfirmationKeypad, null})
@@ -51,11 +51,11 @@ public class DateWidget extends QuestionWidget {
         "var confDate = months[parseInt(month)] + ' ' + date + ' ' + year; </script>";
       
       VxmlField dateField = new VxmlField("date", 
-          createPrompt(StringConstants.dateInstructionsDay),
+          createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_DAY)),
           dayGrammar,
           genConfirmationDate + 
-              createPrompt(StringConstants.thankYou) + 
-              createPrompt(StringConstants.answerConfirmationKeypad) +
+              createPrompt(getString(ResourceKeys.THANK_YOU)) + 
+              createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)) +
               "<prompt><value expr=\"confDate\"/></prompt>"
               
 //          createPrompt(StringConstants.thankYou).getPromptString()
@@ -69,7 +69,7 @@ public class DateWidget extends QuestionWidget {
         "<script>var answer = year + '/' + month + '/' + date + '.';</script>";
 
       VxmlField actionField = new VxmlField("action", 
-          createPrompt(StringConstants.answerConfirmationOptions),
+          createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)),
           actionGrammar, 
           concatAnswer + actionFilled(false));
       

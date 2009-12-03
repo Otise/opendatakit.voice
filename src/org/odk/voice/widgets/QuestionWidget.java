@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.javarosa.core.model.data.IAnswerData;
-import org.odk.voice.constants.StringConstants;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
@@ -26,7 +26,7 @@ public abstract class QuestionWidget extends WidgetBase{
       //unfortunately, if there is no constraint, it throws nullpointer
     }
     if (p.isRequired())
-      addPromptString(StringConstants.answerRequiredButEmpty);
+      addPromptString(getString(ResourceKeys.ANSWER_REQUIRED_BUT_EMPTY));
   }
   
   public void setQuestionCount(int questionNum, int totalNum){
@@ -34,7 +34,7 @@ public abstract class QuestionWidget extends WidgetBase{
     this.totalNum = totalNum;
     this.questionCountForm = new VxmlForm("questionCount");
     this.questionCountForm.setContents("<block>" + 
-        createPrompt(StringConstants.questionXOfY(questionNum, totalNum)) +
+        createPrompt(String.format(getString(ResourceKeys.QUESTION_X_OF_Y) ,questionNum, totalNum)) +
         VxmlUtils.createLocalGoto("main") +
         "</block>");
         

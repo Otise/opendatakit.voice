@@ -9,8 +9,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.odk.voice.constants.GlobalConstants;
-import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlPrompt;
@@ -100,7 +100,7 @@ public abstract class WidgetBase implements VxmlWidget{
   
   VxmlField getActionField(boolean binary) {
     return new VxmlField("action", 
-      createPrompt(StringConstants.answerConfirmationOptions),
+      createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)),
       actionGrammar,
       actionFilled(binary));
   }
@@ -112,8 +112,8 @@ public abstract class WidgetBase implements VxmlWidget{
     "<if cond=\"action=='REPEAT'\">" + 
     "<clear namelist=\"action answer\"/>" +
     VxmlUtils.createLocalGoto("main") + "<else/>" + 
-    createPrompt(StringConstants.thankYou) + 
-    (binary ? createPrompt(StringConstants.pleaseHold) : "") +
+    createPrompt(getString(ResourceKeys.THANK_YOU)) + 
+    (binary ? createPrompt(getString(ResourceKeys.PLEASE_HOLD)) : "") +
     submit + 
     "</if>\n";
   }

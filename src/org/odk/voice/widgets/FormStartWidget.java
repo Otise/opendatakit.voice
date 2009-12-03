@@ -3,8 +3,8 @@ package org.odk.voice.widgets;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlForm;
@@ -27,7 +27,7 @@ public class FormStartWidget extends WidgetBase {
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
     VxmlForm startForm = new VxmlForm("action", 
-        createPrompt(StringConstants.formStartPrompt(formTitle)),
+        createPrompt(String.format(getString(ResourceKeys.THANK_YOU),formTitle)),
             grammar, filled);
     new VxmlDocument(sessionid, startForm).write(out);
   }
