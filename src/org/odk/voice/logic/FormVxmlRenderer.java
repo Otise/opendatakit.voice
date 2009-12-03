@@ -405,16 +405,23 @@ public class FormVxmlRenderer {
   }
   
   private void selectForm(String formName) {
-    String formPath = FileConstants.FORMS_PATH + File.separator + formName;
-    fh = FormLoader.getFormHandler(formPath, null);
+    //String formPath = FileConstants.FORMS_PATH + File.separator + formName;
+    fh = FormLoader.getFormHandler(formName, null);
     if (fh == null) {
-      log.error("Could not find form at " + formPath);
+      log.error("Could not find form " + formName);
       renderError(VoiceError.FORM_NOT_FOUND, null);
+      return;
+    }
+    int instanceId = -1;
+    try {
+      instanceId = dba.createInstance(callerid);
+    } catch (SQLException e) {
+      log.error("SQLException creating new instance. Callerid=" + callerid, e);
     }
     vs.setFormHandler(fh);
+    vs.setInstanceid(instanceId);
     
     preloadForm(fh.getForm(), true);
-    
     renderPrompt(fh.currentPrompt());
   }
   
@@ -475,10 +482,7 @@ public class FormVxmlRenderer {
   }
   
   private VoiceSession newSession(String sessionid, String callerid){
-    if (callerid == null && sessionid == null) {
-      log.error("No callerid or sessionid");
-      return null;
-    }
+    
     VoiceSession vs = new VoiceSession();
     if (callerid != null)
       vs.setCallerid(callerid);
@@ -497,7 +501,21 @@ public class FormVxmlRenderer {
     String path = getExportPath();
     FileUtils.createFolder(path);
     log.info("Export data path: " + path);
-    fh.exportData(path, complete);
+    byte[] xml = fh.getInstanceXml();
+    String filename = path + File.separator +
+               path.substring(path.lastIndexOf(File.separator) + 1) + ".xml";
+    log.info("XML path: " + filename);
+    try {
+      FileUtils.writeFile(xml, filename, true);
+    } catch (IOException e) {
+      log.error("IOException writing instance XML to backup file.");
+    }
+    try {
+      dba.setInstanceXml(vs.getInstanceid(), xml);
+    } catch (SQLException e) {
+      log.error("SQLException setting instance XML.");
+    }
+    
     // probably markCompleted true iff they actually finished the survey
     // but this is dependent on an instances DB...are we making one?
     if (complete) {

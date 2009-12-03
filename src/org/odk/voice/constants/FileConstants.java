@@ -17,7 +17,6 @@
 package org.odk.voice.constants;
 
 import java.io.File;
-import java.util.Properties;
 
 
 /**

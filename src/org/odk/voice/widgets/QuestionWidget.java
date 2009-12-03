@@ -17,6 +17,7 @@ public abstract class QuestionWidget extends WidgetBase{
   VxmlForm questionCountForm = null;
   
   public QuestionWidget(PromptElement p) {
+    super();
     this.prompt = p;
     try {
       if (p.getConstraintText() != null)

@@ -5,7 +5,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
+import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.constants.StringConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.servlet.FormVxmlServlet;
@@ -16,7 +19,24 @@ import org.odk.voice.vxml.VxmlUtils;
 public abstract class WidgetBase implements VxmlWidget{
 
   String sessionid;
+  
+  ResourceBundle resources;
+  
   private List<String> promptStrings = new ArrayList<String>();
+  
+  public WidgetBase(){
+    resources =
+      ResourceBundle.getBundle("Resources", GlobalConstants.DEFAULT_LOCALE);
+  }
+  
+  public void setLocale(Locale l) {
+    resources = 
+      ResourceBundle.getBundle("Resources", l);
+  }
+  
+  public String getString(String key){
+    return resources.getString(key);
+  }
   
   public void setSessionid(String sessionid){
     this.sessionid = sessionid;

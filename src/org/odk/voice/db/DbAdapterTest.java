@@ -65,10 +65,14 @@ public class DbAdapterTest extends TestCase {
       
       dba.addForm(name, data);
       dba.addForm(name2, data2);
-      assertTrue(Arrays.equals(data, dba.getForm(name)));
-      assertTrue(Arrays.equals(data2, dba.getForm(name2)));
+      assertTrue(Arrays.equals(data, dba.getFormXml(name)));
+      assertTrue(Arrays.equals(data2, dba.getFormXml(name2)));
       dba.addForm(name2, data);
-      assertTrue(Arrays.equals(data, dba.getForm(name2)));
+      assertTrue(Arrays.equals(data, dba.getFormXml(name2)));
+      byte[] bin1 = "abcdefg".getBytes();
+      dba.setFormBinary(name2, bin1);
+      assertTrue(Arrays.equals(data, dba.getFormXml(name2)));
+      assertTrue(Arrays.equals(bin1, dba.getFormBinary(name2)));
       assertNull(dba.getAudioPrompt("notinthedb"));
     } catch (Exception e) {
       e.printStackTrace();
@@ -83,7 +87,7 @@ public class DbAdapterTest extends TestCase {
       assertNull(dba.getInstanceXml(12345));
       assertNull(dba.getInstanceXml(instanceId));
       String xml = "<xml>Some xml</xml>\n";
-      dba.setInstanceXml(instanceId, new StringBufferInputStream(xml));
+      dba.setInstanceXml(instanceId, xml.getBytes());
       assertTrue(Arrays.equals(xml.getBytes(), dba.getInstanceXml(instanceId)));
       int instanceId2 = dba.createInstance(callerid);
       int[] instances = dba.getUncompletedInstances(callerid);

@@ -2,6 +2,7 @@ package org.odk.voice.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.odk.voice.constants.FileConstants;
+import org.odk.voice.db.DbAdapter;
 import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.storage.MultiPartFormItem;
@@ -61,10 +63,19 @@ public class XFormUploadServlet extends HttpServlet {
     }
   }
     
-  private String saveForm(MultiPartFormItem item) throws FileUploadException, IOException {
+  // right now, we write to database AND to file
+  private String saveForm(MultiPartFormItem item) throws FileUploadException, IOException, SQLException {
     String filename = "form.xml";
     String path = FileConstants.FORMS_PATH + File.separator + filename;
     byte[] data =  item.getData();
+    DbAdapter dba = null;
+    try {
+      dba = new DbAdapter();
+      dba.addForm(filename, data);
+    } finally {
+      dba.close();
+      dba = null;
+    }
     FileUtils.writeFile(data, path, true);
     return filename;
 //    String filename = item.getFilename();

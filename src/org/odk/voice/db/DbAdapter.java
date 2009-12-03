@@ -95,10 +95,10 @@ public class DbAdapter {
    * XForm data model for this instance.
    * @throws SQLException
    */
-  public void setInstanceXml(int instanceId, InputStream xml) throws SQLException {
+  public void setInstanceXml(int instanceId, byte[] xml) throws SQLException {
     String q = "UPDATE instance SET xml=? WHERE id=?;";
     PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setBinaryStream(1, xml);
+    stmt.setBytes(1, xml);
     stmt.setInt(2, instanceId);
     stmt.executeUpdate();
   }
@@ -222,7 +222,7 @@ public class DbAdapter {
    * returns null.
    * @throws SQLException
    */
-  public byte[] getForm(String name) throws SQLException {
+  public byte[] getFormXml(String name) throws SQLException {
     String q = "SELECT xml FROM form WHERE name=?;";
     
     PreparedStatement stmt = con.prepareStatement(q);
@@ -237,20 +237,26 @@ public class DbAdapter {
   }
   
   /**
-   * 
+   * Sets the binary associated with a form for faster loading.
    * @param formname
    * @param formdef
    * @throws SQLException
    */
-  public void setFormdefBinary(String formname, byte[] formdef) throws SQLException {
-    String q = "REPLACE INTO form (name, formdef) VALUES (?,?);";
+  public void setFormBinary(String formname, byte[] formdef) throws SQLException {
+    String q = "UPDATE form SET formdef=? WHERE name=?;";
     PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setString(1, formname);
-    stmt.setObject(2, formdef);
+    stmt.setString(2, formname);
+    stmt.setObject(1, formdef);
     stmt.executeUpdate();
   }
   
-  public byte[] getFormdefBinary(String formname) throws SQLException {
+  /**
+   * Gets the binary associated with a form, used for faster loading.
+   * @param formname
+   * @return
+   * @throws SQLException
+   */
+  public byte[] getFormBinary(String formname) throws SQLException {
     String q = "SELECT formdef FROM form WHERE name=?;";
     
     PreparedStatement stmt = con.prepareStatement(q);
@@ -264,6 +270,7 @@ public class DbAdapter {
     }
   }
   
+  
   public byte[] getAudioPrompt(String prompt) {
     return getAudioPrompt(getPromptHash(prompt));
   }
@@ -271,21 +278,56 @@ public class DbAdapter {
   public byte[] getAudioPrompt(int prompthash) {
     try {
       String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
-      log.info("get audio prompt: " + prompthash);
+      
       PreparedStatement stmt = con.prepareStatement(q);
       stmt.setInt(1, prompthash);
       ResultSet rs = stmt.executeQuery();
       
       if (rs.next()) {
+        log.info("get audio prompt success: " + prompthash);
         return rs.getBytes("data");
   //      Blob dataBlob = rs.getBlob("data");
   //      return dataBlob.getBytes(1L, (int) dataBlob.length());
       } else {
+        log.info("get audio prompt failure: " + prompthash);
         return null;
       }
     } catch (SQLException e) {
       log.error(e);
       return null;
+    }
+  }
+  
+  public List<String> getAudioPrompts(){
+    try {
+      String q = "SELECT prompt FROM audio_prompt;";
+      Statement stmt = con.createStatement();
+      ResultSet rs = stmt.executeQuery(q);
+      List<String> res = new ArrayList<String>();
+      while (rs.next()) {
+        res.add(rs.getString("prompt"));
+      }
+      return res;
+    } catch (SQLException e) {
+      log.error(e);
+      return null;
+    }
+  }
+  
+  public boolean deleteAudioPrompt(String prompt) {
+    log.info("Deleting audio prompt: " + prompt);
+    return deleteAudioPrompt(getPromptHash(prompt));
+  }
+  
+  public boolean deleteAudioPrompt(int prompthash) {
+    try {
+      String q = "DELETE FROM audio_prompt WHERE prompthash=?";
+      PreparedStatement stmt = con.prepareStatement(q);
+      stmt.setInt(1, prompthash);
+      return stmt.executeUpdate() > 0;
+    } catch (SQLException e) {
+      log.error(e);
+      return false;
     }
   }
   
@@ -338,6 +380,10 @@ public class DbAdapter {
     return StringEscapeUtils.escapeSql(s);
   }
   
+  /**
+   * Creates the database if it hasn't already been created.
+   * @throws SQLException
+   */
   private void createDb() throws SQLException {
     Connection con =
       DriverManager.getConnection(
@@ -359,6 +405,10 @@ public class DbAdapter {
     }
   }
   
+  /**
+   * Initializes the tables in the database.
+   * @throws SQLException
+   */
   protected void initDb() throws SQLException {
     Statement stmt = con.createStatement();
     stmt.execute(
@@ -394,6 +444,10 @@ public class DbAdapter {
         );
   }
   
+  /**
+   * Resets the database, deleting all data.
+   * @throws SQLException
+   */
   protected void resetDb() throws SQLException {
     Statement stmt = con.createStatement();
     //stmt.execute("DROP DATABASE " + DB_NAME);

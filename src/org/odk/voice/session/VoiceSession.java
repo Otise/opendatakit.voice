@@ -16,6 +16,7 @@ public class VoiceSession {
   private boolean admin;
   private String callerid; 
   private String sessionid;
+  private int instanceid;
   private Date date;
   
   private String[] recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
@@ -87,6 +88,14 @@ public class VoiceSession {
 
   public int getRecordLanguageIndex() {
     return recordLanguageIndex;
+  }
+
+  public void setInstanceid(int instanceid) {
+    this.instanceid = instanceid;
+  }
+
+  public int getInstanceid() {
+    return instanceid;
   }
 
 }

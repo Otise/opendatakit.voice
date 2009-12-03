@@ -19,10 +19,11 @@ package org.odk.voice.xform;
 
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -485,12 +486,17 @@ public class FormHandler {
      * Given a file, import the data from that file into the current form.
      */
     public boolean importData(String filePath) {
-
-        // convert files into a byte array
-        byte[] fileBytes = FileUtils.getFileAsBytes(new File(filePath));
+      byte[] fileBytes = FileUtils.getFileAsBytes(new File(filePath));
+      return importData(fileBytes);
+    }
+    
+    /**
+     * Given a byte array of data, import the data from that file into the current form.
+     */
+    public boolean importData(byte[] data) {
 
         // get the root of the saved and template instances
-        TreeElement savedRoot = XFormParser.restoreDataModel(fileBytes, null).getRoot();
+        TreeElement savedRoot = XFormParser.restoreDataModel(data, null).getRoot();
         TreeElement templateRoot = mForm.getDataModel().getRoot().deepCopy(true);
 
         // weak check for matching forms
@@ -512,55 +518,50 @@ public class FormHandler {
 
 
     /**
-     * Loop through the data model and writes the XML file into the answer
-     * folder.
+     * Loop through the data model and writes the XML file into the 
+     * output stream.
      */
-    private boolean exportXmlFile(ByteArrayPayload payload, String path) {
+    private byte[] exportXmlFile(ByteArrayPayload payload) {
 
         // create data stream
         InputStream is = payload.getPayloadStream();
         int len = (int) payload.getLength();
-
         // read from data stream
         byte[] data = new byte[len];
         try {
             int read = is.read(data, 0, len);
-            if (read > 0) {
-                // write xml file
-                try {
-                     String filename = path + File.separator +
-                     path.substring(path.lastIndexOf(File.separator) + 1) + ".xml";
-                    log.info("XML path: " + filename);
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
-                    bw.write(new String(data, "UTF-8"));
-                    bw.flush();
-                    bw.close();
-                    return true;
-
-                } catch (IOException e) {
-                    log.error("Error writing XML file");
-                    e.printStackTrace();
-                    return false;
-                }
-            }
+            return data;
+//            if (read > 0) {
+//                // write xml file
+//                try {
+//                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(baos));
+//                    bw.write(new String(data, "UTF-8"));
+//                    bw.flush();
+//                    bw.close();
+//                    return baos.toByteArray();
+//                } catch (IOException e) {
+//                    log.error("Error writing XML file");
+//                    e.printStackTrace();
+//                    return null;
+//                }
+//            }
         } catch (IOException e) {
             log.error("Error reading from payload data stream");
             e.printStackTrace();
-            return false;
+            return null;
         }
-        
-        return false;
-
+//        
+//        return false;
     }
 
-
+    
     
 
     /**
-     * Serialize data model and extract payload. Exports both binaries and xml.
-     */
-    public boolean exportData(String instancePath, boolean markCompleted) {
-
+     * Serialize data model and extract payload.
+     */   
+    public byte[] getInstanceXml(){
         ByteArrayPayload payload;
         try {
             // assume no binary data inside the model.
@@ -568,13 +569,12 @@ public class FormHandler {
             XFormSerializingVisitor serializer = new XFormSerializingVisitor();
             payload = (ByteArrayPayload) serializer.createSerializedPayload(datamodel);
 
-            // write out xml
-            exportXmlFile(payload, instancePath);
+            return exportXmlFile(payload);
 
         } catch (IOException e) {
             log.error("Error creating serialized payload");
             e.printStackTrace();
-            return false;
+            return null;
         }
 //
 //        FileDbAdapter fda = new FileDbAdapter(context);
@@ -603,7 +603,7 @@ public class FormHandler {
 //        }
 //
 //        fda.close();
-        return true;
+//        return true;
 
     }
     

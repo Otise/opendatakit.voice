@@ -2,6 +2,7 @@ package org.odk.voice.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -56,7 +57,18 @@ public class CurrentRecordPromptServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	  if (req.getParameter("deleteall").equals("true")) {
-	    // delete all prompt audio
+	    DbAdapter dba = null;
+	    try {
+	      dba = new DbAdapter();
+	      List<String> prompts = dba.getAudioPrompts();
+	      log.info("Size: " + prompts.size());
+	      for (String prompt : dba.getAudioPrompts()) {
+	        dba.deleteAudioPrompt(prompt);
+	      }
+	      dba.setCurrentRecordPrompt(null);
+	    } catch (SQLException e) {
+	      log.error(e);
+	    }
 	  }
 	}
 
