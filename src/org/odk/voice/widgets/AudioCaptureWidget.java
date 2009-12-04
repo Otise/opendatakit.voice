@@ -3,11 +3,13 @@ package org.odk.voice.widgets;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.db.DbAdapter;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.storage.FileUtils;
@@ -28,12 +30,12 @@ public class AudioCaptureWidget extends QuestionWidget {
   .getLogger(AudioCaptureWidget.class);
   
   PromptElement prompt;
-  String instancePath;
+  int instanceId;
   
-  public AudioCaptureWidget(PromptElement prompt, String instancePath) {
+  public AudioCaptureWidget(PromptElement prompt, int instanceId) {
     super(prompt);
     this.prompt = prompt;
-    this.instancePath = instancePath;
+    this.instanceId = instanceId;
   }
   
   @Override
@@ -76,15 +78,25 @@ public class AudioCaptureWidget extends QuestionWidget {
     if (item == null)
       return null;
     byte[] data = item.getData();
-    String filename = prompt.getInstanceNode().getName() + "." + AUDIO_EXTENSION;
-    String path = instancePath + File.separator + filename;
-    log.info("Path for saving audio data: " + path);
+    String binaryName = prompt.getInstanceNode().getName();
+    String mimeType = AUDIO_EXTENSION;
+//    String path = FileUtils.getInstancePath(instanceId) + File.separator + filename;
+//    log.info("Path for saving audio data: " + path);
+//    try {
+//      FileUtils.writeFile(data, path, true);
+//    } catch (IOException e){
+//      log.error("IOException writing audio data to " + path + ".", e);
+//    }
+    DbAdapter dba = null;
     try {
-      FileUtils.writeFile(data, path, true);
-    } catch (IOException e){
-      log.error("IOException writing audio data to " + path + ".", e);
+      dba = new DbAdapter();
+      dba.addBinaryToInstance(instanceId, binaryName, mimeType, data);
+    } catch (SQLException e) {
+      
+    } finally {
+      dba.close();
     }
-    return new StringData(filename);
+    return new StringData(binaryName);
   }
   
 }

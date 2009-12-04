@@ -108,13 +108,15 @@ public class DbAdapterTest extends TestCase {
       int instanceId = dba.createInstance(callerid);
       byte[] binary1 = new byte[]{0,127,1,126,2,125};
       byte[] binary2 = "QWERTY".getBytes();
-      int id1 = dba.addBinaryToInstance(instanceId, binary1);
-      int id2 = dba.addBinaryToInstance(instanceId, binary2);
+      assertTrue(dba.addBinaryToInstance(instanceId, "name1", "text/xml", binary1));
+      assertTrue(dba.addBinaryToInstance(instanceId, "name2", "audio/wmv", binary2));
       List<InstanceBinary> binaries = dba.getBinariesForInstance(instanceId);
       assertTrue(binaries.size() == 2);
-      boolean parity = binaries.get(0).id == id1;
-      assertTrue(binaries.get(0).id == (parity ? id1 : id2));
-      assertTrue(binaries.get(1).id == (parity ? id2 : id1));
+      boolean parity = binaries.get(0).name.equals("name1");
+      assertEquals(binaries.get(0).name, parity ? "name1" : "name2");
+      assertEquals(binaries.get(1).name, parity ? "name2" : "name1");
+      assertEquals(binaries.get(0).mimeType, parity ? "text/xml" : "audio/wmv");
+      assertEquals(binaries.get(1).mimeType, parity ? "audio/wmv" : "text/xml");
       assertTrue(Arrays.equals(binaries.get(0).binary, parity ? binary1 : binary2));
       assertTrue(Arrays.equals(binaries.get(1).binary, parity ? binary2 : binary1));
     } catch (Exception e) {

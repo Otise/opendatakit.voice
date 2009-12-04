@@ -15,8 +15,10 @@
  */
 package org.odk.voice.storage;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -24,14 +26,14 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.log4j.Logger;
-
-import sun.rmi.runtime.Log;
+import org.odk.voice.db.DbAdapter;
+import org.odk.voice.db.DbAdapter.InstanceBinary;
 
 
 /**
@@ -57,7 +59,7 @@ public class InstanceUploader  {
     this.serverUrl = serverUrl;
   }
   
-  public int uploadInstance(String instancePath){
+  public int uploadInstance(int instanceId){
           // configure connection
           HttpParams params = new BasicHttpParams();
           HttpConnectionParams.setConnectionTimeout(params, CONNECTION_TIMEOUT);
@@ -68,31 +70,56 @@ public class InstanceUploader  {
           DefaultHttpClient httpclient = new DefaultHttpClient(params);
           HttpPost httppost = new HttpPost(serverUrl);
 
-          // get instance file
-          File instanceDir = new File(instancePath);
-
-          // find all files in parent directory
-          File[] files = instanceDir.listFiles();
-          if (files == null) {
-              log.warn("No files to upload in " + instancePath);
-          }
+//          // get instance file
+//          File instanceDir = new File(instancePath);
+//
+//          // find all files in parent directory
+//          File[] files = instanceDir.listFiles();
+//          if (files == null) {
+//              log.warn("No files to upload in " + instancePath);
+//          }
 
           // mime post
           MultipartEntity entity = new MultipartEntity();
-          for (int j = 0; j < files.length; j++) {
-              File f = files[j];
-              if (f.getName().endsWith(".xml")) {
-                  // uploading xml file
-                  entity.addPart("xml_submission_file", new FileBody(f,"text/xml"));
-                  log.info("added xml file " + f.getName());
-              } else if (f.getName().endsWith(".wav")) {
-                  // upload audio file
-                  entity.addPart(f.getName(), new FileBody(f, "audio/wav"));
-                  log.info("added audio file" + f.getName());
-              } else {
-                log.info("unsupported file type, not adding file: " + f.getName());
-              }
+          
+          // using file storage
+//          for (int j = 0; j < files.length; j++) {
+//              File f = files[j];
+//              if (f.getName().endsWith(".xml")) {
+//                  // uploading xml file
+//                  entity.addPart("xml_submission_file", new FileBody(f,"text/xml"));
+//                  log.info("added xml file " + f.getName());
+//              } else if (f.getName().endsWith(".wav")) {
+//                  // upload audio file
+//                  entity.addPart(f.getName(), new FileBody(f, "audio/wav"));
+//                  log.info("added audio file" + f.getName());
+//              } else {
+//                log.info("unsupported file type, not adding file: " + f.getName());
+//              }
+//          }
+          
+          // using database storage
+          
+          DbAdapter dba = null;
+          try {
+            dba = new DbAdapter();
+            byte[] xml = dba.getInstanceXml(instanceId);
+            if (xml == null) {
+              log.error("No XML for instanceId " + instanceId);
+              return STATUS_ERROR;
+            }
+            entity.addPart("xml_submission_file", new InputStreamBody(new ByteArrayInputStream(xml),"text/xml"));
+            List<InstanceBinary> binaries = dba.getBinariesForInstance(instanceId);
+            for (InstanceBinary b : binaries) {
+              entity.addPart(b.name, new InputStreamBody(new ByteArrayInputStream(b.binary), b.mimeType));
+            }
+          } catch (SQLException e) {
+            log.error("SQLException uploading instance", e);
+            return STATUS_ERROR;
+          } finally {
+            dba.close();
           }
+          
           httppost.setEntity(entity);
 
           // prepare response and return uploaded

@@ -26,6 +26,7 @@ import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
+import org.odk.voice.widgets.ChangeLanguageWidget;
 import org.odk.voice.widgets.ConstraintFailedWidget;
 import org.odk.voice.widgets.FormEndWidget;
 import org.odk.voice.widgets.FormStartWidget;
@@ -249,16 +250,17 @@ public class FormVxmlRenderer {
         
         if (fh.isEnd()) {
           String[] langs = fh.getLanguages();
-          if (langs == null || vs.getRecordLanguageIndex() == langs.length - 1){
-            log.info("Tried to get record prompt, but at the end, so returned null.");
-            return null;
+          
+          if (langs == null || vs.getRecordLanguageIndex() == langs.length){
+            log.info("Tried to get record prompt, but at the end, so offering non-survey prompts.");
+            return nextExtraPrompt();
           }
           vs.setRecordLanguageIndex(vs.getRecordLanguageIndex() + 1);
           fh.setLanguage(langs[vs.getRecordLanguageIndex()]);
           vs.setRecordPromptIndex(-1);
           return nextRecordPrompt(rerecord);
         }
-        vs.setRecordPrompts(getWidgetFromPrompt(fh.nextPrompt()).getPromptStrings());
+        vs.setRecordPrompts(getWidgetFromPrompt(fh.nextQuestionPrompt()).getPromptStrings());
         vs.setRecordPromptIndex(0);
         //log.debug("Incrementing question, now prompt is " + vs.getRecordPrompts()[vs.getRecordPromptIndex()]);
       }
@@ -266,6 +268,16 @@ public class FormVxmlRenderer {
     log.info("Next record prompt. Index: " + vs.getRecordPromptIndex() + ". Value: " + 
         vs.getRecordPrompts()[vs.getRecordPromptIndex()]);
     return vs.getRecordPrompts()[vs.getRecordPromptIndex()];
+  }
+  
+  /**
+   * Iterates through 'extra' prompts, i.e. prompts for things that aren't part of the 
+   * form controls, e.g. language selection, audio prompt recording, etc.
+   * @return the next prompt, or null if no prompts remain.
+   */
+  public String nextExtraPrompt(){
+    // not yet implemented
+    return null;
   }
  
   private void writeCurrentRecordPrompt(String prompt) {
@@ -308,13 +320,10 @@ public class FormVxmlRenderer {
     case RESUME_FORM:
       continueForm();
       break;
-    case CHANGE_LANGUAGE:
-      // we need to rethink how we do Strings before we can change language, because StringConstants is 
-      // not language-specific. We can use ResourceBundles, or we can define our own localization package 
-      // org.odk.voice.i13n, that has e.g. StringConstants.get().intInstructions, and a function 
-      // StringConstants.addLanguage(Language l). Then we lose all the static checking (that the String 
-      // resources actually exist in each language). Alternatively, we can define an interface with String 
-      // methods for each String we want; then it becomes extremely verbose.
+    case LANGUAGE_MENU:
+      changeLanguageMenu();
+      break;
+    case SET_LANGUAGE:
       fh.setLanguage(answer);
       renderPrompt(fh.currentPrompt());
       break;
@@ -350,6 +359,15 @@ public class FormVxmlRenderer {
     }
   }
   
+  private void changeLanguageMenu() {
+    log.info("Change language menu");
+    try {
+      ChangeLanguageWidget w = new ChangeLanguageWidget(fh);
+      w.getPromptVxml(out);
+    } catch (IOException e) {
+      log.error(e);
+    }
+  }
   private void beginSession() {
     // this should eventually allow the user to pick a form, (or pass-through if only one form)
     // and should go in a widget
@@ -376,7 +394,7 @@ public class FormVxmlRenderer {
     if (!pe.isReadonly()) {
       try {
         saveStatus =
-                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(sessionid, pe, getExportPath()).getAnswer(answer, binaryData),
+                fh.saveAnswer(pe, WidgetFactory.createWidgetFromPrompt(sessionid, pe, vs.getInstanceid()).getAnswer(answer, binaryData),
                         evaluateConstraints);
       } catch (IllegalArgumentException e) {
         log.error("Illegal argument exception saving answer", e);
@@ -449,7 +467,7 @@ public class FormVxmlRenderer {
       few.setSessionid(sessionid);
       return few;
     case PromptElement.TYPE_QUESTION:
-      QuestionWidget w = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, null);
+      QuestionWidget w = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, vs.getInstanceid());
       w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
       return w;
     default:
@@ -521,7 +539,7 @@ public class FormVxmlRenderer {
     if (complete) {
       InstanceUploader iu = new InstanceUploader();
       iu.setServerUrl(FileConstants.UPLOAD_URL);
-      if (iu.uploadInstance(path) == InstanceUploader.STATUS_OK) {
+      if (iu.uploadInstance(vs.getInstanceid()) == InstanceUploader.STATUS_OK) {
         log.info("Instance uploaded to server at " + FileConstants.UPLOAD_URL + " successfully.");
       } else {
         log.warn("Instance upload to server at " + FileConstants.UPLOAD_URL + " failed.");

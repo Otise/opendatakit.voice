@@ -32,7 +32,7 @@ public class WidgetFactory {
      * @param pe prompt element to be rendered
      * @param instancePath path to the instance file
      */
-    static public QuestionWidget createWidgetFromPrompt(String sessionid, PromptElement pe, String instancePath) {
+    static public QuestionWidget createWidgetFromPrompt(String sessionid, PromptElement pe, int instanceId) {
         QuestionWidget questionWidget = null;
         switch (pe.getQuestionType()) {
             case Constants.CONTROL_INPUT:
@@ -56,7 +56,7 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                questionWidget = new AudioCaptureWidget(pe, instancePath);
+                questionWidget = new AudioCaptureWidget(pe, instanceId);
                 break;
             case Constants.CONTROL_SELECT_ONE:
                 questionWidget = new SelectOneWidget(pe);

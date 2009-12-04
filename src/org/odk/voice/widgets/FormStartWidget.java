@@ -22,7 +22,7 @@ public class FormStartWidget extends WidgetBase {
   public void getPromptVxml(Writer out) throws IOException {
     String grammar = VxmlUtils.createGrammar(new String[]{"1","9","7"}, 
         new String[]{VoiceAction.NEXT_PROMPT.name(),
-                     VoiceAction.CHANGE_LANGUAGE.name(),
+                     VoiceAction.SET_LANGUAGE.name(),
                      VoiceAction.ADMIN.name()});
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";

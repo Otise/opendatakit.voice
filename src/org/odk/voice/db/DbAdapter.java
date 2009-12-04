@@ -144,23 +144,22 @@ public class DbAdapter {
    * Stores a binary blob (e.g. audio file, image) associated with a given instance.
    * 
    * @param instanceId
+   * @param binaryName 
    * @param binary The binary file.
    * @return The id of the binary, which can be used to identify it when it is requrested from the db.
    * @throws SQLException
    */
-  public int addBinaryToInstance(int instanceId, byte[] binary) throws SQLException {
-    String q = "INSERT INTO instance_binary (instanceid, data) " +
-      "VALUES (?,?)";
+  public boolean addBinaryToInstance(int instanceId, String binaryName, String mimeType, byte[] binary) throws SQLException {
+    String q = "INSERT INTO instance_binary (instanceid, name, mimeType, data) " +
+      "VALUES (?,?,?,?)";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setInt(1, instanceId);
-    stmt.setObject(2, binary);
+    stmt.setString(2, binaryName);
+    stmt.setString(3, mimeType);
+    stmt.setObject(4, binary);
     stmt.executeUpdate();
     
-    // a hack to get the id of the inserted (auto_incremented) row
-    stmt = con.prepareStatement("SELECT MAX(id) FROM instance_binary");
-    ResultSet rs = stmt.executeQuery();
-    rs.next();
-    return rs.getInt("MAX(id)");
+    return true;
   }
   
   /**
@@ -168,11 +167,13 @@ public class DbAdapter {
    * @author alerer
    *
    */
-  static class InstanceBinary{
-    public int id;
+  public static class InstanceBinary{
+    public String name;
     public byte[] binary;
-    InstanceBinary (int id, byte[] binary){
-      this.id = id;
+    public String mimeType;
+    InstanceBinary (String name, String mimeType, byte[] binary){
+      this.name = name;
+      this.mimeType = mimeType;
       this.binary = binary;
     } 
   }
@@ -186,7 +187,7 @@ public class DbAdapter {
    * @throws SQLException
    */
   public List<InstanceBinary> getBinariesForInstance(int instanceId) throws SQLException {
-    String q = "SELECT id, data FROM instance_binary WHERE instanceid=?;";
+    String q = "SELECT name, mimeType, data FROM instance_binary WHERE instanceid=?;";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setInt(1, instanceId);
     ResultSet rs = stmt.executeQuery();
@@ -194,9 +195,10 @@ public class DbAdapter {
     List<InstanceBinary> l = new ArrayList<InstanceBinary>();
     
     while (rs.next()) {
-      int id = rs.getInt("id");
+      String name = rs.getString("name");
+      String mimeType = rs.getString("mimeType");
       byte[] data = rs.getBytes("data");
-      l.add(new InstanceBinary(id,data));
+      l.add(new InstanceBinary(name, mimeType, data));
     }
     return l;
   }
@@ -284,12 +286,12 @@ public class DbAdapter {
       ResultSet rs = stmt.executeQuery();
       
       if (rs.next()) {
-        log.info("get audio prompt success: " + prompthash);
+        //log.info("get audio prompt success: " + prompthash);
         return rs.getBytes("data");
   //      Blob dataBlob = rs.getBlob("data");
   //      return dataBlob.getBytes(1L, (int) dataBlob.length());
       } else {
-        log.info("get audio prompt failure: " + prompthash);
+        //log.info("get audio prompt failure: " + prompthash);
         return null;
       }
     } catch (SQLException e) {
@@ -420,9 +422,10 @@ public class DbAdapter {
       );
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS instance_binary (" + 
-            "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," + 
             "instanceid INT," + 
+            "name VARCHAR(200)," +
             "data MEDIUMBLOB," + 
+            "PRIMARY KEY (instanceid, name)," +
             "FOREIGN KEY (instanceid) REFERENCES instance(id) );"
       );
     stmt.execute(

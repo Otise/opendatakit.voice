@@ -93,6 +93,9 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.PLEASE_HOLD,
         "Please hold."
       },
+      {ResourceKeys.CHANGE_LANGUAGE_INSTRUCTIONS,
+        "Please select your language."
+      }
   // END OF MATERIAL TO LOCALIZE
   };
 }

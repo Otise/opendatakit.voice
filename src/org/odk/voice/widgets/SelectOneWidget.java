@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
@@ -20,6 +21,9 @@ import org.odk.voice.xform.PromptElement;
 
 public class SelectOneWidget extends QuestionWidget {
   
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(SelectOneWidget.class);
+  
   public SelectOneWidget(PromptElement p) {
     super(p);
   }
@@ -33,17 +37,21 @@ public class SelectOneWidget extends QuestionWidget {
     
     StringBuilder confPrompt = new StringBuilder();
     
-    //addConfAudio(StringConstants.answerConfirmationKeypad, confPrompt, confPromptStrings);
-    addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
+
     if (prompt.getSelectItems() != null) {
       OrderedHashtable h = prompt.getSelectItems();
       Enumeration items = h.keys();
       String itemLabel = null;
       String itemValue = null;
       
-      int i = 1;
+      addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
       confPrompt.append(VxmlUtils.getAudio(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)));
+      int i = 1;
       while (items.hasMoreElements()) {
+          if (i > 9) {
+            log.warn("ODK Voice cannot handle more than 9 elements in a select1 control.");
+            break;
+          }
           itemLabel = (String) items.nextElement();
           itemValue = (String) h.get(itemLabel);
           promptSegments.add(String.format(getString(ResourceKeys.SELECT_1_PRESS),i));
@@ -53,7 +61,7 @@ public class SelectOneWidget extends QuestionWidget {
           
           confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
           confPrompt.append(VxmlUtils.getAudio(itemLabel));
-          addPromptString(itemLabel);
+          // addPromptString(itemLabel);
           
           i++;
       }
