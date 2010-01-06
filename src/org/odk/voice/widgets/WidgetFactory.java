@@ -16,6 +16,7 @@
 
 package org.odk.voice.widgets;
 
+import org.apache.log4j.Logger;
 import org.javarosa.core.model.Constants;
 import org.odk.voice.xform.PromptElement;
 
@@ -25,6 +26,9 @@ import org.odk.voice.xform.PromptElement;
  * @author Adam Lerer (adam.lerer@gmail.com)
  */
 public class WidgetFactory {
+  
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(WidgetFactory.class);
 
     /**
      * Returns the appropriate QuestionWidget for the given PromptElement.
@@ -65,6 +69,7 @@ public class WidgetFactory {
                 questionWidget = new SelectMultiWidget(pe);
                 break;
             default:
+                log.error("String controls not supported.");
                 questionWidget = new StringWidget(pe);
                 break;
         }

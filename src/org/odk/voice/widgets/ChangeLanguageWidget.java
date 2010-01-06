@@ -62,7 +62,7 @@ public class ChangeLanguageWidget extends WidgetBase {
       VxmlField answerField = new VxmlField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          "<var name=\"action\" value=\"" + VoiceAction.SET_LANGUAGE.name() + "\"/>" +
+          "<var name=\"action\" expr=\"'" + VoiceAction.SET_LANGUAGE.name() + "'\"/>" +
           VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action","answer"}));
       
 //      

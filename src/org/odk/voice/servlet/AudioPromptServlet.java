@@ -47,8 +47,10 @@ public class AudioPromptServlet extends HttpServlet {
 	    dba = new DbAdapter();
 	    byte[] audio = dba.getAudioPrompt(promptHash);
 	    if (audio == null) {
+	      log.info("No audio: " + promptHash);
 	      resp.sendError(404);
 	    } else {
+	      log.info("Found audio: " + promptHash);
 	      resp.getOutputStream().write(audio);
 	    }
 	  } catch (NumberFormatException e) {

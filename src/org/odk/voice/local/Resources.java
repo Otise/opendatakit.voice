@@ -6,7 +6,9 @@ import java.util.ListResourceBundle;
 /**
  * The default ResourceBundle for local content.
  * ODK Voice can be translated to other languages by creating locale-specific Resource bundles,
- * e.g. Resources_de for German (the ISO code must be the same as the language code in the XForm).
+ * e.g. Resources_de for German.
+ * 
+ * The locale code needs to be mapped to the language code in an XForm using the OdkLocales class.
  * 
  * @author alerer
  *
@@ -19,22 +21,22 @@ public class Resources extends ListResourceBundle {
   static final Object[][] contents = {
   // LOCALIZE THIS
       {ResourceKeys.FORM_START, 
-        "Welcome to the {0}. You can press star at " +
+        "Welcome to the %1$s. You can press star at " +
         "any time to reach the main menu. Press 1 to begin the survey." +
         "If you need to hang up, you can call back and continue the survey "  +
         "where you left off. "
       },
       {ResourceKeys.FORM_END, 
-        "Thank you for completing the {0}. You can press star to review " + 
+        "Thank you for completing the %1$s. You can press star to review " + 
         "and change your answers, or simply hang up and the survey will be saved."
       },                              
       {ResourceKeys.FORM_RECONNECT, 
-        "Welcome back to the {0}. You currently have an uncompleted " + 
+        "Welcome back to the %1$s. You currently have an uncompleted " + 
         "survey in progress. If you would like to continue with that survey, press 1. " + 
         "If you'd like to start over, press 2."
       },                         
       {ResourceKeys.QUESTION_X_OF_Y, 
-          "Question {0} of {1}."
+          "Question %1$d of %2$d."
       },
       {ResourceKeys.INT_INSTRUCTIONS,
           "Please enter the number on the keypad."
@@ -43,10 +45,10 @@ public class Resources extends ListResourceBundle {
         ""
       },
       {ResourceKeys.SELECT_1_PRESS,
-        "For each option, press 1 for yes and 2 for no."
+        "Press %1$d for "
       },
       {ResourceKeys.SELECT_INSTRUCTIONS,
-        "Please enter the number on the keypad."
+        "For each option, press 1 for yes and 2 for no."
       },
       {ResourceKeys.SELECT_NONE,
         "none of the above."
@@ -95,7 +97,11 @@ public class Resources extends ListResourceBundle {
       },
       {ResourceKeys.CHANGE_LANGUAGE_INSTRUCTIONS,
         "Please select your language."
-      }
+      },
+      {ResourceKeys.STRING_INSTRUCTIONS,
+        "Please enter your answer letter by letter. " +
+        "Press the pound key when you are finished."
+      },
   // END OF MATERIAL TO LOCALIZE
   };
 }

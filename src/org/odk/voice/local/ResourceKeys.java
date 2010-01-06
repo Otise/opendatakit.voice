@@ -25,4 +25,5 @@ public class ResourceKeys {
   public static final String RECORD_PROMPT_INSTRUCTIONS = "recordpromptinstructions";
   public static final String PLEASE_HOLD = "pleasehold";
   public static final String CHANGE_LANGUAGE_INSTRUCTIONS = "changelanguageinstructions";
+  public static final String STRING_INSTRUCTIONS = "stringinstructions";
 }

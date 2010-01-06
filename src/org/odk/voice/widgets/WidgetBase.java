@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.annotation.Resources;
+
 import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
@@ -26,12 +28,15 @@ public abstract class WidgetBase implements VxmlWidget{
   
   public WidgetBase(){
     resources =
-      ResourceBundle.getBundle("Resources", GlobalConstants.DEFAULT_LOCALE);
+      ResourceBundle.getBundle(org.odk.voice.local.Resources.class.getCanonicalName(), 
+          GlobalConstants.DEFAULT_LOCALE);
   }
   
   public void setLocale(Locale l) {
-    resources = 
-      ResourceBundle.getBundle("Resources", l);
+    if (l != null) {
+      resources = 
+        ResourceBundle.getBundle(org.odk.voice.local.Resources.class.getCanonicalName(), l);
+    }
   }
   
   public String getString(String key){

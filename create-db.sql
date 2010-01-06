@@ -1,26 +1,33 @@
  
-DELETE TABLE instances;
+DELETE TABLE instance;
 
-CREATE TABLE IF NOT EXISTS instances
+CREATE TABLE IF NOT EXISTS instance
 (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     xml MEDIUMTEXT
 );
 
+DELETE TABLE instance_binary;
 
-DELETE TABLE sessions;
-
-CREATE TABLE IF NOT EXISTS sessions
+CREATE TABLE IF NOT EXISTS instance_binary
 (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    instance INT,
-    FOREIGN KEY (instance) REFERENCES instances(id)
+    instanceid INT,
+    data MEDIUMBLOB,
+    FOREIGN KEY (instanceid) REFERENCES instance(id)
+);
 
+DELETE TABLE form;
+
+CREATE TABLE IF NOT EXISTS form
+(
+    name VARCHAR(100) NOT NULL PRIMARY KEY,
+    xml MEDIUMTEXT
  );
 
-DELETE TABLE audio_prompts;
+DELETE TABLE audio_prompt;
 
-CREATE TABLE IF NOT EXISTS audio_prompts
+CREATE TABLE IF NOT EXISTS audio_prompt
 (
     prompt VARCHAR(10000) PRIMARY KEY,
     data BLOB

@@ -1,6 +1,5 @@
 package org.odk.voice.db;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,7 +23,7 @@ public class DbAdapter {
   public static final String DB_NAME = "odkvoice";
   public static final String DB_USER = "root";
   public static final String DB_PASS = "odk-voice";
-  private static boolean initialized = false;;
+  private static boolean initialized = false;
   
   Connection con = null;
   
@@ -278,6 +277,7 @@ public class DbAdapter {
   }
   
   public byte[] getAudioPrompt(int prompthash) {
+    log.info("getAudioPrompt: " + prompthash);
     try {
       String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
       
@@ -344,6 +344,7 @@ public class DbAdapter {
   }
     
   public void putAudioPrompt(String prompt, byte[] data) throws SQLException {
+    log.info("putAudioPrompt: " + prompt);
     String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
     "data) VALUES (?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -424,6 +425,7 @@ public class DbAdapter {
         "CREATE TABLE IF NOT EXISTS instance_binary (" + 
             "instanceid INT," + 
             "name VARCHAR(200)," +
+            "mimeType VARCHAR(20)," +
             "data MEDIUMBLOB," + 
             "PRIMARY KEY (instanceid, name)," +
             "FOREIGN KEY (instanceid) REFERENCES instance(id) );"

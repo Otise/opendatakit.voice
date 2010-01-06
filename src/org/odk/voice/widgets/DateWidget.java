@@ -66,7 +66,7 @@ public class DateWidget extends QuestionWidget {
       );
       
       String concatAnswer = //"<var name=\"answer\" expr=\"year.toString() + '/' + month.toString() + '/' date.toString()\"/>";
-        "<script>var answer = year + '/' + month + '/' + date + '.';</script>";
+        "<script>var answer = year + '/' + month + '/' + date;</script>";
 
       VxmlField actionField = new VxmlField("action", 
           createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)),
