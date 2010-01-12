@@ -3,18 +3,20 @@ package org.odk.voice.widgets;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.util.OrderedHashtable;
+import org.odk.voice.constants.GlobalConstants;
+import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
+import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
+import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
@@ -27,61 +29,78 @@ public class StringWidget extends QuestionWidget {
     super(p);
   }
   
+  
   public void getPromptVxml(Writer out) throws IOException{
-    List<String> promptSegments = new ArrayList<String>();
-    List<String> grammarKeys = new ArrayList<String>();
-    List<String> grammarTags = new ArrayList<String>();
-    promptSegments.add(prompt.getQuestionText());
-    promptSegments.add(getString(ResourceKeys.STRING_INSTRUCTIONS));
-    
-    StringBuilder confPrompt = new StringBuilder();
-    
 
-    if (prompt.getSelectItems() != null) {
-      OrderedHashtable h = prompt.getSelectItems();
-      Enumeration items = h.keys();
-      String itemLabel = null;
-      String itemValue = null;
+    
+    final String interdigitTimeout = "<property name=\"interdigettimeout\" value=\"" + 
+            GlobalConstants.INTERDIGIT_TIMEOUT + "\"/>"; 
+    final String actionVar = VxmlUtils.createVar("action", VoiceAction.GET_STRING_MATCHES.name(), true);
+    
+    VxmlSection propSection = new VxmlSection(interdigitTimeout + actionVar);
+    final String digitGrammar = "<grammar src=\"builtin:dtmf/digits\"/>";
+    VxmlField answerField = new VxmlField("answerDigits", 
+        createPrompt(prompt.getQuestionText(), 
+            getString(ResourceKeys.STRING_INSTRUCTIONS)),
+            digitGrammar,
+            VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "answer", "action")
+      );
       
-      addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
-      confPrompt.append(VxmlUtils.getAudio(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)));
-      int i = 1;
-      while (items.hasMoreElements()) {
-          if (i > 9) {
-            log.warn("ODK Voice cannot handle more than 9 elements in a select1 control.");
-            break;
-          }
-          itemLabel = (String) items.nextElement();
-          itemValue = (String) h.get(itemLabel);
-          promptSegments.add(String.format(getString(ResourceKeys.SELECT_1_PRESS),i));
-          promptSegments.add(itemLabel);
-          grammarKeys.add(Integer.toString(i));
-          grammarTags.add(itemValue);
-          
-          confPrompt.append("<" + (i==1?"if":"elseif") + " cond=\"answer=='" + itemValue + "'\"" + (i==1?"":"/") + ">\n");
-          confPrompt.append(VxmlUtils.getAudio(itemLabel));
-          // addPromptString(itemLabel);
-          
-          i++;
-      }
-      //addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
-      confPrompt.append("</if>");
-      VxmlField answerField = new VxmlField("answer", 
-          createPrompt(promptSegments.toArray(new String[]{})), 
-          VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          createBasicPrompt(confPrompt.toString()).toString());
+//      String sms = StringMatcherServlet.ADDR;
+//      String getMatches = 
+//      		"<block><data name=\"" + StringMatcherServlet.ADDR + 
+//      		"\" namelist=\"sessionid answerDigits\" method=\"get\"/>" +
+//      		"<assign name=\"document.matches\" expr=\"" + StringMatcherServlet.ADDR + 
+//      		"\".documentElement\"/>";
       
-//      
-//      VxmlField actionField = new VxmlField("action", 
-//          createPrompt(StringConstants.answerConfirmationOptions),
-//          VxmlUtils.actionGrammar,
-//          VxmlUtils.actionFilled(this));
-      
-      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(false));
+      VxmlForm mainForm = new VxmlForm("main", propSection, answerField);
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
+      
+      // for the confirmation section //
+      addPromptString(getString(ResourceKeys.STRING_CONFIRM_INSTRUCTIONS));
+      addPromptString(getString(ResourceKeys.STRING_CONFIRM_ITEM));
+      addPromptString(getString(ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES));
+      //////////////////////////////////
       d.write(out);
+  }
+  
+  /**
+   * This is the VXML document that should be rendered after the user has 
+   * answered a string question and the string matcher has returned a list 
+   * of possible matches for the user to choose from.
+   * 
+   * @param out
+   * @param stringMatches
+   * @throws IOException
+   */
+  public void getConfirmationVxml(Writer out, String[] stringMatches) throws IOException {
+    List<VxmlForm> forms = new ArrayList<VxmlForm>();
+    
+    for (int i = 0; i < stringMatches.length; i++) {
+      String match = stringMatches[i];
+      VxmlSection s = new VxmlSection("<var name=\"answer\" expr=\"" + match + "\"/>");
+      VxmlField f = new VxmlField("action",
+          createPrompt(getString(ResourceKeys.STRING_CONFIRM_ITEM),
+              getString(ResourceKeys.STRING_CONFIRM_INSTRUCTIONS)),
+          VxmlUtils.createGrammar(new String[]{"1","2","3","4"} ,
+              new String[]{"'SAVE_ANSWER'", "'NEXT_MATCH'","'CURRENT_PROMPT'","'NEXT_PROMPT'"}),
+          "<if cond=\"action=='NEXT_MATCH'\">" + VxmlUtils.createLocalGoto("match" + (i+1)) + 
+          "<else/> " + getActionField(false) + "</if>");
+      VxmlForm form = new VxmlForm("match" + i, s, f);
+      forms.add(form);
     }
+    
+    VxmlForm noMoreMatches = new VxmlForm("match" + stringMatches.length,
+        new VxmlSection("<block>" + 
+        VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
+        createPrompt(getString(ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES)) +
+        VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
+        "</block>"));
+    forms.add(noMoreMatches);
+    
+    VxmlDocument d = new VxmlDocument(sessionid, forms.toArray(new VxmlForm[]{}));
+    d.write(out);
   }
     
   @Override

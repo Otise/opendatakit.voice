@@ -10,6 +10,7 @@ import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlSection;
+import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
 public class InfoWidget extends QuestionWidget {
@@ -28,7 +29,7 @@ public class InfoWidget extends QuestionWidget {
       VxmlField actionField = new VxmlField("action", 
           createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
           actionGrammar,
-          "<var name=\"answer\" expr=\"''\" />" + actionFilled(false));
+          VxmlUtils.createVar("answer", "", true) + actionFilled(false));
 
       VxmlForm mainForm = new VxmlForm("main", infoSection, actionField);
       

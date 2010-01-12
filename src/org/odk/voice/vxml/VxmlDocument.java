@@ -47,7 +47,7 @@ public class VxmlDocument {
     out.write(vxmlHeader);
     out.write("<property name=\"inputmodes\" value=\"dtmf\"/>");
     if (sessionid != null)
-      out.write("<var name=\"sessionid\" expr=\"'" + sessionid + "'\"/>");
+      out.write(VxmlUtils.createVar("sessionid", sessionid, true));
     if (contents != null)
       out.write(contents);
     for (VxmlForm f: forms)

@@ -70,7 +70,7 @@ public class SelectMultiWidget extends QuestionWidget {
         + confirmPrompts + "</block>");
     sections.add(confirmSection);
     VxmlField actionField = new VxmlField("action",createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)), 
-        actionGrammar, "<var name=\"answer\" expr=\"concat()\"/>" + actionFilled(false));
+        actionGrammar, VxmlUtils.createVar("answer", "concat()", false) + actionFilled(false));
     sections.add(actionField);
     VxmlForm mainForm = new VxmlForm("main", sections.toArray(new VxmlSection[]{}));
       

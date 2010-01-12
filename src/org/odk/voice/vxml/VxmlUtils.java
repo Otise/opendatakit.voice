@@ -70,4 +70,19 @@ public class VxmlUtils {
     }
     return "<submit next=\"" + StringEscapeUtils.escapeHtml(nextUrl) + "\" method=\"POST\" enctype=\"multipart/form-data\" namelist=\"" + nl + "\"/>";
   }
+  
+  /**
+   * 
+   * @param name Variable name.
+   * @param expr Expression for variable value.
+   * @param stringExpr If true, expr is quoted (i.e. it should be a string). 
+   * Otherwise, the VXML interpreter will treat it as ECMAScript.
+   * @return
+   */
+  public static String createVar(String name, String expr, boolean stringExpr) {
+    if (stringExpr)
+      return"<var name=\"" + name + "\" expr=\"'" + expr + "'\"/>";
+    else
+      return"<var name=\"" + name + "\" expr=\"" + expr + "\"/>";
+  }
 }

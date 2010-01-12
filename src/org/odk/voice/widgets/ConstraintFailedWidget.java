@@ -44,7 +44,7 @@ public class ConstraintFailedWidget extends WidgetBase {
     }
     log.info("ConstraintPrompt: " + constraintPrompt);
     VxmlSection section = new VxmlSection("<block>" + 
-        "<var name=\"action\" expr=\"'" + VoiceAction.CURRENT_PROMPT.name() + "'\"/>" +
+        VxmlUtils.createVar("action",  VoiceAction.CURRENT_PROMPT.name(), true) +
     		createPrompt(constraintPrompt) + 
     		VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action")
     		+ "</block>");

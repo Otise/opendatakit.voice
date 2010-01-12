@@ -185,6 +185,9 @@ public class FormVxmlRenderer {
       exportData(fh.isEnd());
       vsm.remove(callerid);
       break;
+    case GET_STRING_MATCHES:
+      // TODO(alerer): insert code here
+      break;
     default:
       log.error("Invalid action type: " + va.name());
       renderError(VoiceError.INTERNAL_ERROR, "Unexpected action type");
@@ -218,8 +221,8 @@ public class FormVxmlRenderer {
     log.info("Sessionid = " + sessionid);
     VxmlDocument d = new VxmlDocument(sessionid);
     d.setContents(
-        "<var name=\"action\" expr=\"'" + VoiceAction.SELECT_FORM + "'\"/>" +
-    		"<var name=\"answer\" expr=\"'form.xml'\"/>" +
+        VxmlUtils.createVar("action", VoiceAction.SELECT_FORM.name(), true) +
+        VxmlUtils.createVar("answer", "form.xml", true) +
     		"<form id=\"begin\">" +    
     		"<block>" + VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action", "answer") + "</block></form>\n");
     try {

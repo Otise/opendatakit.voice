@@ -26,4 +26,7 @@ public class ResourceKeys {
   public static final String PLEASE_HOLD = "pleasehold";
   public static final String CHANGE_LANGUAGE_INSTRUCTIONS = "changelanguageinstructions";
   public static final String STRING_INSTRUCTIONS = "stringinstructions";
+  public static final String STRING_CONFIRM_INSTRUCTIONS = "stringconfirminstructions";
+  public static final String STRING_CONFIRM_ITEM = "stringconfirmitem";
+  public static final String STRING_CONFIRM_NO_MORE_MATCHES = "stringconfirmnomorematches";
 }

@@ -11,5 +11,6 @@ public enum VoiceAction {
   SET_LANGUAGE,
   MAIN_MENU,
   ADMIN,
-  HANGUP,
+  HANGUP, 
+  GET_STRING_MATCHES,
 }

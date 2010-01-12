@@ -102,6 +102,15 @@ public class Resources extends ListResourceBundle {
         "Please enter your answer letter by letter. " +
         "Press the pound key when you are finished."
       },
+      {ResourceKeys.STRING_CONFIRM_INSTRUCTIONS,
+        "Press 1 if that is correct, 2 for more options, 3 to try again, and 4 to continue."
+      },
+      {ResourceKeys.STRING_CONFIRM_ITEM,
+        "Did you type "
+      },
+      {ResourceKeys.STRING_CONFIRM_ITEM,
+        "Sorry, no more matches. Press 1 to continue, or 2 to try again."
+      },
   // END OF MATERIAL TO LOCALIZE
   };
 }
