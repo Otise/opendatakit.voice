@@ -32,7 +32,7 @@ public class VxmlUtils {
   }
   
   public static String getWav(String audio){
-    return (int) Math.abs(audio.hashCode()) + ".wav";
+    return (int) audio.hashCode() + ".wav";
   }
   
   public static String getAudio(String text, String audio){
