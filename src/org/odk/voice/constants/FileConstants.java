@@ -45,6 +45,12 @@ public class FileConstants {
     public static final String CACHE_PATH = FILE_BASE + File.separator + "cache";
     
     /**
+     * 
+     */
+    public static final String LOG_FILE = FILE_BASE + File.separator + "logs" + 
+    File.separator + "odk-voice.log";
+    
+    /**
      * See CurrentPromptServlet
      */
     public static final String CURRENT_RECORD_PROMPT_PATH = CACHE_PATH + File.separator + "currentPrompt";

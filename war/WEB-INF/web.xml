@@ -29,7 +29,7 @@
     <servlet-name>XFormUploadServlet</servlet-name>
     <url-pattern>/formUpload</url-pattern>
   </servlet-mapping>
-    <servlet>
+  <servlet>
     <description></description>
     <display-name>AudioPromptServlet</display-name>
     <servlet-name>AudioPromptServlet</servlet-name>
@@ -48,5 +48,15 @@
   <servlet-mapping>
     <servlet-name>CurrentRecordPromptServlet</servlet-name>
     <url-pattern>/currentRecordPrompt</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>LogServlet</display-name>
+    <servlet-name>LogServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.LogServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LogServlet</servlet-name>
+    <url-pattern>/logs</url-pattern>
   </servlet-mapping>
 </web-app>
