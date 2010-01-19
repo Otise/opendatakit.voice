@@ -39,7 +39,7 @@ public class StringWidget extends QuestionWidget {
     
     VxmlSection propSection = new VxmlSection(interdigitTimeout + actionVar);
     final String digitGrammar = "<grammar src=\"builtin:dtmf/digits\"/>";
-    VxmlField answerField = new VxmlField("answerDigits", 
+    VxmlField answerField = new VxmlField("answer", 
         createPrompt(prompt.getQuestionText(), 
             getString(ResourceKeys.STRING_INSTRUCTIONS)),
             digitGrammar,
@@ -61,6 +61,7 @@ public class StringWidget extends QuestionWidget {
       addPromptString(getString(ResourceKeys.STRING_CONFIRM_INSTRUCTIONS));
       addPromptString(getString(ResourceKeys.STRING_CONFIRM_ITEM));
       addPromptString(getString(ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES));
+      //TODO(alerer): allow opportunity to record corpus?
       //////////////////////////////////
       d.write(out);
   }
@@ -79,14 +80,16 @@ public class StringWidget extends QuestionWidget {
     
     for (int i = 0; i < stringMatches.length; i++) {
       String match = stringMatches[i];
-      VxmlSection s = new VxmlSection("<var name=\"answer\" expr=\"" + match + "\"/>");
+      VxmlSection s = new VxmlSection(VxmlUtils.createVar("answer", match, true));
       VxmlField f = new VxmlField("action",
-          createPrompt(getString(ResourceKeys.STRING_CONFIRM_ITEM),
+          createPrompt(
+              getString(ResourceKeys.STRING_CONFIRM_ITEM),
+              match,
               getString(ResourceKeys.STRING_CONFIRM_INSTRUCTIONS)),
           VxmlUtils.createGrammar(new String[]{"1","2","3","4"} ,
               new String[]{"'SAVE_ANSWER'", "'NEXT_MATCH'","'CURRENT_PROMPT'","'NEXT_PROMPT'"}),
           "<if cond=\"action=='NEXT_MATCH'\">" + VxmlUtils.createLocalGoto("match" + (i+1)) + 
-          "<else/> " + getActionField(false) + "</if>");
+          "<else/> " + actionFilled(false) + "</if>");
       VxmlForm form = new VxmlForm("match" + i, s, f);
       forms.add(form);
     }

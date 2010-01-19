@@ -16,6 +16,10 @@ import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
 import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.db.DbAdapter;
+import org.odk.voice.digits2string.Corpus;
+import org.odk.voice.digits2string.CorpusFactory;
+import org.odk.voice.digits2string.StringPredictor;
+import org.odk.voice.digits2string.WordScore;
 import org.odk.voice.local.OdkLocales;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
@@ -34,6 +38,7 @@ import org.odk.voice.widgets.FormEndWidget;
 import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
 import org.odk.voice.widgets.RecordPromptWidget;
+import org.odk.voice.widgets.StringWidget;
 import org.odk.voice.widgets.VxmlWidget;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
@@ -50,6 +55,11 @@ public class FormVxmlRenderer {
   
   // The amount to clip at the end of prompts (in seconds) to remove the beep from the DTMF termination of the prompt recording
   private static final float PROMPT_END_CLIP = 0.2F;
+  
+  // 
+  // TODO(alerer): Once JR supports bind element attributes, make corpus question-configurable
+  private static final String STRING_PREDICTOR_CORPUS = "dict.en";
+  private static final int STRING_PREDICTOR_NBEST = 5;
 
   private static org.apache.log4j.Logger log = Logger
   .getLogger(FormVxmlRenderer.class);
@@ -186,11 +196,39 @@ public class FormVxmlRenderer {
       vsm.remove(callerid);
       break;
     case GET_STRING_MATCHES:
-      // TODO(alerer): insert code here
+      getStringMatches(answer);
       break;
     default:
       log.error("Invalid action type: " + va.name());
       renderError(VoiceError.INTERNAL_ERROR, "Unexpected action type");
+    }
+  }
+  
+  private void getStringMatches(String answer) {
+    Corpus c = CorpusFactory.getCorpus(STRING_PREDICTOR_CORPUS);
+    StringPredictor sp = new StringPredictor(c);
+    WordScore[] ws = sp.predict(answer, STRING_PREDICTOR_NBEST);
+    if (ws == null) ws = new WordScore[0];
+    
+    String[] stringMatches = new String[ws.length];
+    
+    // copy words into stringMatches array
+    for (int i = 0; i < ws.length; stringMatches[i] = ws[i].word, i++);
+    
+    VxmlWidget w = getWidgetFromPrompt(fh.currentPrompt());
+    
+    if (w instanceof StringWidget) {
+      StringWidget sw = (StringWidget) w;
+      try {
+        sw.getConfirmationVxml(out, stringMatches);
+      } catch (IOException e) {
+        log.error("IOException in getStringMatches");
+        renderError(VoiceError.INTERNAL_ERROR, "");
+      }
+    }
+    else {
+      log.error("Getting string matches, but prompt is not a string prompt");
+      renderError(VoiceError.INTERNAL_ERROR,"");
     }
   }
   
