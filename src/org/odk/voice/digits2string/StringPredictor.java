@@ -38,6 +38,8 @@ public class StringPredictor {
   }
   
   public WordScore[] predict(String input, int nbest) {
+    if (input == null)
+      return null;
     String[] words = input.split("0");
     if (words.length == 1) {
       return predictWord(input, nbest);
