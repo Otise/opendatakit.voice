@@ -71,7 +71,7 @@ public class ChangeLanguageWidget extends WidgetBase {
 //          VxmlUtils.actionGrammar,
 //          VxmlUtils.actionFilled(this));
       
-      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(false));
+      VxmlForm mainForm = new VxmlForm("main", answerField);
       
       VxmlDocument d = new VxmlDocument(sessionid, mainForm);
       d.write(out);
