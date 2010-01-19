@@ -44,10 +44,10 @@ public class FormLoader {
 	      if (formXml == null) return null;
 	      byte[] formBin = dba.getFormBinary(formName);
 	      //if (formBin != null) {
-	        log.info("Form binary exists");
+	        //log.info("Form binary exists");
 	        //fd = deserializeFormDef(formBin)
 	      //} else {
-          log.info("Form binary does not exist");
+          //log.info("Form binary does not exist");
           InputStream is = new ByteArrayInputStream(formXml);
           fd = XFormUtils.getFormFromInputStream(is);
           fd.setEvaluationContext(new EvaluationContext());
