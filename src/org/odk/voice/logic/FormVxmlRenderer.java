@@ -35,11 +35,13 @@ import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.widgets.ChangeLanguageWidget;
 import org.odk.voice.widgets.ConstraintFailedWidget;
 import org.odk.voice.widgets.FormEndWidget;
+import org.odk.voice.widgets.FormResumeWidget;
 import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
 import org.odk.voice.widgets.RecordPromptWidget;
 import org.odk.voice.widgets.StringWidget;
 import org.odk.voice.widgets.VxmlWidget;
+import org.odk.voice.widgets.WidgetBase;
 import org.odk.voice.widgets.WidgetFactory;
 import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
@@ -99,15 +101,21 @@ public class FormVxmlRenderer {
     
     log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
 
-    this.vsm = VoiceSessionManager.getManager();
+    vsm = VoiceSessionManager.getManager();
     
     if (action == null || action.equals("")) {
-      vs = newSession(sessionid, callerid);
-      if (vs != null) {
-        sessionid = vs.getSessionid();
+      // check if there is an uncompleted survey
+      vs = vsm.get(callerid);
+      if (vs == null) {
         beginSession();
-        return;
       }
+      else {
+        fh = vs.getFormHandler();
+        sessionid = vs.getSessionid();
+        resumeSession();
+      }
+      return;
+      
     } else {
       vs = vsm.get(sessionid);
     }
@@ -138,6 +146,17 @@ public class FormVxmlRenderer {
     
   }
   
+  private void resumeSession() {
+    FormResumeWidget frw = new FormResumeWidget(fh.getFormTitle());
+    frw.setSessionid(sessionid);
+    frw.setLocale(locale);
+    try {
+      frw.getPromptVxml(out);
+    } catch (IOException e) {
+      log.error("IOException in resumeSession");
+    }
+  }
+
   private VoiceAction getAction(String actionString) {
     try {
       return Enum.valueOf(VoiceAction.class, action);
@@ -158,8 +177,8 @@ public class FormVxmlRenderer {
     case SELECT_FORM:
       selectForm(answer);
       break;
-    case RESUME_FORM:
-      continueForm();
+    case RESTART_SESSION:
+      beginSession();
       break;
     case LANGUAGE_MENU:
       changeLanguageMenu();
@@ -192,8 +211,9 @@ public class FormVxmlRenderer {
       } catch (IOException e) {
         log.error(e);
       }
+      if (fh.isEnd())
+        vsm.remove(callerid);
       exportData(fh.isEnd());
-      vsm.remove(callerid);
       break;
     case GET_STRING_MATCHES:
       getStringMatches(answer);
@@ -254,6 +274,15 @@ public class FormVxmlRenderer {
     }
   }
   private void beginSession() {
+    vs = newSession(sessionid, callerid);
+    if (vs == null) {
+      log.error("vs==null in beginSession, after newSession");
+      renderError(VoiceError.INTERNAL_ERROR, "Could not create new session.");
+      return;
+    }
+    
+    sessionid = vs.getSessionid();
+    
     // this should eventually allow the user to pick a form, (or pass-through if only one form)
     // and should go in a widget
     log.info("Sessionid = " + sessionid);
@@ -330,6 +359,7 @@ public class FormVxmlRenderer {
     renderPrompt(fh.currentPrompt());
   }
   
+  
   private void preloadForm(FormDef fd, boolean newInstance) {
     // see PropertyPreloadHandler javadoc for info on what's going on here
     PropertyPreloadHandler pph = new PropertyPreloadHandler();
@@ -344,25 +374,27 @@ public class FormVxmlRenderer {
   }
   
   private VxmlWidget getWidgetFromPrompt(PromptElement prompt) {
+    WidgetBase w = null;
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      FormStartWidget fsw = new FormStartWidget(fh.getFormTitle());
-      fsw.setSessionid(sessionid);
-      return fsw;
+      w = new FormStartWidget(fh.getFormTitle());
+      break;
     case PromptElement.TYPE_END:
-      FormEndWidget few = new FormEndWidget(fh.getFormTitle());
-      few.setSessionid(sessionid);
-      return few;
+      w = new FormEndWidget(fh.getFormTitle());
+      break;
     case PromptElement.TYPE_QUESTION:
-      QuestionWidget w = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, vs.getInstanceid());
-      w.setLocale(locale);
-      w.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
-      return w;
+      QuestionWidget qw = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, vs.getInstanceid());
+      qw.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
+      w = qw;
+      break;
     default:
       log.error("Prompt type was not expected: " + prompt.getType());
       renderError(VoiceError.INTERNAL_ERROR, "Unexpected prompt type.");
       return null;
     }
+    w.setSessionid(sessionid);
+    w.setLocale(locale);
+    return w;
   }
     
   private void renderPrompt(PromptElement prompt) {

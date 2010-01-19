@@ -38,10 +38,14 @@ public class VoiceSessionManager {
   }
   
   public void put(String callerid, String sessionid, VoiceSession s){
-    vs.put(callerid, s);
-    vs.put(sessionid, s);
-    fresh.put(callerid, new Date());
-    fresh.put(sessionid, new Date());
+    if (callerid != null) {
+      vs.put(callerid, s);
+      fresh.put(callerid, new Date());
+    }
+    if (sessionid != null) {
+      vs.put(sessionid, s);
+      fresh.put(sessionid, new Date());
+    }
     log.info("Session put. Callerid: " + callerid + ". Size: " + vs.size());
   }
   
