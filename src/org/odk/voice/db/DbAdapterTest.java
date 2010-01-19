@@ -1,6 +1,5 @@
 package org.odk.voice.db;
 
-import java.io.StringBufferInputStream;
 import java.util.Arrays;
 import java.util.List;
 
