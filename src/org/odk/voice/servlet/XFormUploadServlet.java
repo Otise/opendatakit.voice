@@ -73,7 +73,9 @@ public class XFormUploadServlet extends HttpServlet {
       dba = new DbAdapter();
       dba.addForm(filename, data);
     } finally {
-      dba.close();
+      if (dba != null) {
+        dba.close();
+      }
       dba = null;
     }
     FileUtils.writeFile(data, path, true);
