@@ -18,7 +18,10 @@ public class Resources_sw extends ListResourceBundle {
   
   static final Object[][] contents = {
       {ResourceKeys.THANK_YOU,
-        "Thank you in Swahili."
+        "Thank you (in Swahili)."
+      },
+      {ResourceKeys.INT_INSTRUCTIONS,
+        "Please enter the number on the keypad (in Swahili)."
       },
   // END OF MATERIAL TO LOCALIZE
   };

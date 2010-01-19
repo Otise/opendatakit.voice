@@ -21,10 +21,8 @@ public class Resources extends ListResourceBundle {
   static final Object[][] contents = {
   // LOCALIZE THIS
       {ResourceKeys.FORM_START, 
-        "Welcome to the %1$s. You can press star at " +
-        "any time to reach the main menu. Press 1 to begin the survey." +
-        "If you need to hang up, you can call back and continue the survey "  +
-        "where you left off. "
+        "Welcome to the %1$s. Press 1 to begin the survey." +
+        "To change language, press 9."
       },
       {ResourceKeys.FORM_END, 
         "Thank you for completing the %1$s. You can press star to review " + 
@@ -108,7 +106,7 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.STRING_CONFIRM_ITEM,
         "Did you type "
       },
-      {ResourceKeys.STRING_CONFIRM_ITEM,
+      {ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES,
         "Sorry, no more matches. Press 1 to continue, or 2 to try again."
       },
   // END OF MATERIAL TO LOCALIZE
