@@ -1,10 +1,8 @@
 package org.odk.voice.widgets;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
-
-import org.javarosa.core.model.data.IAnswerData;
+import java.util.List;
 
 public interface VxmlWidget {
   
@@ -25,6 +23,6 @@ public interface VxmlWidget {
    * 
    * @return A list of strings used in this question's prompts.
    */
-  public String[] getPromptStrings();
+  public List<String> getPromptStrings();
   
 }

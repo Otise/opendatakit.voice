@@ -206,15 +206,58 @@ public class DbAdapter {
    * Add an XForm to the database. If a form with this name already exists, 
    * it is overwritten.
    * @param name Form name.
+   * @param formTitle 
    * @param xml The XML representation of the XForm.
    * @throws SQLException
    */
-  public void addForm(String name, byte[] xml) throws SQLException {
-    String q = "REPLACE INTO form (name, xml) VALUES (?,?);";
+  public void addForm(String name, String formTitle, byte[] xml) throws SQLException {
+    String q = "REPLACE INTO form (name, title, xml) VALUES (?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setString(1, name);
-    stmt.setObject(2, xml);
+    stmt.setString(2, formTitle);
+    stmt.setObject(3, xml);
     stmt.executeUpdate();
+  }
+  
+  /**
+   * Delete an XForm from the database.
+   * @param deleteFormname The form name.
+   * @return True if the form was successfully deleted.
+   * @throws SQLException
+   */
+  public boolean deleteForm(String deleteFormname) throws SQLException {
+    String q = "DELETE FROM form WHERE name=?";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, deleteFormname);
+    return stmt.executeUpdate() > 0;
+  }
+  
+  /**
+   * 
+   * @return A list of all form names.
+   * @throws SQLException
+   */
+  public List<FormMetadata> getForms() throws SQLException {
+    List<FormMetadata> res = new ArrayList<FormMetadata>();
+    
+    String q = "SELECT name, title FROM form;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    ResultSet rs = stmt.executeQuery();
+    
+    while (rs.next()) {
+      res.add(new FormMetadata(rs.getString("name"), rs.getString("title")));
+    }
+    return res;
+  }
+  
+  public static class FormMetadata {
+    private String name;
+    private String title;
+    FormMetadata(String name, String title) {
+      this.name = name; this.title = title;
+    }
+    public String getName() { return name; }
+    public String getTitle() { return title; }
   }
   
   /**
@@ -277,7 +320,7 @@ public class DbAdapter {
   }
   
   public byte[] getAudioPrompt(int prompthash) {
-    log.info("getAudioPrompt: " + prompthash);
+    //log.info("getAudioPrompt: " + prompthash);
     try {
       String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
       
@@ -317,7 +360,7 @@ public class DbAdapter {
   }
   
   public boolean deleteAudioPrompt(String prompt) {
-    log.info("Deleting audio prompt: " + prompt);
+    //log.info("Deleting audio prompt: " + prompt);
     return deleteAudioPrompt(getPromptHash(prompt));
   }
   
@@ -344,7 +387,7 @@ public class DbAdapter {
   }
     
   public void putAudioPrompt(String prompt, byte[] data) throws SQLException {
-    log.info("putAudioPrompt: " + prompt);
+    //log.info("putAudioPrompt: " + prompt);
     String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
     "data) VALUES (?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -359,7 +402,7 @@ public class DbAdapter {
   public void setCurrentRecordPrompt(String prompt) throws SQLException {
     String q = "REPLACE INTO misc (k, v) VALUES (?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
-    log.info("set record prompt: " + prompt);
+    //log.info("set record prompt: " + prompt);
     stmt.setString(1, CURRENT_RECORD_PROMPT_KEY);
     stmt.setString(2, prompt);
     stmt.executeUpdate();
@@ -433,6 +476,7 @@ public class DbAdapter {
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS form ( " + 
             "name VARCHAR(100) NOT NULL PRIMARY KEY," +
+            "title VARCHAR(200), " +
             "xml MEDIUMTEXT," +
             "formdef MEDIUMBLOB );"
       );

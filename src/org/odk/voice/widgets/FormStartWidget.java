@@ -13,21 +13,30 @@ import org.odk.voice.vxml.VxmlUtils;
 public class FormStartWidget extends WidgetBase {
  
   String formTitle;
+  boolean hasLanguages;
   
-  public FormStartWidget(String formTitle) {
+  public FormStartWidget(String formTitle, boolean hasLanguages) {
     this.formTitle = formTitle;
+    this.hasLanguages = hasLanguages;
   }
   
   @Override
   public void getPromptVxml(Writer out) throws IOException {
-    String grammar = VxmlUtils.createGrammar(new String[]{"1","9","7"}, 
+    String grammar = hasLanguages ? 
+        VxmlUtils.createGrammar(new String[]{"1","9","7"}, 
         new String[]{VoiceAction.NEXT_PROMPT.name(),
                      VoiceAction.LANGUAGE_MENU.name(),
+                     VoiceAction.ADMIN.name()}) :
+        VxmlUtils.createGrammar(new String[]{"1","7"}, 
+        new String[]{VoiceAction.NEXT_PROMPT.name(),
                      VoiceAction.ADMIN.name()});
+        
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
     VxmlForm startForm = new VxmlForm("action", 
-        createPrompt(String.format(getString(ResourceKeys.FORM_START),formTitle)),
+            createPrompt(
+                String.format(getString(ResourceKeys.FORM_START),formTitle),
+                hasLanguages? getString(ResourceKeys.FORM_START_LANGUAGES) : ""),
             grammar, filled);
     new VxmlDocument(sessionid, startForm).write(out);
   }

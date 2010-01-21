@@ -24,6 +24,23 @@ public class FormLoader {
   private static org.apache.log4j.Logger log = Logger
   .getLogger(FormLoader.class);
   
+  public static FormHandler getFormHandler(byte[] formXml, byte[] formBin) {
+    FormHandler fh = null;
+    FormDef fd = null;
+    // we're not using formBin yet
+    //if (formBin != null) {
+      //log.info("Form binary exists");
+      //fd = deserializeFormDef(formBin)
+    //} else {
+      //log.info("Form binary does not exist");
+    InputStream is = new ByteArrayInputStream(formXml);
+    fd = XFormUtils.getFormFromInputStream(is);
+    fd.setEvaluationContext(new EvaluationContext());
+    
+  // create formhandler from formdef
+  return new FormHandler(fd);
+  }
+  
   /**
    * Loads an XForm from the database, parses them
    * with javarosa, populates them with a saved data instance if necessary, and returns 
@@ -34,35 +51,25 @@ public class FormLoader {
    *
    */
 	public static FormHandler getFormHandler(String formName, Integer instanceId) {
-	    FormHandler fh = null;
-	    FormDef fd = null;
 	    DbAdapter dba = null;
-	    
+	    FormHandler fh = null;
 	    try {
 	      dba = new DbAdapter();
 	      byte[] formXml = dba.getFormXml(formName);
 	      if (formXml == null) return null;
 	      byte[] formBin = dba.getFormBinary(formName);
-	      //if (formBin != null) {
-	        //log.info("Form binary exists");
-	        //fd = deserializeFormDef(formBin)
-	      //} else {
-          //log.info("Form binary does not exist");
-          InputStream is = new ByteArrayInputStream(formXml);
-          fd = XFormUtils.getFormFromInputStream(is);
-          fd.setEvaluationContext(new EvaluationContext());
-          ByteArrayOutputStream out = new ByteArrayOutputStream();
-          try {
-            fd.writeExternal(new DataOutputStream(out));
-            dba.setFormBinary(formName,out.toByteArray());
-          } catch (IOException e) {
-            log.error(e);
-         // }
+	      
+	      fh = getFormHandler(formXml, formBin);
+	      ByteArrayOutputStream out = new ByteArrayOutputStream();
+	      
+	      // write form binary
+	      try {
+	        fh.getForm().writeExternal(new DataOutputStream(out));
+	        dba.setFormBinary(formName,out.toByteArray());
+	      } catch (IOException e) {
+	        log.error(e);
 	      }
 	      
-	      // create formhandler from formdef
-	      fh = new FormHandler(fd);
-	  
 	      // import existing data into formdef
 	      if (instanceId != null) {
 	          byte[] xml = dba.getInstanceXml(instanceId);

@@ -1,13 +1,21 @@
 package org.odk.voice.session;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.odk.voice.db.DbAdapter;
 import org.odk.voice.local.OdkLocales;
+import org.odk.voice.widgets.ChangeLanguageWidget;
 import org.odk.voice.widgets.FormEndWidget;
+import org.odk.voice.widgets.FormResumeWidget;
 import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
+import org.odk.voice.widgets.RecordPromptWidget;
+import org.odk.voice.widgets.SelectFormWidget;
 import org.odk.voice.widgets.VxmlWidget;
 import org.odk.voice.widgets.WidgetBase;
 import org.odk.voice.widgets.WidgetFactory;
@@ -32,9 +40,10 @@ public class VoiceSession {
   private int instanceid;
   private Date date;
   
-  private String[] recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
+  private List<String> recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
   private int recordPromptIndex = -1; //the index in recordPrompts that is currently being recorded
   private int recordLanguageIndex = -1;
+  private boolean recordPromptExtras = false;;
   
   public VoiceSession(){
     this.date = new Date();
@@ -74,7 +83,7 @@ public class VoiceSession {
     WidgetBase w = null;
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      w = new FormStartWidget(fh.getFormTitle());
+      w = new FormStartWidget(fh.getFormTitle(), fh.getLanguages() != null);
       break;
     case PromptElement.TYPE_END:
       w = new FormEndWidget(fh.getFormTitle());
@@ -96,7 +105,7 @@ public class VoiceSession {
     if (recordPromptIndex < 0) {
       return null;
     }
-    return recordPrompts[recordPromptIndex];
+    return recordPrompts.get(recordPromptIndex);
   }
   
   public String getNextRecordPrompt(){
@@ -116,10 +125,16 @@ public class VoiceSession {
       recordPromptIndex++;
     }
     while (recordPrompts == null || 
-           recordPromptIndex >= recordPrompts.length
+           recordPromptIndex >= recordPrompts.size()
            )
     {          
       if (fh.isEnd()) {
+        if (recordPromptExtras == false) {
+          recordPrompts = getExtraPrompts();
+          recordPromptIndex = 0;
+          recordPromptExtras = true;
+          return getNextRecordPrompt();
+        }
         String[] langs = fh.getLanguages();
         
         if (langs == null || recordLanguageIndex == langs.length - 1){
@@ -137,8 +152,32 @@ public class VoiceSession {
       }
     }
     log.info("Next record prompt. Index: " + recordPromptIndex + ". Value: " + 
-        recordPrompts[recordPromptIndex]);
+        recordPrompts.get(recordPromptIndex));
     return getCurrentRecordPrompt();
+  }
+  
+  private List<String> getExtraPrompts(){
+    List<String> prompts = new ArrayList<String>();
+    
+    DbAdapter dba = null;
+    try {
+      dba = new DbAdapter();
+      addPromptsFromWidget(new SelectFormWidget(dba.getForms()), prompts);
+    } catch (SQLException e) {
+      log.error(e);
+    } finally {
+      if (dba != null) dba.close();
+    }
+    addPromptsFromWidget(new FormResumeWidget(fh.getFormTitle()), prompts);
+    addPromptsFromWidget(new ChangeLanguageWidget(fh.getLanguages()), prompts);
+    addPromptsFromWidget(new RecordPromptWidget(""), prompts);
+    
+    return prompts;
+  }
+  
+  private void addPromptsFromWidget(WidgetBase w, List<String> prompts) {
+    w.setLocale(OdkLocales.getLocale(fh.getCurrentLanguage()));
+    prompts.addAll(new ArrayList<String>(w.getPromptStrings()));
   }
   
 //  public void setRecordPrompts(String[] recordPrompts) {

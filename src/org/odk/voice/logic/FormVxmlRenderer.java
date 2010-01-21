@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -16,6 +18,7 @@ import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
 import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.db.DbAdapter;
+import org.odk.voice.db.DbAdapter.FormMetadata;
 import org.odk.voice.digits2string.Corpus;
 import org.odk.voice.digits2string.CorpusFactory;
 import org.odk.voice.digits2string.StringPredictor;
@@ -39,6 +42,7 @@ import org.odk.voice.widgets.FormResumeWidget;
 import org.odk.voice.widgets.FormStartWidget;
 import org.odk.voice.widgets.QuestionWidget;
 import org.odk.voice.widgets.RecordPromptWidget;
+import org.odk.voice.widgets.SelectFormWidget;
 import org.odk.voice.widgets.StringWidget;
 import org.odk.voice.widgets.VxmlWidget;
 import org.odk.voice.widgets.WidgetBase;
@@ -100,19 +104,18 @@ public class FormVxmlRenderer {
   public void renderDialogue() {
     
     log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
-
     vsm = VoiceSessionManager.getManager();
     
     if (action == null || action.equals("")) {
-      // check if there is an uncompleted survey
       vs = vsm.get(callerid);
-      if (vs == null) {
-        beginSession();
-      }
-      else {
+      if (vs != null && vs.getFormHandler() != null && !vs.isAdmin()) {
+        // resume session
         fh = vs.getFormHandler();
         sessionid = vs.getSessionid();
         resumeSession();
+      }
+      else {
+        beginSession();
       }
       return;
       
@@ -148,8 +151,7 @@ public class FormVxmlRenderer {
   
   private void resumeSession() {
     FormResumeWidget frw = new FormResumeWidget(fh.getFormTitle());
-    frw.setSessionid(sessionid);
-    frw.setLocale(locale);
+    initWidget(frw);
     try {
       frw.getPromptVxml(out);
     } catch (IOException e) {
@@ -265,9 +267,8 @@ public class FormVxmlRenderer {
   private void changeLanguageMenu() {
     log.info("Change language menu");
     try {
-      ChangeLanguageWidget w = new ChangeLanguageWidget(fh);
-      w.setLocale(locale);
-      w.setSessionid(sessionid);
+      ChangeLanguageWidget w = new ChangeLanguageWidget(fh.getLanguages());
+      initWidget(w);
       w.getPromptVxml(out);
     } catch (IOException e) {
       log.error(e);
@@ -283,21 +284,43 @@ public class FormVxmlRenderer {
     
     sessionid = vs.getSessionid();
     
-    // this should eventually allow the user to pick a form, (or pass-through if only one form)
-    // and should go in a widget
-    log.info("Sessionid = " + sessionid);
-    VxmlDocument d = new VxmlDocument(sessionid);
-    d.setContents(
-        VxmlUtils.createVar("action", VoiceAction.SELECT_FORM.name(), true) +
-        VxmlUtils.createVar("answer", "form.xml", true) +
-    		"<form id=\"begin\">" +    
-    		"<block>" + VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action", "answer") + "</block></form>\n");
     try {
-      d.write(out);
+      List<FormMetadata> forms = dba.getForms();
+      if (forms.size() == 0) {
+        log.warn("No forms to display");
+        renderError(VoiceError.NO_FORMS, "");
+      } else if (forms.size() == 1) {
+        selectForm(forms.get(0).getName());
+      } else {
+        SelectFormWidget sfw = new SelectFormWidget(forms);
+        initWidget(sfw);
+        sfw.getPromptVxml(out);
+      }
     } catch (IOException e) {
       log.error("IOException in beginSession", e);
       e.printStackTrace();
+    } catch (SQLException e) {
+      log.error("SQLException in beginSession", e);
+      e.printStackTrace();
     }
+//    log.info("Sessionid = " + sessionid);
+//    VxmlDocument d = new VxmlDocument(sessionid);
+//    d.setContents(
+//        VxmlUtils.createVar("action", VoiceAction.SELECT_FORM.name(), true) +
+//        VxmlUtils.createVar("answer", "form.xml", true) +
+//    		"<form id=\"begin\">" +    
+//    		"<block>" + VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action", "answer") + "</block></form>\n");
+//    try {
+//      d.write(out);
+//    } catch (IOException e) {
+//      log.error("IOException in beginSession", e);
+//      e.printStackTrace();
+//    }
+  }
+  
+  private void initWidget(WidgetBase w) {
+    w.setLocale(locale);
+    w.setSessionid(sessionid);
   }
   
   private int saveAnswer(String answer, MultiPartFormData binaryData) {
@@ -377,7 +400,7 @@ public class FormVxmlRenderer {
     WidgetBase w = null;
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      w = new FormStartWidget(fh.getFormTitle());
+      w = new FormStartWidget(fh.getFormTitle(), fh.getLanguages()!=null);
       break;
     case PromptElement.TYPE_END:
       w = new FormEndWidget(fh.getFormTitle());
@@ -392,8 +415,7 @@ public class FormVxmlRenderer {
       renderError(VoiceError.INTERNAL_ERROR, "Unexpected prompt type.");
       return null;
     }
-    w.setSessionid(sessionid);
-    w.setLocale(locale);
+    initWidget(w);
     return w;
   }
     
@@ -522,18 +544,8 @@ public class FormVxmlRenderer {
       p = vs.getNextRecordPrompt();
     }
     return p;
-    // TODO: nextExtraPrompt
   }
   
-  /**
-   * Iterates through 'external' prompts, i.e. prompts for things that aren't part of the 
-   * form controls, e.g. language selection, audio prompt recording, etc.
-   * @return the next prompt, or null if no prompts remain.
-   */
-  public String nextExtraPrompt(){
-    // not yet implemented
-    return null;
-  }
  
   private void writeCurrentRecordPrompt(String prompt) {
     log.info("Writing record prompt: " + prompt);

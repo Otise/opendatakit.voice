@@ -3,6 +3,7 @@ package org.odk.voice.local;
 public class ResourceKeys {
 
   public static final String FORM_START = "formstartprompt";
+  public static final String FORM_START_LANGUAGES = "formstartlanguagesprompt";
   public static final String FORM_END = "formendprompt";
   public static final String FORM_RECONNECT = "reconnectprompt";
   public static final String QUESTION_X_OF_Y = "questionxofy";
@@ -29,4 +30,5 @@ public class ResourceKeys {
   public static final String STRING_CONFIRM_INSTRUCTIONS = "stringconfirminstructions";
   public static final String STRING_CONFIRM_ITEM = "stringconfirmitem";
   public static final String STRING_CONFIRM_NO_MORE_MATCHES = "stringconfirmnomorematches";
+  public static final String BEGIN_SESSION_INSTRUCTIONS = "beginsessioninstructions";
 }

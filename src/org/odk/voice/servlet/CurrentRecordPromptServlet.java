@@ -56,20 +56,26 @@ public class CurrentRecordPromptServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	  if (req.getParameter("deleteall").equals("true")) {
-	    DbAdapter dba = null;
-	    try {
-	      dba = new DbAdapter();
+	  DbAdapter dba = null;
+	  try {
+      dba = new DbAdapter();
+      String delete = req.getParameter("delete");
+      if (delete != null) {
+        int deleteHash = Integer.parseInt(delete);
+        dba.deleteAudioPrompt(deleteHash);
+      }
+      else if (req.getParameter("deleteall").equals("true")) {
 	      List<String> prompts = dba.getAudioPrompts();
 	      log.info("Size: " + prompts.size());
 	      for (String prompt : dba.getAudioPrompts()) {
 	        dba.deleteAudioPrompt(prompt);
 	      }
 	      dba.setCurrentRecordPrompt(null);
-	    } catch (SQLException e) {
-	      log.error(e);
-	    }
-	  }
+      }
+    } catch (SQLException e) {
+      log.error(e);
+    }
+    resp.sendRedirect("record.jsp");
 	}
 
 }

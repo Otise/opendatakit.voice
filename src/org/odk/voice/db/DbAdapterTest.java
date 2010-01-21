@@ -5,6 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.odk.voice.db.DbAdapter.FormMetadata;
 import org.odk.voice.db.DbAdapter.InstanceBinary;
 
 public class DbAdapterTest extends TestCase {
@@ -57,22 +58,30 @@ public class DbAdapterTest extends TestCase {
   
   public void testForm(){
     try {
-      String name = "Health Survey Uganda";
-      String name2 = "AIDS Surveillance #1";
+      String name = "uganda.xml";
+      String title = "Health Survey Uganda";
+      String name2 = "aids1.xml";
+      String title2 = "AIDS Surveillance #1";
       byte[] data = new byte[]{1,2,3,4,5,6,7,8,9,0};
       byte[] data2 = new byte[]{2,1,0};
       
-      dba.addForm(name, data);
-      dba.addForm(name2, data2);
+      dba.addForm(name, title, data);
+      dba.addForm(name2, title2, data2);
       assertTrue(Arrays.equals(data, dba.getFormXml(name)));
       assertTrue(Arrays.equals(data2, dba.getFormXml(name2)));
-      dba.addForm(name2, data);
+      dba.addForm(name2, title2, data);
       assertTrue(Arrays.equals(data, dba.getFormXml(name2)));
       byte[] bin1 = "abcdefg".getBytes();
       dba.setFormBinary(name2, bin1);
       assertTrue(Arrays.equals(data, dba.getFormXml(name2)));
       assertTrue(Arrays.equals(bin1, dba.getFormBinary(name2)));
       assertNull(dba.getAudioPrompt("notinthedb"));
+      List<FormMetadata> formNames = dba.getForms();
+      assertEquals(2, formNames.size());
+      assertTrue(formNames.get(0).getName().equals(name2));
+      assertTrue(formNames.get(1).getName().equals(name));
+      assertTrue(formNames.get(0).getTitle().equals(title2));
+      assertTrue(formNames.get(1).getTitle().equals(title));
     } catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.annotation.Resources;
-
 import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
@@ -48,14 +46,14 @@ public abstract class WidgetBase implements VxmlWidget{
   }
   
   @Override
-  public String[] getPromptStrings(){
+  public List<String> getPromptStrings(){
     
     try {
       getPromptVxml(new OutputStreamWriter(new OutputStream(){
         public void write ( int b ) { }
       }));
     } catch (IOException e) {}
-    return promptStrings.toArray(new String[]{});
+    return promptStrings;
   }
   
   String getWmvPath(String audio) {

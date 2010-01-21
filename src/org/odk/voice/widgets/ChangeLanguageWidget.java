@@ -24,16 +24,19 @@ public class ChangeLanguageWidget extends WidgetBase {
   private static org.apache.log4j.Logger log = Logger
   .getLogger(ChangeLanguageWidget.class);
   
-  private FormHandler fh;
+  private String[] languages;
   
-  public ChangeLanguageWidget(FormHandler fh) {
-    this.fh = fh;
+  public ChangeLanguageWidget(String[] languages) {
+    this.languages = languages;
   }
   
   public void getPromptVxml(Writer out) throws IOException{
     
+    if (languages == null) {
+      log.warn("No languages.");
+      return;
+    }
     
-    String[] languages = fh.getLanguages();
     if (languages.length > 9)
       log.warn("More than 9 languages. Cannot handle more than 9 languages.");
     List<String> promptSegments = new ArrayList<String>();

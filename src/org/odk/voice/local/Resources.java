@@ -20,8 +20,13 @@ public class Resources extends ListResourceBundle {
   
   static final Object[][] contents = {
   // LOCALIZE THIS
+      {ResourceKeys.BEGIN_SESSION_INSTRUCTIONS,
+        "Please select a survey from the following options."
+      },
       {ResourceKeys.FORM_START, 
-        "Welcome to the %1$s. Press 1 to begin the survey." +
+        "Welcome to the %1$s. Press 1 to begin the survey."
+      },
+      {ResourceKeys.FORM_START_LANGUAGES, 
         "To change language, press 9."
       },
       {ResourceKeys.FORM_END, 
