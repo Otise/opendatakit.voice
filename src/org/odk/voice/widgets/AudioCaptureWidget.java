@@ -25,7 +25,7 @@ import org.odk.voice.xform.PromptElement;
 
 public class AudioCaptureWidget extends QuestionWidget {
  
-  public static final String AUDIO_EXTENSION = "wav";
+  public static final String AUDIO_EXTENSION = "audio/wav";
   private static org.apache.log4j.Logger log = Logger
   .getLogger(AudioCaptureWidget.class);
   
@@ -78,7 +78,7 @@ public class AudioCaptureWidget extends QuestionWidget {
     if (item == null)
       return null;
     byte[] data = item.getData();
-    String binaryName = prompt.getInstanceNode().getName();
+    String binaryName = prompt.getInstanceNode().getName() + ".wav";
     String mimeType = AUDIO_EXTENSION;
 //    String path = FileUtils.getInstancePath(instanceId) + File.separator + filename;
 //    log.info("Path for saving audio data: " + path);

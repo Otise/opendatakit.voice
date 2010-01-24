@@ -36,7 +36,7 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.FORM_RECONNECT, 
         "Welcome back to the %1$s. You currently have an uncompleted " + 
         "survey in progress. If you would like to continue with that survey, press 1. " + 
-        "If you'd like to start over, press 2. You can press 9 to change language."
+        "If you'd like to start over, press 2."
       },                         
       {ResourceKeys.QUESTION_X_OF_Y, 
           "Question %1$d of %2$d."

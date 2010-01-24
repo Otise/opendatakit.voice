@@ -241,6 +241,28 @@ public class FormHandler {
 
         return new PromptElement(PromptElement.TYPE_END);
     }
+    
+    /**
+     * returns the prompt associated with the next relevant question. This
+     * should only be used when iterating through the questions as it ignores
+     * any repeats AND RELEVANCE.
+     * 
+     */
+    public PromptElement nextQuestionPromptIgnoreRelevance() {
+        nextIndex();
+
+        while (!isEnd()) {
+            if (indexIsGroup(mCurrentIndex)) {
+                nextIndex();
+                continue;
+            } else {
+                // we have a question
+                return new PromptElement(mCurrentIndex, getForm(), getGroups());
+            }
+        }
+
+        return new PromptElement(PromptElement.TYPE_END);
+    }
 
 
     /**
@@ -276,6 +298,12 @@ public class FormHandler {
         do {
             mCurrentIndex = mForm.incrementIndex(mCurrentIndex);
         } while (mCurrentIndex.isInForm() && !isRelevant(mCurrentIndex));
+    }
+    
+    private void nextIndex() {
+      if (!mCurrentIndex.isEndOfFormIndex()) {
+        mCurrentIndex = mForm.incrementIndex(mCurrentIndex);
+      }
     }
 
 

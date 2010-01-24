@@ -48,7 +48,7 @@ public class DateWidget extends QuestionWidget {
       );
       String genConfirmationDate = 
         "<script>var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];" +
-        "var confDate = months[parseInt(month)] + ' ' + date + ' ' + year; </script>";
+        "var confDate = months[parseInt(month - 1)] + ' ' + date + ' ' + year; </script>";
       
       VxmlField dateField = new VxmlField("date", 
           createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_DAY)),

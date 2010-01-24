@@ -37,7 +37,7 @@
   <table>
   <% for (FormMetadata md: formNames) { %>
   <tr>
-  <td><%= md.getName() %> (<%= md.getTitle() %>)</td>
+  <td style="padding-right:20px"><a href="formUpload?view=<%= md.getName() %>"><%= md.getName() %></a> (<%= md.getTitle() %>)</td>
   <td><form action="formUpload" method="post">
     <input type="hidden" name="delete" value="<%= md.getName() %>" />
     <input type="submit" value="Delete"/>

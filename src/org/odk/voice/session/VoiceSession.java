@@ -147,7 +147,7 @@ public class VoiceSession {
           return getNextRecordPrompt();
         }
       } else {
-        recordPrompts = getWidgetFromPrompt(fh.nextPrompt()).getPromptStrings();
+        recordPrompts = getWidgetFromPrompt(fh.nextQuestionPromptIgnoreRelevance()).getPromptStrings();
         recordPromptIndex = 0;
       }
     }

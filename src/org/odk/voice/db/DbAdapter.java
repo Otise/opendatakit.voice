@@ -497,7 +497,7 @@ public class DbAdapter {
    * Resets the database, deleting all data.
    * @throws SQLException
    */
-  protected void resetDb() throws SQLException {
+  public void resetDb() throws SQLException {
     Statement stmt = con.createStatement();
     //stmt.execute("DROP DATABASE " + DB_NAME);
     stmt.execute("DROP TABLE instance_binary");

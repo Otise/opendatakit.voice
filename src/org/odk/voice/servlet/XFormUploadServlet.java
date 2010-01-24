@@ -32,6 +32,36 @@ public class XFormUploadServlet extends HttpServlet {
   
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    String viewFormname = req.getParameter("view");
+    // TODO (alerer): DANGEROUS BACKDOOR! MUST BE REMOVED!
+    String resetDb = req.getParameter("resetDb");
+    DbAdapter dba = null;
+    try {
+      if (resetDb != null) {
+        dba = new DbAdapter();
+        dba.resetDb();
+      }
+      if (viewFormname != null) {
+        dba = new DbAdapter();
+        byte[] xml = dba.getFormXml(viewFormname);
+        if (xml != null) {
+          resp.setContentType("text/xml");
+          resp.setHeader("Content-disposition", "attachment; filename=" + viewFormname);
+          resp.getWriter().write(new String(xml));
+          return;
+        } else {
+          log.error("Invalid form name.");
+          return;
+        }
+      }
+    } catch (SQLException e) {
+      log.error("SQLException");
+    } finally {
+      if (dba != null) {
+        dba.close();
+      }
+      dba = null;
+    }
   }
   
   /**

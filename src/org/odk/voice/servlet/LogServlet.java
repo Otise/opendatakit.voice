@@ -31,7 +31,6 @@ public class LogServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 	  String sBytes = request.getParameter("bytes");
 //	  int bytes = 10000;
 //	  try {

@@ -108,7 +108,10 @@ public class FormVxmlRenderer {
     
     if (action == null || action.equals("")) {
       vs = vsm.get(callerid);
-      if (vs != null && vs.getFormHandler() != null && !vs.isAdmin()) {
+      if (vs != null && 
+          vs.getFormHandler() != null && 
+          vs.getFormHandler().isBeginning() == false 
+          &&!vs.isAdmin()) {
         // resume session
         fh = vs.getFormHandler();
         sessionid = vs.getSessionid();
@@ -213,7 +216,7 @@ public class FormVxmlRenderer {
       } catch (IOException e) {
         log.error(e);
       }
-      if (fh.isEnd())
+      if (fh != null && fh.isEnd())
         vsm.remove(callerid);
       exportData(fh.isEnd());
       break;

@@ -111,7 +111,7 @@ public class InstanceUploader  {
             entity.addPart("xml_submission_file", new InputStreamBody(new ByteArrayInputStream(xml),"text/xml"));
             List<InstanceBinary> binaries = dba.getBinariesForInstance(instanceId);
             for (InstanceBinary b : binaries) {
-              entity.addPart(b.name, new InputStreamBody(new ByteArrayInputStream(b.binary), b.mimeType));
+              entity.addPart(b.name, new InputStreamBody(new ByteArrayInputStream(b.binary), b.mimeType, b.name));
             }
           } catch (SQLException e) {
             log.error("SQLException uploading instance", e);
