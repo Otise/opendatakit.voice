@@ -3,6 +3,7 @@
 
 <%@ page import="org.odk.voice.db.DbAdapter" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -54,7 +55,7 @@ function refresh()
         dba = new DbAdapter();
         prompts = dba.getAudioPrompts();for (String prompt : prompts) { %>
     <tr>
-    <td style="width:500px"><%= prompt %></td>
+    <td style="width:500px"><%= StringEscapeUtils.escapeHtml(prompt) %></td>
     <td><a href="audio/<%= dba.getPromptHash(prompt) %>.wmv">Listen</a></td>
     <td><form action="currentRecordPrompt" method="post">
     <input type="hidden" name="delete" value="<%= dba.getPromptHash(prompt) %>"/>

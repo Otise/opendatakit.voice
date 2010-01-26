@@ -4,6 +4,7 @@
 <%@ page import="org.odk.voice.db.DbAdapter" %>
 <%@ page import="org.odk.voice.db.DbAdapter.FormMetadata" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
  
 <%
    DbAdapter dba = null;
@@ -37,9 +38,11 @@
   <table>
   <% for (FormMetadata md: formNames) { %>
   <tr>
-  <td style="padding-right:20px"><a href="formUpload?view=<%= md.getName() %>"><%= md.getName() %></a> (<%= md.getTitle() %>)</td>
+  <td style="padding-right:20px"><a href="formUpload?view=<%= StringEscapeUtils.escapeHtml(md.getName()) %>">
+            <%= StringEscapeUtils.escapeHtml(md.getName()) %></a> 
+            (<%= StringEscapeUtils.escapeHtml(md.getTitle()) %>)</td>
   <td><form action="formUpload" method="post">
-    <input type="hidden" name="delete" value="<%= md.getName() %>" />
+    <input type="hidden" name="delete" value="<%= StringEscapeUtils.escapeHtml(md.getName()) %>" />
     <input type="submit" value="Delete"/>
   </form></td></tr>
   <% } %>
