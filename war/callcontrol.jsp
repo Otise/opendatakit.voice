@@ -13,7 +13,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>ODK Voice Outbound Call Control</title>
 </head>
-<body onload="setTimeout('location.reload(true)', 5000)">
+<body>
   <h1>ODK Voice Outbound Call Control</h1>
   
   <div id="outboundFormDiv">
