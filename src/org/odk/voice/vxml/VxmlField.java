@@ -17,6 +17,8 @@ public class VxmlField extends VxmlSection{
   
   String filled = "<reprompt/>";
   
+  String contents = null;
+  
   String grammar;
   
   public VxmlField (String name, VxmlPrompt prompt, String grammar, String filled) {
@@ -24,6 +26,10 @@ public class VxmlField extends VxmlSection{
     this.prompt = prompt;
     this.grammar = grammar;
     this.filled = filled;
+  }
+  
+  public void setContents(String contents) {
+    this.contents = contents;
   }
 
   @Override
@@ -34,6 +40,8 @@ public class VxmlField extends VxmlSection{
     //out.write(VxmlUtils.createGrammar(new String[]{"*"}, new String[]{"out.action='MAIN_MENU'"}));
     if (grammar != null)
       out.write(grammar);
+    if (contents != null)
+      out.write(contents);
     out.write("    <noinput>\n");
     out.write("      " + noinput + "\n");
     out.write("    </noinput>\n");

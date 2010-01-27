@@ -7,6 +7,7 @@ import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 
@@ -33,11 +34,16 @@ public class FormStartWidget extends WidgetBase {
         
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
-    VxmlForm startForm = new VxmlForm("action", 
+    VxmlField startField = new VxmlField("action", 
             createPrompt(
                 String.format(getString(ResourceKeys.FORM_START),formTitle),
                 hasLanguages? getString(ResourceKeys.FORM_START_LANGUAGES) : ""),
             grammar, filled);
+    startField.setContents("<noinput count=\"3\">" + 
+        createPrompt(getString(ResourceKeys.GOODBYE)) + 
+        VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
+        VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput>");
+    VxmlForm startForm = new VxmlForm("action", startField);
     new VxmlDocument(sessionid, startForm).write(out);
   }
 

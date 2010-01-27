@@ -55,19 +55,15 @@ public class FormVxmlServlet extends HttpServlet {
 	    
 	    action = req.getParameter("action");
 	    answer = req.getParameter("answer");
+	    
 	    binaryData = null;
 	  }
-//	  if (sessionid != null)
-//	    sessionid = sessionid.trim();
-//	  if (callerid != null)
-//	    callerid = callerid.trim();
-//	  if (action != null)
-//	    action = action.trim();
-//	  if (answer != null)
-//	    answer = answer.trim();
-	  //resp.setContentType("application/vxml+xml");
 	  
 	  FormVxmlRenderer fvr = new FormVxmlRenderer(sessionid, callerid, action, answer, binaryData, resp.getWriter());
+	  String outboundIdString = req.getParameter("outboundId");
+    if (outboundIdString != null) {
+      fvr.setOutboundId(Integer.parseInt(outboundIdString));
+    }
 	  fvr.renderDialogue();
 	  fvr.close();
 	  fvr = null;

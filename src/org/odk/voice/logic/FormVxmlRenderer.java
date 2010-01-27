@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.odk.voice.audio.AudioSample;
 import org.odk.voice.constants.FileConstants;
+import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
 import org.odk.voice.constants.XFormConstants;
@@ -24,6 +24,7 @@ import org.odk.voice.digits2string.CorpusFactory;
 import org.odk.voice.digits2string.StringPredictor;
 import org.odk.voice.digits2string.WordScore;
 import org.odk.voice.local.OdkLocales;
+import org.odk.voice.schedule.ScheduledCall.Status;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
 import org.odk.voice.session.VoiceSessionManager;
@@ -79,6 +80,8 @@ public class FormVxmlRenderer {
   final MultiPartFormData binaryData;
   DbAdapter dba;
   Locale locale;
+  
+  int outboundId = -1;
 
   public FormVxmlRenderer(String sessionid, String callerid, String action, String answer, MultiPartFormData binaryData, Writer out) {
     this.out = out;
@@ -101,6 +104,17 @@ public class FormVxmlRenderer {
     dba.close();
   }
   
+  /**
+   * If this was an outbound call, there is an associated "outbound ID" connecting 
+   * the call to the outbound call scheduler (so the scheduler can keep track of the 
+   * result of the call). When a session starts form an outbound call, it should register 
+   * its outbound id with this method.
+   * @param id
+   */
+  public void setOutboundId(int id) {
+    this.outboundId = id;
+  }
+  
   public void renderDialogue() {
     
     log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
@@ -115,6 +129,9 @@ public class FormVxmlRenderer {
         // resume session
         fh = vs.getFormHandler();
         sessionid = vs.getSessionid();
+        if (outboundId >= 0) {
+          vs.setOutboundId(outboundId);
+        }
         resumeSession();
       }
       else {
@@ -210,15 +227,21 @@ public class FormVxmlRenderer {
     case PREV_PROMPT:
       renderPrompt(fh.prevPrompt());
       break;
+    case NO_RESPONSE:
     case HANGUP:
+      log.info("Hangup detected.");
       try {
         new VxmlDocument(null).write(out);
       } catch (IOException e) {
         log.error(e);
       }
-      if (fh != null && fh.isEnd())
-        vsm.remove(callerid);
-      exportData(fh.isEnd());
+      if (fh != null) {
+        exportData(fh.isEnd());
+        setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
+          fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
+        if (fh.isEnd())
+          vsm.remove(callerid);
+      }
       break;
     case GET_STRING_MATCHES:
       getStringMatches(answer);
@@ -229,6 +252,17 @@ public class FormVxmlRenderer {
     }
   }
   
+  private void setOutboundStatus(Status status) {
+    if (vs.getOutboundId() >= 0) {
+      log.info("Set outbound status: id=" + vs.getOutboundId() + "; status=" + status);
+      try {
+        dba.setOutboundCallStatus(vs.getOutboundId(), status);
+      } catch (SQLException e) {
+        log.error(e);
+      }
+    }
+  }
+
   private void getStringMatches(String answer) {
     Corpus c = CorpusFactory.getCorpus(STRING_PREDICTOR_CORPUS);
     StringPredictor sp = new StringPredictor(c);
@@ -395,10 +429,6 @@ public class FormVxmlRenderer {
     fd.initialize(true);
   }
   
-  private void continueForm() {
-
-  }
-  
   private VxmlWidget getWidgetFromPrompt(PromptElement prompt) {
     WidgetBase w = null;
     switch (prompt.getType()) {
@@ -436,7 +466,9 @@ public class FormVxmlRenderer {
 
   public void renderError(VoiceError error, String details){
     log.error("Voice error rendered. Type: " + error.name() + "; Details: " + details);
-    String contents = "<block><prompt>Sorry, an error occured of type " + error.name() + ". Details are: " + details + "</prompt></block>";
+    String contents = "<block><prompt>Sorry, an error occured of type " + error.name() + ". Details are: " + details + "</prompt>" + 
+    VxmlUtils.createVar("action", VoiceAction.HANGUP.name(), true) +
+    VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</block>";
     VxmlForm f = new VxmlForm("errorForm");
     f.setContents(contents);
     try {
@@ -446,11 +478,15 @@ public class FormVxmlRenderer {
   
   private VoiceSession newSession(String sessionid, String callerid){
     
+    log.info("outboundid=" + outboundId);
     VoiceSession vs = new VoiceSession();
     if (callerid != null)
       vs.setCallerid(callerid);
     if (sessionid != null)
       vs.setSessionid(sessionid);
+    if (outboundId >= 0) {
+      vs.setOutboundId(outboundId);
+    }
     vsm.put(vs.getCallerid(), vs.getSessionid(), vs);
     return vs;
   }
@@ -549,11 +585,10 @@ public class FormVxmlRenderer {
     return p;
   }
   
- 
   private void writeCurrentRecordPrompt(String prompt) {
     log.info("Writing record prompt: " + prompt);
     try {
-      dba.setCurrentRecordPrompt(prompt);
+      dba.setMiscValue(GlobalConstants.CURRENT_RECORD_PROMPT_KEY, prompt);
     } catch (SQLException e) {
       log.error(e);
     }

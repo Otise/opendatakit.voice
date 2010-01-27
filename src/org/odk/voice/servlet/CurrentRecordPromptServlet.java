@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.db.DbAdapter;
 
 /**
@@ -41,7 +42,7 @@ public class CurrentRecordPromptServlet extends HttpServlet {
 	  DbAdapter dba = null;
 	  try {
   	  dba = new DbAdapter();
-  	  String currentPrompt = dba.getCurrentRecordPrompt();
+  	  String currentPrompt = dba.getMiscValue(GlobalConstants.CURRENT_RECORD_PROMPT_KEY);
   	  resp.getWriter().write(currentPrompt == null ? "" : currentPrompt);
 	  } catch (SQLException e) {
 	    e.printStackTrace();
@@ -70,7 +71,7 @@ public class CurrentRecordPromptServlet extends HttpServlet {
 	      for (String prompt : dba.getAudioPrompts()) {
 	        dba.deleteAudioPrompt(prompt);
 	      }
-	      dba.setCurrentRecordPrompt(null);
+	      dba.setMiscValue(GlobalConstants.CURRENT_RECORD_PROMPT_KEY, null);
       }
     } catch (SQLException e) {
       log.error(e);

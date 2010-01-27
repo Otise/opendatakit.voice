@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.odk.voice.schedule.ScheduledCall;
 
 
 public class DbAdapter {
@@ -366,7 +367,7 @@ public class DbAdapter {
   
   public boolean deleteAudioPrompt(int prompthash) {
     try {
-      String q = "DELETE FROM audio_prompt WHERE prompthash=?";
+      String q = "DELETE FROM audio_prompt WHERE prompthash=?;";
       PreparedStatement stmt = con.prepareStatement(q);
       stmt.setInt(1, prompthash);
       return stmt.executeUpdate() > 0;
@@ -397,20 +398,18 @@ public class DbAdapter {
     stmt.executeUpdate();
   }
   
-  private static final String CURRENT_RECORD_PROMPT_KEY = "currentrecordprompt";
-  
-  public void setCurrentRecordPrompt(String prompt) throws SQLException {
+  public void setMiscValue(String key, String value) throws SQLException {
     String q = "REPLACE INTO misc (k, v) VALUES (?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
     //log.info("set record prompt: " + prompt);
-    stmt.setString(1, CURRENT_RECORD_PROMPT_KEY);
-    stmt.setString(2, prompt);
+    stmt.setString(1, key);
+    stmt.setString(2, value);
     stmt.executeUpdate();
   }
-  public String getCurrentRecordPrompt() throws SQLException {
+  public String getMiscValue(String key) throws SQLException {
     String q = "SELECT v FROM misc WHERE k=?;";
     PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setString(1, CURRENT_RECORD_PROMPT_KEY);
+    stmt.setString(1, key);
     ResultSet rs = stmt.executeQuery();
     
     if (rs.next()) {
@@ -419,6 +418,53 @@ public class DbAdapter {
       return null;
     }
   }
+  
+  public boolean addOutboundCall(String phoneNumber) throws SQLException {
+    String q = "INSERT INTO outbound (phoneNumber, status) VALUES (?,?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    //log.info("set record prompt: " + prompt);
+    stmt.setString(1, phoneNumber);
+    stmt.setString(2, ScheduledCall.Status.PENDING.name());
+    stmt.executeUpdate();
+    return true;
+  }
+  
+  public boolean deleteOutboundCall(int id) throws SQLException {
+    String q = "DELETE FROM outbound WHERE id=?";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setInt(1, id);
+    return stmt.executeUpdate() > 0; 
+  }
+  
+  public List<ScheduledCall> getScheduledCalls(ScheduledCall.Status status) throws SQLException {
+    List<ScheduledCall> res = new ArrayList<ScheduledCall>();
+    String q = null;
+    if (status == null) {
+      q = "SELECT id, phoneNumber, status FROM outbound;";
+    } else {
+      q = "SELECT id, phoneNumber, status FROM outbound WHERE status=?;";
+    }
+    PreparedStatement stmt = con.prepareStatement(q);
+    if (status != null) {
+      stmt.setString(1, status.name());
+    }
+    ResultSet rs = stmt.executeQuery();
+    while (rs.next()) {
+      res.add(new ScheduledCall(rs.getInt("id"), 
+          rs.getString("phoneNumber"), 
+          ScheduledCall.Status.valueOf(rs.getString("status"))));
+    }
+    return res;
+  }
+  
+  public boolean setOutboundCallStatus(int id, ScheduledCall.Status status) throws SQLException {
+    String q = "UPDATE outbound SET status=? WHERE id=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, status.name());
+    stmt.setInt(2, id);
+    return (stmt.executeUpdate() != 0);
+  }
+  
   
   //--------------------- INTERNAL METHODS --------------------------
   
@@ -491,6 +537,16 @@ public class DbAdapter {
             "k VARCHAR(100) NOT NULL PRIMARY KEY," + 
             "v VARCHAR(10000) );"
         );
+    
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS outbound (" + 
+        "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+        "phoneNumber VARCHAR(100) NOT NULL," +
+        "status VARCHAR(20));"
+//        "frequency_ms INT," +
+//        "next_date DATETIME"
+        );
+        
   }
   
   /**
@@ -505,6 +561,7 @@ public class DbAdapter {
     stmt.execute("DROP TABLE form;");
     stmt.execute("DROP TABLE audio_prompt;");
     stmt.execute("DROP TABLE misc;");
+    stmt.execute("DROP TABLE outbound;");
     initDb();
   }
 

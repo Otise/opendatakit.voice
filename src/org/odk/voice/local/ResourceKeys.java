@@ -31,4 +31,5 @@ public class ResourceKeys {
   public static final String STRING_CONFIRM_ITEM = "stringconfirmitem";
   public static final String STRING_CONFIRM_NO_MORE_MATCHES = "stringconfirmnomorematches";
   public static final String BEGIN_SESSION_INSTRUCTIONS = "beginsessioninstructions";
+  public static final String GOODBYE = "goodbye";
 }

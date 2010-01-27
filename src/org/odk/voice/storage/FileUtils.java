@@ -192,7 +192,6 @@ public class FileUtils {
         }
     }
 
-
     public static byte[] getFileAsBytes(File file) {
 
         byte[] bytes = null;

@@ -156,6 +156,5 @@ public class InstanceUploader  {
               return STATUS_OK;
           }
           return STATUS_ERROR;
-
   }
 }

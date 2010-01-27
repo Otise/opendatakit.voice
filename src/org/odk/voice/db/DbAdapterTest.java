@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.odk.voice.db.DbAdapter.FormMetadata;
 import org.odk.voice.db.DbAdapter.InstanceBinary;
+import org.odk.voice.schedule.ScheduledCall;
 
 public class DbAdapterTest extends TestCase {
   
@@ -48,8 +49,11 @@ public class DbAdapterTest extends TestCase {
       dba.putAudioPrompt(prompt2, data3);
       assertTrue(Arrays.equals(data3, dba.getAudioPrompt(prompt2)));
       assertTrue(Arrays.equals(data3, dba.getAudioPrompt(dba.getPromptHash(prompt2))));
+      assertTrue(dba.deleteAudioPrompt(prompt2));
+      assertNull(dba.getAudioPrompt(prompt2));
       assertNull(dba.getAudioPrompt("notinthedb"));
       assertNull(dba.getAudioPrompt(dba.getPromptHash("notinthedb")));
+      
     } catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
@@ -127,6 +131,24 @@ public class DbAdapterTest extends TestCase {
       assertEquals(binaries.get(1).mimeType, parity ? "audio/wmv" : "text/xml");
       assertTrue(Arrays.equals(binaries.get(0).binary, parity ? binary1 : binary2));
       assertTrue(Arrays.equals(binaries.get(1).binary, parity ? binary2 : binary1));
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }
+  
+  public void testOutbound(){
+    try {
+      String num = "+1234567";
+      dba.addOutboundCall(num);
+      List<ScheduledCall> res = dba.getScheduledCalls(ScheduledCall.Status.PENDING);
+      assertEquals(1, res.size());
+      ScheduledCall call = res.get(0);
+      assertEquals(num, call.phoneNumber);
+      assertFalse(dba.setOutboundCallStatus(call.id + 1, ScheduledCall.Status.COMPLETE));
+      assertTrue(dba.setOutboundCallStatus(call.id, ScheduledCall.Status.NOT_COMPLETED));
+      assertEquals(1, dba.getScheduledCalls(null).size());
+      assertEquals(0, dba.getScheduledCalls(ScheduledCall.Status.PENDING).size());
     } catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());

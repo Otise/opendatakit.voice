@@ -114,6 +114,9 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES,
         "Sorry, no more matches. Press 1 to continue, or 2 to try again."
       },
+      {ResourceKeys.GOODBYE,
+        "Goodbye."
+      }
   // END OF MATERIAL TO LOCALIZE
   };
 }

@@ -43,7 +43,9 @@ public class VoiceSession {
   private List<String> recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
   private int recordPromptIndex = -1; //the index in recordPrompts that is currently being recorded
   private int recordLanguageIndex = -1;
-  private boolean recordPromptExtras = false;;
+  private boolean recordPromptExtras = false;
+  
+  private int outboundId = -1;
   
   public VoiceSession(){
     this.date = new Date();
@@ -219,6 +221,14 @@ public class VoiceSession {
 
   public int getInstanceid() {
     return instanceid;
+  }
+
+  public void setOutboundId(int outboundId) {
+    this.outboundId = outboundId;
+  }
+
+  public int getOutboundId() {
+    return outboundId;
   }
 
 }

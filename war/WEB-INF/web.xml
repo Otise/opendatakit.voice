@@ -59,4 +59,21 @@
     <servlet-name>LogServlet</servlet-name>
     <url-pattern>/logs</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>OutboundScheduleServlet</display-name>
+    <servlet-name>OutboundScheduleServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.OutboundScheduleServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>OutboundScheduleServlet</servlet-name>
+    <url-pattern>/outboundSchedule</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Define application events listeners -->
+  <listener>
+    <listener-class>
+     org.odk.voice.schedule.OutboundCallScheduler
+    </listener-class>
+  </listener>
 </web-app>

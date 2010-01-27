@@ -13,5 +13,6 @@ public enum VoiceAction {
   ADMIN,
   HANGUP, 
   GET_STRING_MATCHES, 
-  RESTART_SESSION,
+  RESTART_SESSION, 
+  NO_RESPONSE,
 }
