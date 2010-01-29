@@ -13,7 +13,19 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.odk.voice.schedule.ScheduledCall;
 
-
+/**
+ * Adapter for a MySQL database persistence layer.
+ * 
+ * ODK Voice has been tested with MySQL 5.0, although it could be modified 
+ * slightly to work with other SQL databases.
+ * 
+ * To run ODK Voice out of the box, install MySQL 5.0 (on any platform), 
+ * and set the root password to 'odk-voice'. For a production system, you 
+ * MUST use a non-root user and a different password for security.
+ * 
+ * @author alerer
+ *
+ */
 public class DbAdapter {
  
   private static org.apache.log4j.Logger log = Logger
@@ -398,6 +410,14 @@ public class DbAdapter {
     stmt.executeUpdate();
   }
   
+  /**
+   * Inserts a key-value pair into the 'misc' database table. Overwrites any 
+   * old value attached to the key.
+   * 
+   * @param key
+   * @param value 
+   * @throws SQLException
+   */
   public void setMiscValue(String key, String value) throws SQLException {
     String q = "REPLACE INTO misc (k, v) VALUES (?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -406,6 +426,14 @@ public class DbAdapter {
     stmt.setString(2, value);
     stmt.executeUpdate();
   }
+  
+  /**
+   * 
+   * @param key
+   * @return The value associated with this key in the 'misc' database, 
+   * or null if no key exists.
+   * @throws SQLException
+   */
   public String getMiscValue(String key) throws SQLException {
     String q = "SELECT v FROM misc WHERE k=?;";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -436,6 +464,13 @@ public class DbAdapter {
     return stmt.executeUpdate() > 0; 
   }
   
+  /**
+   * 
+   * @param status
+   * @return All scheduled calls with the given status, or <i>all</i> scheduled 
+   * calls if status is null.
+   * @throws SQLException
+   */
   public List<ScheduledCall> getScheduledCalls(ScheduledCall.Status status) throws SQLException {
     List<ScheduledCall> res = new ArrayList<ScheduledCall>();
     String q = null;
@@ -467,10 +502,7 @@ public class DbAdapter {
   
   
   //--------------------- INTERNAL METHODS --------------------------
-  
-  private String escape(String s) {
-    return StringEscapeUtils.escapeSql(s);
-  }
+
   
   /**
    * Creates the database if it hasn't already been created.
@@ -551,6 +583,9 @@ public class DbAdapter {
   
   /**
    * Resets the database, deleting all data.
+   * 
+   * resetDB() can be triggered remotely with the following http request:
+   * http://{ip}/odk-voice/formUpload?resetDb=true
    * @throws SQLException
    */
   public void resetDb() throws SQLException {
@@ -559,7 +594,7 @@ public class DbAdapter {
     stmt.execute("DROP TABLE instance_binary");
     stmt.execute("DROP TABLE instance;");
     stmt.execute("DROP TABLE form;");
-    stmt.execute("DROP TABLE audio_prompt;");
+    stmt.execute("DR OP TABLE audio_prompt;");
     stmt.execute("DROP TABLE misc;");
     stmt.execute("DROP TABLE outbound;");
     initDb();

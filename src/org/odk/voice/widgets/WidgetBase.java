@@ -16,6 +16,27 @@ import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlUtils;
 
+/**
+ * <p>{@link WidgetBase} is the base class for VxmlWidgets. It contains a number 
+ * of methods that simplify the process of creating VxmlWidgets properly.</p> 
+ * 
+ * <p>WidgetBase handles the {@link #getPromptStrings} method of {@link VxmlWidget}; 
+ * however, correct functionality requires that the subclass 'tells' WidgetBase 
+ * about all prompt strings in the {@link #getPromptVxml} method by either (a) declaring 
+ * the prompt using {@link #createPrompt}, or (b) calling {@link #addPromptString} with 
+ * the prompt as an argument.</p>
+ * 
+ * <p>The {@link #getActionField} method provides an easy shortcut for creating the 
+ * 'confirmation' dialog that says 'Press 1 if that is correct, or 2 to try again.', 
+ * and submits the result to the {@link FormVxmlServlet}.</p>
+ * 
+ * <p> <b>Note:</b> For proper functionality of a WidgetBase, {@link #setSessionId} and 
+ * {@link #setLocale} should be called on the WidgetBase before {@ #getPromptVxml} is 
+ * called.</p>
+ * 
+ * @author alerer
+ *
+ */
 public abstract class WidgetBase implements VxmlWidget{
 
   String sessionid;

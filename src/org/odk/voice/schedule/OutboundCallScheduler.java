@@ -25,6 +25,14 @@ import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.db.DbAdapter;
 import org.odk.voice.schedule.ScheduledCall.Status;
 
+/**
+ * An {@link OutboundCallScheduler} automatically runs a daemon timer thread 
+ * in the application background that regularly queries for pending scheduled 
+ * outbound calls and executes them (one at a time).
+ * 
+ * @author alerer
+ *
+ */
 public class OutboundCallScheduler implements ServletContextListener{
 
   private static org.apache.log4j.Logger log = Logger
@@ -100,7 +108,14 @@ public class OutboundCallScheduler implements ServletContextListener{
     DefaultHttpClient httpclient = new DefaultHttpClient(params);
     String url = SERVER_URL + "?numbertodial=" + number + "&tokenid=" + token + 
     "&outboundId=" + id;
-    HttpGet httpget = new HttpGet(url);
+    log.info("url=" + url);
+    HttpGet httpget = null;
+    try {
+      httpget = new HttpGet(url);
+    } catch (IllegalArgumentException e) {
+      log.error(e);
+      return false;
+    }
 
     // prepare response and return uploaded
     HttpResponse response = null;

@@ -3,6 +3,7 @@ package org.odk.voice.schedule;
 import java.util.Date;
 
 public class ScheduledCall {
+  
   public int id;
   public String phoneNumber;
   public Status status;

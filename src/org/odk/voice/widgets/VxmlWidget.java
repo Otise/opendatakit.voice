@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
+/**
+ * Interface for classes that render a VoiceXML document.
+ * 
+ * @author alerer
+ *
+ */
 public interface VxmlWidget {
-  
-  
-//  /**
-//   * 
-//   * @return A string containing the VoiceXML rendering this question.
-//   */
-//  public String getPromptVxml();
   
   /**
    * 

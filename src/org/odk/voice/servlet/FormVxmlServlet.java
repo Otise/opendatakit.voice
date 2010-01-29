@@ -82,29 +82,4 @@ public class FormVxmlServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		doGet(req, resp);
 	}
-
-}
-
-class WriterWithLog extends Writer{
-  Writer w;
-  org.apache.log4j.Logger l;
-  
-  public WriterWithLog(Writer w, org.apache.log4j.Logger l){
-    this.w = w;
-    this.l = l;
-  }
-  @Override
-  public void close() throws IOException {
-    w.close();
-  }
-  @Override
-  public void flush() throws IOException {
-    w.flush();
-  }
-  @Override
-  public void write(char[] cbuf, int off, int len) throws IOException {
-    l.info(new String(cbuf,off,len));
-    w.write(cbuf,off,len);
-    
-  }
 }

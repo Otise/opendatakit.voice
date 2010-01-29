@@ -80,28 +80,46 @@ public class VoiceSession {
   public Date getDate() {
     return date;
   }
-  
-  private VxmlWidget getWidgetFromPrompt(PromptElement prompt) {
-    WidgetBase w = null;
-    switch (prompt.getType()) {
-    case PromptElement.TYPE_START:
-      w = new FormStartWidget(fh.getFormTitle(), fh.getLanguages() != null);
-      break;
-    case PromptElement.TYPE_END:
-      w = new FormEndWidget(fh.getFormTitle());
-      break;
-    case PromptElement.TYPE_QUESTION:
-      QuestionWidget w2 = WidgetFactory.createWidgetFromPrompt("", prompt, 0);
-      w2.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
-      w = w2;
-      break;
-    default:
-      log.error("Prompt type was not expected: " + prompt.getType());
-      return null;
-    }
-    w.setLocale(OdkLocales.getLocale(fh.getCurrentLanguage()));
-    return w;
+
+  public void setSessionid(String sessionid) {
+    this.sessionid = sessionid;
+    
   }
+  
+  public String getSessionid(){
+    return sessionid;
+  }
+
+  public void setRecordLanguageIndex(int recordLanguageIndex) {
+    this.recordLanguageIndex = recordLanguageIndex;
+  }
+
+  public int getRecordLanguageIndex() {
+    return recordLanguageIndex;
+  }
+
+  public void setInstanceid(int instanceid) {
+    this.instanceid = instanceid;
+  }
+
+  public int getInstanceid() {
+    return instanceid;
+  }
+
+  public void setOutboundId(int outboundId) {
+    this.outboundId = outboundId;
+  }
+
+  public int getOutboundId() {
+    return outboundId;
+  }
+  
+  //-------------------------------------------------------
+  // ------------- Record Prompt Logic --------------------
+  // ------------------------------------------------------
+  // TODO: this code doesn't really belong in VoiceSession, 
+  // but it is ugly to put it elsewhere because you have to 
+  // expose and use a lot of properties from VoiceSession.
   
   public String getCurrentRecordPrompt(){
     if (recordPromptIndex < 0) {
@@ -182,6 +200,28 @@ public class VoiceSession {
     prompts.addAll(new ArrayList<String>(w.getPromptStrings()));
   }
   
+  private VxmlWidget getWidgetFromPrompt(PromptElement prompt) {
+    WidgetBase w = null;
+    switch (prompt.getType()) {
+    case PromptElement.TYPE_START:
+      w = new FormStartWidget(fh.getFormTitle(), fh.getLanguages() != null);
+      break;
+    case PromptElement.TYPE_END:
+      w = new FormEndWidget(fh.getFormTitle());
+      break;
+    case PromptElement.TYPE_QUESTION:
+      QuestionWidget w2 = WidgetFactory.createWidgetFromPrompt("", prompt, 0);
+      w2.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
+      w = w2;
+      break;
+    default:
+      log.error("Prompt type was not expected: " + prompt.getType());
+      return null;
+    }
+    w.setLocale(OdkLocales.getLocale(fh.getCurrentLanguage()));
+    return w;
+  }
+  
 //  public void setRecordPrompts(String[] recordPrompts) {
 //    this.recordPrompts = recordPrompts;
 //  }
@@ -197,38 +237,5 @@ public class VoiceSession {
 //  public int getRecordPromptIndex() {
 //    return recordPromptIndex;
 //  }
-
-  public void setSessionid(String sessionid) {
-    this.sessionid = sessionid;
-    
-  }
-  
-  public String getSessionid(){
-    return sessionid;
-  }
-
-  public void setRecordLanguageIndex(int recordLanguageIndex) {
-    this.recordLanguageIndex = recordLanguageIndex;
-  }
-
-  public int getRecordLanguageIndex() {
-    return recordLanguageIndex;
-  }
-
-  public void setInstanceid(int instanceid) {
-    this.instanceid = instanceid;
-  }
-
-  public int getInstanceid() {
-    return instanceid;
-  }
-
-  public void setOutboundId(int outboundId) {
-    this.outboundId = outboundId;
-  }
-
-  public int getOutboundId() {
-    return outboundId;
-  }
 
 }

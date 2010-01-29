@@ -20,7 +20,9 @@ import java.io.File;
 
 
 /**
- * File constants.
+ * Note: ODK Voice has moved to MySQL as a storage medium (rather than files), 
+ * so these constants are mostly deprecated. However, data is still also written 
+ * to files for backup.
  * 
  * @author Adam Lerer (adam.lerer@gmail.com)
  * 
@@ -39,25 +41,31 @@ public class FileConstants {
      * Prompt audio storage path
      */
     public static final String PROMPT_AUDIO_PATH = FILE_BASE + File.separator + "audio";
+    
+    /**
+     * Path to instance data storage
+     */
+    public static final String INSTANCES_PATH = FILE_BASE + File.separator + "instances";
+    
     /**
      * Temp path
      */
     public static final String CACHE_PATH = FILE_BASE + File.separator + "cache";
     
     /**
-     * 
+     * Log file location
      */
     public static final String LOG_FILE = FILE_BASE + File.separator + "logs" + 
     File.separator + "odk-voice.log";
+    
     
     /**
      * See CurrentPromptServlet
      */
     public static final String CURRENT_RECORD_PROMPT_PATH = CACHE_PATH + File.separator + "currentPrompt";
     
+    /**
+     * Max size of an uploaded instance, in bytes.
+     */
     public static final int MAX_FILE_SIZE = 10000000;
-
-    public static final String INSTANCES_PATH = FILE_BASE + File.separator + "instances";
-    
-    public static final String UPLOAD_URL = "http://odk-voice.appspot.com/submission";
 }

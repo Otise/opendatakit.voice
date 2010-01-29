@@ -52,9 +52,37 @@ import org.odk.voice.xform.FormHandler;
 import org.odk.voice.xform.PromptElement;
 
 /**
- * Top-level class for rendering the VoiceXML UI for a form.
- * Note: This class may have to be broken up into several classes (one for rendering a particular form, one for admins, and one for 
- * meta-form actions like choosing a form.
+ * <p>This class contains the main logic for rendering the VoiceXML UI for a form.</p>
+ * 
+ * <p>An XForm is rendered through a series of VoiceXML dialogues (documents), which 
+ * together comprise a {@link VoiceSession}. Generally, one VXML dialogue is rendered 
+ * for each form question, and additional dialogues are rendered for changing languages, 
+ * recording prompts, etc. The application keeps track of session state from dialogue to 
+ * dialogue using the {@link VoiceSessionManager}.</p>
+ * 
+ * <p>The fields sessionid, callerid, action, and answer (or a subset thereof) are sent as 
+ * parameters from each VXML dialogue to the {@link FormVxmlServlet} and passed to the 
+ * {@link FormVxmlRenderer}.
+ * <ul>
+ * <li><b>sessionid</b> is used by the {@link VoiceSessionManager} to look up the session 
+ * state between dialogues.</li>
+ * <li><b>callerid</b> is passed <i>only at the beginning of a session</i> and is stored 
+ * by the VoiceSession. It can be used to keep track of users and unfinished forms between 
+ * sessions (phone calls).</li>
+ * <li><b>action</b> indicates which action should be performed next by the application 
+ * based on user input, (e.g. go to the next question, change language, etc.) action should 
+ * be a member of {@link VoiceAction}.</li>
+ * <li><b>answer</b> is a string value with the answer to the current question, if any.</li>
+ * <li><b>binaryData</b> contains the binary data answer for binary questions.</li>
+ * </p>
+ * 
+ * When a session ends, as indicated by the HANGUP or NO_RESPONSE actions, the 
+ * {@link FormVxmlRenderer} exports survey data using the {@link InstanceUploader} to 
+ * an XForms backend.
+ * 
+ * Progression {@link VoiceAction}
+ * 
+ * 
  * @author alerer
  *
  */
@@ -638,11 +666,11 @@ public class FormVxmlRenderer {
     // but this is dependent on an instances DB...are we making one?
     if (complete) {
       InstanceUploader iu = new InstanceUploader();
-      iu.setServerUrl(FileConstants.UPLOAD_URL);
+      iu.setServerUrl(GlobalConstants.UPLOAD_URL);
       if (iu.uploadInstance(vs.getInstanceid()) == InstanceUploader.STATUS_OK) {
-        log.info("Instance uploaded to server at " + FileConstants.UPLOAD_URL + " successfully.");
+        log.info("Instance uploaded to server at " + GlobalConstants.UPLOAD_URL + " successfully.");
       } else {
-        log.warn("Instance upload to server at " + FileConstants.UPLOAD_URL + " failed.");
+        log.warn("Instance upload to server at " + GlobalConstants.UPLOAD_URL + " failed.");
       }
       
     }

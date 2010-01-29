@@ -1,5 +1,18 @@
 package org.odk.voice.local;
 
+/**
+ * To add a new string resource to ODK Voice: 
+ * <ol>
+ * <li>Add a new key to ResourceKeys.java</li>
+ * <li>Add a new mapping from the key to its default English value in Resources.java</li>
+ * <li>Add mappings from the key to its language-specific value in Resources_xx.java</li>
+ * </ol>
+ * 
+ * To use a string resource, call <code>resources.getString(ResourceKeys.KEY_NAME)</code>.
+ * 
+ * @author alerer
+ *
+ */
 public class ResourceKeys {
 
   public static final String FORM_START = "formstartprompt";

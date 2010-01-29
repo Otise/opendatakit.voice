@@ -68,6 +68,7 @@ public class OutboundScheduleServlet extends HttpServlet {
   		if (phoneNumbers != null) {
   	    String[] phoneNumberArray = phoneNumbers.split("\n");
     		for (String phoneNumber : phoneNumberArray) {
+    		  phoneNumber = phoneNumber.replace("\r", "");
     		  dba.addOutboundCall(phoneNumber);
     		}
   		}

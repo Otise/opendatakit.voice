@@ -1,7 +1,7 @@
 package org.odk.voice.constants;
 
 /**
- * Constants involved
+ * 
  * @author Adam Lerer (adam.lerer@gmail.com)
  *
  */

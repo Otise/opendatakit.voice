@@ -48,7 +48,7 @@
     <td><%= StringEscapeUtils.escapeHtml(call.status.name()) %></td>
     <td><form action="outboundSchedule" method="post">
     <input type="hidden" name="retry" value="<%= call.id %>"/>
-    <input type="submit" <%= call.status.equals(ScheduledCall.Status.PENDING) || call.status.equals(ScheduledCall.Status.COMPLETE) ? "disabled=\"true\"" : "" %> value="Retry"/>
+    <input type="submit" <%= call.status.equals(ScheduledCall.Status.PENDING) || call.status.equals(ScheduledCall.Status.IN_PROGRESS) ? "disabled=\"true\"" : "" %> value="Retry"/>
     </form></td>
     <td><form action="outboundSchedule" method="post">
     <input type="hidden" name="delete" value="<%= call.id %>"/>
@@ -80,40 +80,3 @@
  %>
 </body>
 </html>
-
-<form class="small" action="http://session.voxeo.net/VoiceXML.start" method="get" target="_blank">
-<input name="tokenid" value="9737841473af644d8be6a6371477145c00b2049bb4a6d1b4331b9bd67d6d9b9078d3abe01b125c82c5d134be" type="hidden">
-
-
-
-<input name="callerid" value="14074181800" type="hidden">
-
-
-<center>
-<table width="98%" border="0" cellpadding="0" cellspacing="0">
- <tbody><tr>
-  <td align="center">
-    <span class="sectionTitle">Application Token</span>
-
-    <hr class="dotted">
-    <div class="smallArial" align="center">9737841473af644d8be6a6371477145c00b2049bb4a6d1b4331b9bd67d6d9b9078d3abe01b125c82c5d134be</div>
-    <hr class="dotted">
-    <div style="margin-top: 5px;" align="center">
-      <table border="0" cellpadding="5" cellspacing="0">
-      <tbody><tr>
-      
-        <td valign="middle"><img src="/images/qmark.gif" onmouseover="showToolTip('lblPhoneNumber', event, -1);" onmouseout="hideToolTip('lblPhoneNumber');" width="12" align="absmiddle" height="13">
-            <span class="smallVerdana">&nbsp;<b>Phone Number:</b> (digits only)</span></td>
-
-        <td valign="middle"><input class="small" name="numbertodial" style="width: 100px;" maxlength="50" type="text"></td>
-      
-        <td valign="middle"><input class="btnCommunity" value="Execute Token" style="width: 110px;" type="submit"></td>
-      </tr>
-      </tbody></table>
-    </div>    
-  </td>
- </tr>
-</tbody></table>
-</center>
-</form>
-</body></html>
