@@ -5,6 +5,7 @@ import java.io.Writer;
 
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 
@@ -22,10 +23,11 @@ public class FormEndWidget extends WidgetBase {
 //        createPrompt(StringConstants.formEndPrompt(formTitle)),
 //            "", "");
    
-    VxmlForm endForm = new VxmlForm("main", createPrompt(
-        String.format(getString(ResourceKeys.FORM_END), formTitle)),
-        VxmlUtils.createGrammar(new String[]{"*"}, new String[]{""}),
-        "Sorry, not yet implemented.<reprompt/>");
+    VxmlField field = createField(("main"),
+    createPrompt(String.format(getString(ResourceKeys.FORM_END), formTitle)),
+    VxmlUtils.createGrammar(new String[]{"*"}, new String[]{""}),
+    "Sorry, not yet implemented.<reprompt/>");
+    VxmlForm endForm = new VxmlForm("main",field);
     new VxmlDocument(sessionid, endForm).write(out);
   }
 }

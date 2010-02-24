@@ -33,10 +33,11 @@ public class RecordPromptWidget extends WidgetBase {
       "<else/>" +
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
       "</if>\n";
-    VxmlForm preForm = new VxmlForm("action", prePrompt, preGrammar, preFilled);
+    VxmlField preField = createField("action", prePrompt, preGrammar, preFilled);
+    VxmlForm preForm = new VxmlForm("action", preField);
     
     VxmlSection recordSection = new VxmlSection(
-      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" type=\"audio/x-wav\">\n" +
+      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"120s\" type=\"audio/x-wav\">\n" +
       "<filled>\n" + 
       "</filled>\n" + 
       "</record>\n");
@@ -51,7 +52,7 @@ public class RecordPromptWidget extends WidgetBase {
         getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)});
     
     
-    VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));
+    VxmlField actionField = createField("action", p2, actionGrammar, actionFilled(true));
     
     VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
     if (prompt == null) {

@@ -50,10 +50,11 @@ public class AudioCaptureWidget extends QuestionWidget {
       "<else/>" +
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
       "</if>\n";
-    VxmlForm preForm = new VxmlForm("main", new VxmlField("action", prePrompt, preGrammar, preFilled));
+    VxmlForm preForm = new VxmlForm("main", createField("action", prePrompt, preGrammar, preFilled));
     
     VxmlSection recordSection = new VxmlSection(
-      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" type=\"audio/x-wav\">\n" +
+      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"120s\" type=\"audio/x-wav\">\n" +
+      prePrompt +
       "<filled>\n" + 
       createPrompt(new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), "<value expr=\"answer\"/>"},
         new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), null}) + 
@@ -64,7 +65,7 @@ public class AudioCaptureWidget extends QuestionWidget {
     VxmlPrompt p2 = createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS));
     
     
-    VxmlField actionField = new VxmlField("action", p2, actionGrammar, actionFilled(true));
+    VxmlField actionField = createField("action", p2, actionGrammar, actionFilled(true));
     
     VxmlForm mainForm = new VxmlForm("main2", recordSection, actionField);
     

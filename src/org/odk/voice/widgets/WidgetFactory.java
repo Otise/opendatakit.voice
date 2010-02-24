@@ -51,7 +51,12 @@ public class WidgetFactory {
                           questionWidget = new DecimalWidget(pe);
                           break;
                       case Constants.DATATYPE_INTEGER:
-                          questionWidget = new IntegerWidget(pe);
+                          String digits = pe.getAttribute("digits");
+                          if (digits!= null && digits.equals("true")) {
+                            questionWidget = new DigitsWidget(pe);
+                          } else {
+                            questionWidget = new IntegerWidget(pe);
+                          }
                           break;
                       default:
                           questionWidget = new StringWidget(pe);

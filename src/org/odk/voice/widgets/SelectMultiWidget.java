@@ -46,7 +46,7 @@ public class SelectMultiWidget extends QuestionWidget {
       while (items.hasMoreElements()) {
         String itemLabel = (String) items.nextElement();
         String itemValue = (String) h.get(itemLabel);
-        VxmlField f = new VxmlField(itemValue,
+        VxmlField f = createField(itemValue,
             createPrompt(itemLabel),
             VxmlUtils.createGrammar(new String[]{"1","2"} ,
                 new String[]{"'true'", "'false'"}),
@@ -69,7 +69,7 @@ public class SelectMultiWidget extends QuestionWidget {
         createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD))
         + confirmPrompts + "</block>");
     sections.add(confirmSection);
-    VxmlField actionField = new VxmlField("action",createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)), 
+    VxmlField actionField = createField("action",createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)), 
         actionGrammar, VxmlUtils.createVar("answer", "concat()", false) + actionFilled(false));
     sections.add(actionField);
     VxmlForm mainForm = new VxmlForm("main", sections.toArray(new VxmlSection[]{}));

@@ -26,7 +26,7 @@ public class InfoWidget extends QuestionWidget {
           createPrompt(prompt.getQuestionText()) + 
           "</block>");
       
-      VxmlField actionField = new VxmlField("action", 
+      VxmlField actionField = createField("action", 
           createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
           actionGrammar,
           VxmlUtils.createVar("answer", "", true) + actionFilled(false));

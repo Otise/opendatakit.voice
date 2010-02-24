@@ -27,7 +27,7 @@ public class DateWidget extends QuestionWidget {
     final String monthGrammar = "<grammar src=\"builtin:dtmf/digits?minlength=1;maxlength=2\"/>";
     final String dayGrammar = "<grammar src=\"builtin:dtmf/digits?minlength=1;maxlength=2\"/>";
     
-    VxmlField yearField = new VxmlField("year", 
+    VxmlField yearField = createField("year", 
           createPrompt(prompt.getQuestionText(), getString(ResourceKeys.DATE_INSTRUCTIONS_YEAR)),
           yearGrammar,
           createPrompt(getString(ResourceKeys.THANK_YOU)).toString()
@@ -37,7 +37,7 @@ public class DateWidget extends QuestionWidget {
 //              .getPromptString()
       );
       
-      VxmlField monthField = new VxmlField("month", 
+      VxmlField monthField = createField("month", 
           createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_MONTH)),
           monthGrammar,
           createPrompt(getString(ResourceKeys.THANK_YOU)).toString()
@@ -50,7 +50,7 @@ public class DateWidget extends QuestionWidget {
         "<script>var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];" +
         "var confDate = months[parseInt(month - 1)] + ' ' + date + ' ' + year; </script>";
       
-      VxmlField dateField = new VxmlField("date", 
+      VxmlField dateField = createField("date", 
           createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_DAY)),
           dayGrammar,
           genConfirmationDate + 
@@ -68,7 +68,7 @@ public class DateWidget extends QuestionWidget {
       String concatAnswer = //"<var name=\"answer\" expr=\"year.toString() + '/' + month.toString() + '/' date.toString()\"/>";
         "<script>var answer = year + '/' + month + '/' + date;</script>";
 
-      VxmlField actionField = new VxmlField("action", 
+      VxmlField actionField = createField("action", 
           createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)),
           actionGrammar, 
           concatAnswer + actionFilled(false));

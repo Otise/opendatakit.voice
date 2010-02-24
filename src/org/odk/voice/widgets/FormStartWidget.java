@@ -34,7 +34,7 @@ public class FormStartWidget extends WidgetBase {
         
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
-    VxmlField startField = new VxmlField("action", 
+    VxmlField startField = createField("action", 
             createPrompt(
                 String.format(getString(ResourceKeys.FORM_START),formTitle),
                 hasLanguages? getString(ResourceKeys.FORM_START_LANGUAGES) : ""),

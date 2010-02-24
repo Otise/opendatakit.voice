@@ -18,12 +18,9 @@ package org.odk.voice.xform;
 
 
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -56,6 +53,8 @@ public class FormHandler {
     private FormDef mForm;
     private FormIndex mCurrentIndex;
     private int mQuestionCount;
+    private Integer numQuestions;
+    private boolean irrelevantQuestions = false;
 
     private static org.apache.log4j.Logger log = Logger
     	.getLogger(FormHandler.class);
@@ -209,12 +208,10 @@ public class FormHandler {
                 }
             } else {
                 // we have a question
-                mQuestionCount++;
                 return new PromptElement(mCurrentIndex, getForm(), getGroups());
             }
             nextRelevantIndex();
         }
-        mQuestionCount++;
         // we're at the end of our form
         return new PromptElement(PromptElement.TYPE_END);
     }
@@ -285,7 +282,6 @@ public class FormHandler {
      * 
      */
     public PromptElement prevPrompt() {
-        mQuestionCount--;
         prevQuestion();
         if (isBeginning())
             return new PromptElement(PromptElement.TYPE_START);
@@ -296,12 +292,14 @@ public class FormHandler {
 
     private void nextRelevantIndex() {
         do {
+            mQuestionCount++;
             mCurrentIndex = mForm.incrementIndex(mCurrentIndex);
         } while (mCurrentIndex.isInForm() && !isRelevant(mCurrentIndex));
     }
     
     private void nextIndex() {
       if (!mCurrentIndex.isEndOfFormIndex()) {
+        mQuestionCount++;
         mCurrentIndex = mForm.incrementIndex(mCurrentIndex);
       }
     }
@@ -314,6 +312,7 @@ public class FormHandler {
     private void prevQuestion() {
         do {
             mCurrentIndex = mForm.decrementIndex(mCurrentIndex);
+            mQuestionCount--;
         } while (mCurrentIndex.isInForm() && !isRelevant(mCurrentIndex));
 
         // recursively skip backwards past any groups, and pop them from our
@@ -455,7 +454,7 @@ public class FormHandler {
 
 
     public float getQuestionProgress() {
-        return (float) mQuestionCount / getQuestionCount();
+        return (float) mQuestionCount / getQuestionCount(false);
     }
 
 
@@ -464,19 +463,23 @@ public class FormHandler {
     }
 
 
-    // TODO: These two methods are really hacky and completely inefficient. We
-    // should figure out a way to keep
-    // track of the number of questions we have without having to loop through
-    // the entire index each time.
     public FormIndex nextIndexForCount(FormIndex i) {
-        do {
+        //do {
             i = mForm.incrementIndex(i);
-        } while (i.isInForm() && !isRelevant(i));
+            if (i.isInForm() && !isRelevant(i))
+              irrelevantQuestions = true;
+        //} while (i.isInForm() /* && !isRelevant(i) */);
         return i;
     }
-
-
-    public int getQuestionCount() {
+ 
+    
+    public int getQuestionCount(boolean noBranching) {
+      return -1; /*
+        if (numQuestions != null) {
+          if (noBranching && irrelevantQuestions)
+            return -1;
+          return numQuestions;
+        }
         int count = 0;
         FormIndex i = FormIndex.createBeginningOfFormIndex();
 
@@ -489,9 +492,8 @@ public class FormHandler {
             }
             i = nextIndexForCount(i);
         }
-
-        // +1 for end screen
-        return count + 1;
+        numQuestions = count;
+        return getQuestionCount(noBranching); */
     }
 
 

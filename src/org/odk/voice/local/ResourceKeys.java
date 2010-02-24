@@ -20,6 +20,7 @@ public class ResourceKeys {
   public static final String FORM_END = "formendprompt";
   public static final String FORM_RECONNECT = "reconnectprompt";
   public static final String QUESTION_X_OF_Y = "questionxofy";
+  public static final String QUESTION_X = "questionx";
   public static final String SELECT_1_INSTRUCTIONS = "select1instructions";
   public static final String INT_INSTRUCTIONS = "intinstructions";
   public static final String SELECT_1_PRESS = "select1press";
@@ -45,4 +46,6 @@ public class ResourceKeys {
   public static final String STRING_CONFIRM_NO_MORE_MATCHES = "stringconfirmnomorematches";
   public static final String BEGIN_SESSION_INSTRUCTIONS = "beginsessioninstructions";
   public static final String GOODBYE = "goodbye";
+  public static final String NO_INPUT = "noinput";
+  public static final String NO_MATCH = "nomatch";
 }

@@ -165,8 +165,8 @@ public class FormVxmlRenderer {
       else {
         beginSession();
       }
+      logRequest();
       return;
-      
     } else {
       vs = vsm.get(sessionid);
     }
@@ -195,6 +195,22 @@ public class FormVxmlRenderer {
       renderUser();
     }
     
+    logRequest(); 
+  }
+  
+  private void logRequest() {
+    try {
+      byte[] data = null;
+      if (binaryData != null) {
+        data = binaryData.getFormDataByFieldName("answer").getData();
+      }
+      if (fh != null) {
+        // get some form info to put into the request DB
+      }
+      dba.addRequest(sessionid, callerid, action, answer, data);
+    } catch (SQLException e) {
+      log.error("Error adding request to the request DB table.", e);
+    }
   }
   
   private void resumeSession() {
@@ -468,7 +484,7 @@ public class FormVxmlRenderer {
       break;
     case PromptElement.TYPE_QUESTION:
       QuestionWidget qw = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, vs.getInstanceid());
-      qw.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
+      qw.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount(false)); //TODO(alerer): why is getQuestionCount wrong?
       w = qw;
       break;
     default:
@@ -658,6 +674,7 @@ public class FormVxmlRenderer {
     }
     try {
       dba.setInstanceXml(vs.getInstanceid(), xml);
+      dba.markInstanceCompleted(vs.getInstanceid(), complete);
     } catch (SQLException e) {
       log.error("SQLException setting instance XML.");
     }

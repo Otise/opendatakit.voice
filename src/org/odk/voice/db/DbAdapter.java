@@ -6,10 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.odk.voice.schedule.ScheduledCall;
 
@@ -500,6 +501,42 @@ public class DbAdapter {
     return (stmt.executeUpdate() != 0);
   }
   
+  /**
+   * Add an entry to the requests table. This table just stores the info for each request 
+   * for later external data mining / analysis. For example, you could write SQL queries 
+   * to extract the average time to complete the survey, or a given question, or see the 
+   * progression of a given session.
+   * 
+   * @param sessionid
+   * @param callerid
+   * @param action
+   * @param answer
+   * @param data
+   * @return
+   * @throws SQLException
+   */
+  public boolean addRequest (String sessionid, 
+    String callerid, String action, String answer, byte[] data) throws SQLException {
+    String q = "INSERT INTO request (sessionid, callerid, action, answer, data) " + 
+    "VALUES (?,?,?,?,?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    //log.info("set record prompt: " + prompt);
+    //stmt.setTimestamp(1, new java.sql.Timestamp(new Date().getTime()));
+    stmt.setString(1, sessionid);
+    stmt.setString(2, callerid);
+    stmt.setString(3, action);
+    stmt.setString(4, answer);
+    stmt.setBytes(5, data);
+    stmt.executeUpdate();
+    return true;
+  }
+//  
+//  "req_time DATETIME," + 
+//  "sessionid VARCHAR(100)," +
+//  "callerid VARCHAR(100)," + 
+//  "action VARCHAR(100)," + 
+//  "answer MEDIUMTEXT," + 
+//  "data MEDIUMBLOB);"
   
   //--------------------- INTERNAL METHODS --------------------------
 
@@ -578,6 +615,16 @@ public class DbAdapter {
 //        "frequency_ms INT," +
 //        "next_date DATETIME"
         );
+    
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS request (" + 
+        "req_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + 
+        "sessionid VARCHAR(100)," +
+        "callerid VARCHAR(100)," + 
+        "action VARCHAR(100)," + 
+        "answer MEDIUMTEXT," + 
+        "data MEDIUMBLOB);"
+        );
         
   }
   
@@ -597,6 +644,7 @@ public class DbAdapter {
     stmt.execute("DR OP TABLE audio_prompt;");
     stmt.execute("DROP TABLE misc;");
     stmt.execute("DROP TABLE outbound;");
+    stmt.execute("DROP TABLE request;");
     initDb();
   }
 

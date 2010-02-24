@@ -211,7 +211,24 @@ public class PromptElement {
     public String getHelpText() {
         return (((QuestionDef) mBinding.element).getHelpText());
     }
-
+    
+    /**
+     * @author Adam Lerer
+     * Gets a 'attribute' of a prompt element. Right now, since JavaRosa doesn't 
+     * allow accessing control attributes, we are using a hack where we use the 
+     * &lt;hint&gt; tag to store url-encoded keyval pairs (not unescaped).
+     * 
+     */
+    public String getAttribute(String key) {
+      String propString = getHelpText();
+      String[] props = propString.split("&");
+      for(String prop : props) {
+        String[] keyval = prop.split("=");
+        if (keyval.length == 2 && keyval[0].equals(key))
+          return keyval[1];
+      }
+      return null;
+    }
 
     /**
      * The repeat count of closest group the prompt belongs to.

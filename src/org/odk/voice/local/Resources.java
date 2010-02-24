@@ -41,6 +41,9 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.QUESTION_X_OF_Y, 
           "Question %1$d of %2$d."
       },
+      {ResourceKeys.QUESTION_X,
+          "Question %1$d."
+      },
       {ResourceKeys.INT_INSTRUCTIONS,
           "Please enter the number on the keypad."
       },
@@ -73,8 +76,9 @@ public class Resources extends ListResourceBundle {
         "Now, enter the two-digit day of the month."
       },
       {ResourceKeys.AUDIO_INSTRUCTIONS,
-        "Press 1 to begin recording, and record your answer after the beep. You can press any key when " +
-        "you are finished recording."
+        //"Press 1 to begin recording, and record your answer after the beep. You can press any key when " +
+        //"you are finished recording."
+        "After the beep, please slowly and clearly say your answer."
       },
       {ResourceKeys.ANSWER_CONFIRMATION_KEYPAD,
         "You entered "
@@ -116,6 +120,12 @@ public class Resources extends ListResourceBundle {
       },
       {ResourceKeys.GOODBYE,
         "Goodbye."
+      },
+      {ResourceKeys.NO_INPUT,
+        "You didn't enter anything on the keypad. Please listen to the options again."
+      },
+      {ResourceKeys.NO_MATCH,
+        "The key you pressed was not one of the choices. Please listen to the options again."
       }
   // END OF MATERIAL TO LOCALIZE
   };

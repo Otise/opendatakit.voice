@@ -7,6 +7,7 @@ import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
+import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 
@@ -27,9 +28,10 @@ public class FormResumeWidget extends WidgetBase {
                      VoiceAction.ADMIN.name()});
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
-    VxmlForm startForm = new VxmlForm("action", 
+    VxmlField field = createField("action", 
         createPrompt(String.format(getString(ResourceKeys.FORM_RECONNECT),formTitle)),
             grammar, filled);
+    VxmlForm startForm = new VxmlForm("resume", field);
     new VxmlDocument(sessionid, startForm).write(out);
   }
 

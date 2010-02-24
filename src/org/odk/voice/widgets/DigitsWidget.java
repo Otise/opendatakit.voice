@@ -14,9 +14,9 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
-public class IntegerWidget extends QuestionWidget {
+public class DigitsWidget extends QuestionWidget {
   
-  public IntegerWidget(PromptElement p) {
+  public DigitsWidget(PromptElement p) {
     super(p);
   }
   
@@ -24,14 +24,31 @@ public class IntegerWidget extends QuestionWidget {
 
     final String intGrammar = "<grammar src=\"builtin:dtmf/number\"/>";
     
+    String digitsReader = "<foreach item=\"digit\" array=\"digitsArray(answer)\">";
+    for (int i = 0; i <= 9; i++){
+      addPromptString(String.valueOf(i));
+      digitsReader += "<prompt cond=\"digit =='" + i + "'\">" + VxmlUtils.getAudio(String.valueOf(i)) + "</prompt>";
+    }
+    digitsReader += "</foreach>";
+    
+    final String sayasDigitsScript = "<script><![CDATA[" + 
+          "function digitsArray(number){" + 
+            "var array=new Array();" +
+            "for(var i = 0; i < number.length; i++)" + 
+            "{array[i] = number.charAt(i);}" +
+            "return array;" + 
+          "}]]></script>";
+      
+    
+      VxmlSection digitsSection = new VxmlSection(sayasDigitsScript);
       VxmlField answerField = createField("answer", 
           createPrompt(prompt.getQuestionText(), getString(ResourceKeys.INT_INSTRUCTIONS)),
           intGrammar,
-          createPrompt(new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD), "<value expr=\"answer\"/>"}, 
-              new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD), null}).toString()
+          createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)) +
+          digitsReader
       );
       
-      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(true, false));
+      VxmlForm mainForm = new VxmlForm("main", digitsSection, answerField, getActionField(true, false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);

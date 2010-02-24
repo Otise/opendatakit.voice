@@ -67,18 +67,18 @@ public class SelectOneWidget extends QuestionWidget {
       }
       //addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
       confPrompt.append("</if>");
-      VxmlField answerField = new VxmlField("answer", 
+      VxmlField answerField = createField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
           createBasicPrompt(confPrompt.toString()).toString());
       
 //      
-//      VxmlField actionField = new VxmlField("action", 
+//      VxmlField actionField = createField("action", 
 //          createPrompt(StringConstants.answerConfirmationOptions),
 //          VxmlUtils.actionGrammar,
 //          VxmlUtils.actionFilled(this));
       
-      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(false));
+      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(true, false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);

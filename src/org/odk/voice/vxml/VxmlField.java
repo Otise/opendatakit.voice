@@ -28,6 +28,13 @@ public class VxmlField extends VxmlSection{
     this.filled = filled;
   }
   
+  public void setNomatch(String nomatch) {
+    this.nomatch = nomatch;
+  }
+  public void setNoinput(String noinput) {
+    this.noinput = noinput;
+  }
+  
   public void setContents(String contents) {
     this.contents = contents;
   }

@@ -62,14 +62,14 @@ public class ChangeLanguageWidget extends WidgetBase {
       }
 //      //addConfAudio(StringConstants.answerConfirmationOptions, confPrompt, confPromptStrings);
 //      confPrompt.append("</if>");
-      VxmlField answerField = new VxmlField("answer", 
+      VxmlField answerField = createField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
           VxmlUtils.createVar("action", VoiceAction.SET_LANGUAGE.name(), true) + 
           VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action","answer"}));
       
 //      
-//      VxmlField actionField = new VxmlField("action", 
+//      VxmlField actionField = createField("action", 
 //          createPrompt(StringConstants.answerConfirmationOptions),
 //          VxmlUtils.actionGrammar,
 //          VxmlUtils.actionFilled(this));

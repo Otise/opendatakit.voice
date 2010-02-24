@@ -39,7 +39,7 @@ public class StringWidget extends QuestionWidget {
     
     VxmlSection propSection = new VxmlSection(interdigitTimeout + actionVar);
     final String digitGrammar = "<grammar src=\"builtin:dtmf/digits\"/>";
-    VxmlField answerField = new VxmlField("answer", 
+    VxmlField answerField = createField("answer", 
         createPrompt(prompt.getQuestionText(), 
             getString(ResourceKeys.STRING_INSTRUCTIONS)),
             digitGrammar,
@@ -81,13 +81,13 @@ public class StringWidget extends QuestionWidget {
     for (int i = 0; i < stringMatches.length; i++) {
       String match = stringMatches[i];
       VxmlSection s = new VxmlSection(VxmlUtils.createVar("answer", match, true));
-      VxmlField f = new VxmlField("action",
+      VxmlField f = createField("action",
           createPrompt(
               getString(ResourceKeys.STRING_CONFIRM_ITEM),
               match,
               getString(ResourceKeys.STRING_CONFIRM_INSTRUCTIONS)),
           VxmlUtils.createGrammar(new String[]{"1","2","3","4"} ,
-              new String[]{"'SAVE_ANSWER'", "'NEXT_MATCH'","'CURRENT_PROMPT'","'NEXT_PROMPT'"}),
+              new String[]{"'SAVE_ANSWER'", "'NEXT_MATCH'","'REPEAT'","'NEXT_PROMPT'"}),
           "<if cond=\"action=='NEXT_MATCH'\">" + VxmlUtils.createLocalGoto("match" + (i+1)) + 
           "<else/> " + actionFilled(false) + "</if>");
       VxmlForm form = new VxmlForm("match" + i, s, f);

@@ -14,6 +14,7 @@ import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlPrompt;
+import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 
 /**
@@ -46,9 +47,7 @@ public abstract class WidgetBase implements VxmlWidget{
   private List<String> promptStrings = new ArrayList<String>();
   
   public WidgetBase(){
-    resources =
-      ResourceBundle.getBundle(org.odk.voice.local.Resources.class.getCanonicalName(), 
-          GlobalConstants.DEFAULT_LOCALE);
+    setLocale(GlobalConstants.DEFAULT_LOCALE);
   }
   
   public void setLocale(Locale l) {
@@ -56,6 +55,13 @@ public abstract class WidgetBase implements VxmlWidget{
       resources = 
         ResourceBundle.getBundle(org.odk.voice.local.Resources.class.getCanonicalName(), l);
     }
+  }
+  
+  public VxmlField createField(String name, VxmlPrompt prompt, String grammar, String filled){
+    VxmlField res = new VxmlField(name, prompt, grammar, filled);
+    res.setNoinput(createPrompt(getString(ResourceKeys.NO_INPUT)) + "<reprompt/>");
+    res.setNomatch(createPrompt(getString(ResourceKeys.NO_MATCH)) + "<reprompt/>");
+    return res;
   }
   
   public String getString(String key){
@@ -122,11 +128,19 @@ public abstract class WidgetBase implements VxmlWidget{
     return createPrompt(textAndAudio, textAndAudio);
   }
   
-  VxmlField getActionField(boolean binary) {
-    return new VxmlField("action", 
+  VxmlSection getActionField(boolean confirm, boolean binary) {
+    if (confirm) {
+      return createField("action", 
       createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS)),
       actionGrammar,
       actionFilled(binary));
+    } else {
+      return new VxmlSection(
+          "<block>" + 
+          VxmlUtils.createVar("action", VoiceAction.SAVE_ANSWER.name(), true) + 
+          actionFilled(binary) + 
+          "</block>");
+    }
   }
   
   String actionFilled (boolean binary) {
@@ -136,8 +150,7 @@ public abstract class WidgetBase implements VxmlWidget{
     "<if cond=\"action=='REPEAT'\">" + 
     "<clear namelist=\"action answer\"/>" +
     VxmlUtils.createLocalGoto("main") + "<else/>" + 
-    createPrompt(getString(ResourceKeys.THANK_YOU)) + 
-    (binary ? createPrompt(getString(ResourceKeys.PLEASE_HOLD)) : "") +
+    createPrompt(getString(ResourceKeys.THANK_YOU))  +
     submit + 
     "</if>\n";
   }

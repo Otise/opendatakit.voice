@@ -211,7 +211,7 @@ public class VoiceSession {
       break;
     case PromptElement.TYPE_QUESTION:
       QuestionWidget w2 = WidgetFactory.createWidgetFromPrompt("", prompt, 0);
-      w2.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount() - 1); //TODO(alerer): why is getQuestionCount wrong?
+      w2.setQuestionCount(fh.getQuestionNumber(), fh.getQuestionCount(false)); //TODO(alerer): why is getQuestionCount wrong?
       w = w2;
       break;
     default:
