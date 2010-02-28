@@ -5,6 +5,7 @@ import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
+import org.odk.voice.constants.QuestionAttributes;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
@@ -25,7 +26,10 @@ public class IntegerWidget extends QuestionWidget {
     final String intGrammar = "<grammar src=\"builtin:dtmf/number\"/>";
     
       VxmlField answerField = createField("answer", 
-          createPrompt(prompt.getQuestionText(), getString(ResourceKeys.INT_INSTRUCTIONS)),
+          createPrompt(prompt.getQuestionText(), getString(ResourceKeys.INT_INSTRUCTIONS),
+              ( prompt.getAttribute(QuestionAttributes.REPEAT_QUESTION_OPTION, true) ? 
+                  getString(ResourceKeys.PRESS_STAR_TO_REPEAT) : "")
+                  ),
           intGrammar,
           createPrompt(new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD), "<value expr=\"answer\"/>"}, 
               new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD), null}).toString()

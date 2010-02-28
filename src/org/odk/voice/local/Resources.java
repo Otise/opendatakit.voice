@@ -24,7 +24,10 @@ public class Resources extends ListResourceBundle {
         "Please select a survey from the following options."
       },
       {ResourceKeys.FORM_START, 
-        "Welcome to the %1$s. Press 1 to begin the survey."
+        "Welcome to the %1$s."
+      },
+      {ResourceKeys.FORM_START_PRESS_1_TO_BEGIN,
+        "Press 1 to begin the survey."
       },
       {ResourceKeys.FORM_START_LANGUAGES, 
         "To change language, press 9."
@@ -78,7 +81,8 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.AUDIO_INSTRUCTIONS,
         //"Press 1 to begin recording, and record your answer after the beep. You can press any key when " +
         //"you are finished recording."
-        "After the beep, please slowly and clearly say your answer."
+        "After the beep, please slowly and clearly say your answer. " +
+        "You can press any key when you are finished recording."
       },
       {ResourceKeys.ANSWER_CONFIRMATION_KEYPAD,
         "You entered "
@@ -126,7 +130,13 @@ public class Resources extends ListResourceBundle {
       },
       {ResourceKeys.NO_MATCH,
         "The key you pressed was not one of the choices. Please listen to the options again."
-      }
+      },
+      {ResourceKeys.PRESS_STAR_TO_REPEAT,
+        "Press star to repeat the question."
+      },
+      {ResourceKeys.PRESS_STAR_TO_REPEAT_INITIAL,
+        "You can press star at any time to repeat the current question."
+      },
   // END OF MATERIAL TO LOCALIZE
   };
 }

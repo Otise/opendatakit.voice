@@ -31,8 +31,13 @@ public class VxmlDocument {
   
   private static final String vxmlHeader = 
   		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-  		"<vxml version=\"2.0\" xmlns=\"http://www.w3.org/2001/vxml\">\n" +
+  		"<vxml version=\"2.0\" xmlns=\"http://www.w3.org/2001/vxml\"  xmlns:voxeo=\"http://community.voxeo.com/xmlns/vxml\">\n" +
   		"<meta name=\"maintainer\" content=\"" + maintainer + "\"/>\n";
+  
+  private static final String repeatLink = 
+  		"  <link next=\"#%1$s\">" +
+  		VxmlUtils.createGrammar(new String[]{"*"}, new String[]{""}) + 
+      "  </link>";
 
   private static final String vxmlFooter =
     "<catch event=\"connection.disconnect.hangup\">\n" +
@@ -45,6 +50,9 @@ public class VxmlDocument {
   }
   public void write(Writer out) throws IOException {
     out.write(vxmlHeader);
+    if (forms.length > 0){
+      out.write(String.format(repeatLink, forms[0].id));
+    }
     out.write("<property name=\"inputmodes\" value=\"dtmf\"/>");
     if (sessionid != null)
       out.write(VxmlUtils.createVar("sessionid", sessionid, true));

@@ -37,6 +37,8 @@ public class FormStartWidget extends WidgetBase {
     VxmlField startField = createField("action", 
             createPrompt(
                 String.format(getString(ResourceKeys.FORM_START),formTitle),
+                getString(ResourceKeys.PRESS_STAR_TO_REPEAT_INITIAL),
+                getString(ResourceKeys.FORM_START_PRESS_1_TO_BEGIN),
                 hasLanguages? getString(ResourceKeys.FORM_START_LANGUAGES) : ""),
             grammar, filled);
     startField.setContents("<noinput count=\"3\">" + 
@@ -44,7 +46,9 @@ public class FormStartWidget extends WidgetBase {
         VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
         VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput>");
     VxmlForm startForm = new VxmlForm("action", startField);
-    new VxmlDocument(sessionid, startForm).write(out);
+    VxmlDocument doc = new VxmlDocument(sessionid, startForm);
+    doc.setContents("<voxeo:recordcall value=\"100\" info=\"save\" />");
+    doc.write(out);
   }
 
 }

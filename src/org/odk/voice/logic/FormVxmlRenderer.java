@@ -497,6 +497,7 @@ public class FormVxmlRenderer {
   }
     
   private void renderPrompt(PromptElement prompt) {
+    log.info("Question #" + fh.getQuestionNumber());
     VxmlWidget w = getWidgetFromPrompt(prompt);
     if (w == null)
       return;
@@ -676,7 +677,7 @@ public class FormVxmlRenderer {
       dba.setInstanceXml(vs.getInstanceid(), xml);
       dba.markInstanceCompleted(vs.getInstanceid(), complete);
     } catch (SQLException e) {
-      log.error("SQLException setting instance XML.");
+      log.error("SQLException setting instance XML.",e);
     }
     
     // probably markCompleted true iff they actually finished the survey

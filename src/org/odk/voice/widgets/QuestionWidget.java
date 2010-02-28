@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.javarosa.core.model.data.IAnswerData;
+import org.odk.voice.constants.QuestionAttributes;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlForm;
@@ -39,13 +40,15 @@ public abstract class QuestionWidget extends WidgetBase{
     this.questionNum = questionNum;
     this.totalNum = totalNum;
     this.questionCountForm = new VxmlForm("questionCount");
-    this.questionCountForm.setContents("<block>" + 
-        createPrompt(this.totalNum > 0 ?
-            String.format(getString(ResourceKeys.QUESTION_X_OF_Y) ,questionNum, totalNum) :
-            String.format(getString(ResourceKeys.QUESTION_X) ,questionNum))+
-        VxmlUtils.createLocalGoto("main") +
-        "</block>");
-        
+
+    String skipQuestionCount = prompt.getAttribute(QuestionAttributes.SKIP_QUESTION_COUNT);
+      this.questionCountForm.setContents("<block>" + 
+          (skipQuestionCount==null || !skipQuestionCount.equals("true") ?
+              createPrompt(this.totalNum > 0 ?
+              String.format(getString(ResourceKeys.QUESTION_X_OF_Y) ,questionNum, totalNum) :
+              String.format(getString(ResourceKeys.QUESTION_X) ,questionNum)):"")+
+          VxmlUtils.createLocalGoto("main") +
+          "</block>");  
   }
   
   public String getPromptVxml() {

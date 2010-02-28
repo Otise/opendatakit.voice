@@ -125,7 +125,7 @@ public class DbAdapter {
    * @throws SQLException
    */
   public void markInstanceCompleted(int instanceId, boolean completed) throws SQLException {
-    String q = "UPDATE instance SET completed=? WHERE instance=?;";
+    String q = "UPDATE instance SET completed=? WHERE id=?;";
     PreparedStatement stmt = con.prepareStatement(q);
     stmt.setBoolean(1, completed);
     stmt.setInt(2, instanceId);

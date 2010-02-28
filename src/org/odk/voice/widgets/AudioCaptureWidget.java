@@ -1,6 +1,5 @@
 package org.odk.voice.widgets;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.SQLException;
@@ -8,11 +7,9 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.odk.voice.constants.VoiceAction;
+import org.odk.voice.constants.QuestionAttributes;
 import org.odk.voice.db.DbAdapter;
 import org.odk.voice.local.ResourceKeys;
-import org.odk.voice.servlet.FormVxmlServlet;
-import org.odk.voice.storage.FileUtils;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
@@ -41,7 +38,7 @@ public class AudioCaptureWidget extends QuestionWidget {
   @Override
   public void getPromptVxml(Writer out) throws IOException {
     
-    VxmlPrompt prePrompt = createPrompt(prompt.getQuestionText(), getString(ResourceKeys.AUDIO_INSTRUCTIONS));
+/*    VxmlPrompt prePrompt = createPrompt(prompt.getQuestionText(), getString(ResourceKeys.AUDIO_INSTRUCTIONS));
      String preGrammar = VxmlUtils.createGrammar(new String[]{"1", "3"}, 
         new String[]{"RECORD", VoiceAction.NEXT_PROMPT.name()});
     String preFilled = 
@@ -51,15 +48,25 @@ public class AudioCaptureWidget extends QuestionWidget {
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
       "</if>\n";
     VxmlForm preForm = new VxmlForm("main", createField("action", prePrompt, preGrammar, preFilled));
-    
+*/   
+    log.info("Before skipInstructions");
+    String skipInstructions = prompt.getAttribute(QuestionAttributes.AUDIO_SKIP_INSTRUCTIONS);
+    log.info("skipInstructions=" + skipInstructions);
     VxmlSection recordSection = new VxmlSection(
       "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"120s\" type=\"audio/x-wav\">\n" +
-      prePrompt +
+      createPrompt(prompt.getQuestionText(),
+                      ( prompt.getAttribute(QuestionAttributes.AUDIO_SKIP_INSTRUCTIONS, true) ? 
+                            "" :  getString(ResourceKeys.AUDIO_INSTRUCTIONS)), 
+                      ( prompt.getAttribute(QuestionAttributes.REPEAT_QUESTION_OPTION, true) ? 
+                          getString(ResourceKeys.PRESS_STAR_TO_REPEAT) : "")
+                          ) +
+                      
       "<filled>\n" + 
+      "<if cond=\"answer$.termchar == '*'\">" + VxmlUtils.createLocalGoto("main") + "<else/>\n" + 
       createPrompt(new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), "<value expr=\"answer\"/>"},
         new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), null}) + 
      // notice that the recorded audio for the answer is null, because we want it to play the answer
-      "</filled>\n" + 
+      "</if></filled>\n" + 
       "</record>\n");
     
     VxmlPrompt p2 = createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS));
@@ -67,9 +74,9 @@ public class AudioCaptureWidget extends QuestionWidget {
     
     VxmlField actionField = createField("action", p2, actionGrammar, actionFilled(true));
     
-    VxmlForm mainForm = new VxmlForm("main2", recordSection, actionField);
+    VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
     
-    new VxmlDocument(sessionid, questionCountForm, preForm, mainForm).write(out);
+    new VxmlDocument(sessionid, questionCountForm, /*preForm,*/ mainForm).write(out);
   }
 
   @Override

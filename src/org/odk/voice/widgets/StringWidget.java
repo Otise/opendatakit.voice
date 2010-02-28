@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.odk.voice.constants.GlobalConstants;
+import org.odk.voice.constants.QuestionAttributes;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.servlet.FormVxmlServlet;
@@ -23,7 +24,7 @@ import org.odk.voice.xform.PromptElement;
 public class StringWidget extends QuestionWidget {
   
   private static org.apache.log4j.Logger log = Logger
-  .getLogger(SelectOneWidget.class);
+  .getLogger(StringWidget.class);
   
   public StringWidget(PromptElement p) {
     super(p);
@@ -41,7 +42,10 @@ public class StringWidget extends QuestionWidget {
     final String digitGrammar = "<grammar src=\"builtin:dtmf/digits\"/>";
     VxmlField answerField = createField("answer", 
         createPrompt(prompt.getQuestionText(), 
-            getString(ResourceKeys.STRING_INSTRUCTIONS)),
+            getString(ResourceKeys.STRING_INSTRUCTIONS),
+            ( prompt.getAttribute(QuestionAttributes.REPEAT_QUESTION_OPTION, true) ? 
+                getString(ResourceKeys.PRESS_STAR_TO_REPEAT) : "")
+                ),
             digitGrammar,
             VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "answer", "action")
       );

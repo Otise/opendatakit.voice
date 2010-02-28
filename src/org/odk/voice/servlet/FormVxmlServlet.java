@@ -31,15 +31,11 @@ public class FormVxmlServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	  log.info("Entered FormVxmlServlet");
-	  String callerid=null, sessionid=null, action=null, answer=null;
+	  String callerid=null, sessionid=null, action=null, answer=null, outboundIdString=null;
 	  MultiPartFormData binaryData;
 	  if (ServletFileUpload.isMultipartContent(req)) {
 	    try {
           binaryData = new MultiPartFormData(req);
-          callerid = getMultipartParam("session.callerid", binaryData);
-          if (callerid == null) {
-            callerid = getMultipartParam("callerid", binaryData);
-          }
           sessionid = getMultipartParam("sessionid", binaryData);
           action = getMultipartParam("action", binaryData);
         //TODO(alerer): receiving and storing the entire request stream before continuing is very inefficient.
@@ -48,9 +44,14 @@ public class FormVxmlServlet extends HttpServlet {
         return;
       }
 	  } else {
-	    callerid = req.getParameter("session.callerid");
-	    if (callerid == null)
-	      callerid = req.getParameter("callerid");
+	    outboundIdString = req.getParameter("outboundId");
+	    String callerIdKey = outboundIdString == null ? "callerid":"calledid";
+	    callerid = req.getParameter("session." + callerIdKey);
+	    if (callerid == null) {
+	      callerid = req.getParameter(callerIdKey);
+	    }
+	    if (callerid!=null)
+	      callerid = callerid.replace("tel:", "");
 	    sessionid = req.getParameter("sessionid");
 	    
 	    action = req.getParameter("action");
@@ -60,7 +61,7 @@ public class FormVxmlServlet extends HttpServlet {
 	  }
 	  
 	  FormVxmlRenderer fvr = new FormVxmlRenderer(sessionid, callerid, action, answer, binaryData, resp.getWriter());
-	  String outboundIdString = req.getParameter("outboundId");
+
     if (outboundIdString != null) {
       fvr.setOutboundId(Integer.parseInt(outboundIdString));
     }
