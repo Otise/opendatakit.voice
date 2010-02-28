@@ -16,6 +16,7 @@
 
 package org.odk.voice.xform;
 
+import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
@@ -24,6 +25,7 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.formmanager.view.FormElementBinding;
+import org.odk.voice.widgets.StringWidget;
 
 import java.util.Vector;
 
@@ -38,6 +40,9 @@ import java.util.Vector;
  */
 
 public class PromptElement {
+  
+    private static org.apache.log4j.Logger log = Logger
+    .getLogger(PromptElement.class);
     // private final static String t = "PromptElement";
 
     public static final int TYPE_QUESTION = 0;
@@ -216,18 +221,29 @@ public class PromptElement {
      * @author Adam Lerer
      * Gets a 'attribute' of a prompt element. Right now, since JavaRosa doesn't 
      * allow accessing control attributes, we are using a hack where we use the 
-     * &lt;hint&gt; tag to store url-encoded keyval pairs (not unescaped).
+     * &lt;hint&gt; tag to store keyval pairs (not unescaped).
      * 
      */
     public String getAttribute(String key) {
       String propString = getHelpText();
-      String[] props = propString.split("&");
+      if (propString == null) {
+        log.info("getAttribute: key=" + key + ", attribute string null");
+        return null;
+      }
+      String[] props = propString.split(";");
       for(String prop : props) {
         String[] keyval = prop.split("=");
-        if (keyval.length == 2 && keyval[0].equals(key))
+        if (keyval.length == 2 && keyval[0].equals(key)) {
+          log.info("getAttribute: key=" + key + ", val=" + keyval[1]);
           return keyval[1];
+        }
       }
+      log.info("getAttribute: key=" + key + ", val=null");
       return null;
+    }
+    public boolean getAttribute(String key, boolean asBool) {
+      String attr = getAttribute(key);
+      return (attr!=null && attr.equals("true"));
     }
 
     /**

@@ -292,9 +292,9 @@ public class FormHandler {
 
     private void nextRelevantIndex() {
         do {
-            mQuestionCount++;
             mCurrentIndex = mForm.incrementIndex(mCurrentIndex);
         } while (mCurrentIndex.isInForm() && !isRelevant(mCurrentIndex));
+        mQuestionCount++;
     }
     
     private void nextIndex() {
@@ -312,9 +312,8 @@ public class FormHandler {
     private void prevQuestion() {
         do {
             mCurrentIndex = mForm.decrementIndex(mCurrentIndex);
-            mQuestionCount--;
         } while (mCurrentIndex.isInForm() && !isRelevant(mCurrentIndex));
-
+        mQuestionCount--;
         // recursively skip backwards past any groups, and pop them from our
         // stack
         if (indexIsGroup(mCurrentIndex)) {
