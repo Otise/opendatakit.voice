@@ -63,10 +63,32 @@
     <div id='statusDiv' style="width:600px; padding:20px; border-style:solid; border-color:red"></div>
   -->
   
-  <div id='urlDiv' style="margin-top:100px"><form action="outboundSchedule" method="post">
-  <b>Outbound dialing token: </b><br/>
-  <% String url = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY); url = (url==null) ? "" : url; %>
-  <input style="width:600px" type="text" name="outboundUrl" value="<%= StringEscapeUtils.escapeHtml(url) %>"/>
+  <% 
+  String url = dba.getMiscValue(GlobalConstants.OUTBOUND_URL_KEY); url = (url==null) ? "" : url;
+  String tokenid = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY); tokenid = (tokenid==null) ? "" : tokenid;
+  String callerid = dba.getMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY); callerid = (callerid==null) ? "" : callerid; %>
+  
+  
+  <div style="border-style:solid;padding:20px" id='urlDiv' style="margin-top:100px"><form action="outboundSchedule" method="post">
+  <h3>Settings</h3>
+  <b>Outbound call request URL: </b>
+  <input style="width:600px" type="text" name="outboundUrl" value="<%= StringEscapeUtils.escapeHtml(url) %>"/><br/>
+  <div style="padding-bottom:15px">
+  <i>Voxeo hosted:</i> http://api.voxeo.net/SessionControl/VoiceXML.start<br/>
+  <i>Voxeo local:</i> http://localhost:9998/SessionControl/VoiceXML.start<br/>
+  </div>
+  <b>Outbound call token: </b>
+  <input style="width:600px" type="text" name="outboundTokenid" value="<%= StringEscapeUtils.escapeHtml(tokenid) %>"/>
+  <div style="padding-bottom:15px">
+  <i>Voxeo hosted:</i> Call token provided by Voxeo (a long nonsense string).<br/>
+  <i>Voxeo local:</i> Name of the 'route' token your application is linked to.<br/>
+  </div>
+  <b>Outbound caller ID: </b>
+  <input style="width:600px" type="text" name="outboundCallerid" value="<%= StringEscapeUtils.escapeHtml(callerid) %>"/>
+  <div style="padding-bottom:15px">
+  <i>Voxeo hosted:</i> Whatever you want your caller ID to appear as.<br/>
+  <i>Voxeo local:</i> Your SIP ID, e.g. "7753113@callcentric.com"<br/>
+  </div>
   <br/><input type="submit" value="Update"/>
   </form></div>
   
@@ -80,3 +102,8 @@
  %>
 </body>
 </html>
+
+<!-- 
+For Prophecy local instance:
+http://localhost:9998/SessionControl/VoiceXML.start?tokenid=[token]&numbertodial=[number]&callerID=sip:[user]@[provider]
+ -->

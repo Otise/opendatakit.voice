@@ -43,6 +43,8 @@ public class OutboundScheduleServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	  String outboundUrl = request.getParameter("outboundUrl");
+	  String outboundTokenid = request.getParameter("outboundTokenid");
+	  String outboundCallerid = request.getParameter("outboundCallerid");
 	  String scheduleTimes = request.getParameter("scheduleTimes");
 	  String phoneNumbers = request.getParameter("phoneNumbers");
 	  String retry = request.getParameter("retry");
@@ -51,9 +53,17 @@ public class OutboundScheduleServlet extends HttpServlet {
     
     try {
       dba = new DbAdapter();
+      // --------------- misc settings ------------
       if (outboundUrl != null) {
-        dba.setMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY, outboundUrl);
+        dba.setMiscValue(GlobalConstants.OUTBOUND_URL_KEY, outboundUrl);
       }
+      if (outboundTokenid != null) {
+        dba.setMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY, outboundTokenid);
+      }
+      if (outboundCallerid != null) {
+        dba.setMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY, outboundCallerid);
+      }
+      // ------------------------------------------
   		if (scheduleTimes != null) {
   		  // TODO(alerer): add to database
   		}

@@ -39,7 +39,6 @@ public class OutboundCallScheduler implements ServletContextListener{
   .getLogger(OutboundCallScheduler.class);
   
   public static final int CONNECTION_TIMEOUT = 30000;
-  public static final String SERVER_URL = "http://api.voxeo.net/SessionControl/VoiceXML.start";
 
   private static final long TIMER_TASK_RATE = 60000;
 
@@ -71,12 +70,14 @@ public class OutboundCallScheduler implements ServletContextListener{
           DbAdapter dba = null;
           try {
             dba = new DbAdapter();
-            String token = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY);
+            String url = dba.getMiscValue(GlobalConstants.OUTBOUND_URL_KEY);
+            String tokenid = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY);
+            String callerid = dba.getMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY);
             List<ScheduledCall> calls = dba.getScheduledCalls(Status.PENDING);
             if (calls.size() > 0) {
               String number = calls.get(0).phoneNumber;
               int id = calls.get(0).id;
-              boolean success = sendOutboundCallRequest(token, number, id);
+              boolean success = sendOutboundCallRequest(url, tokenid, callerid, number, id);
               log.info("Outbound call request: number=" + number + "; id=" + id + "; success=" + success);
               dba.setOutboundCallStatus(id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
             }
@@ -97,7 +98,11 @@ public class OutboundCallScheduler implements ServletContextListener{
 
     }
   
-  private boolean sendOutboundCallRequest(String token, String number, int id) {
+  private boolean sendOutboundCallRequest(String baseUrl, 
+      String tokenid,
+      String callerid,
+      String numbertodial, 
+      int id) {
  // configure connection
     HttpParams params = new BasicHttpParams();
     HttpConnectionParams.setConnectionTimeout(params, CONNECTION_TIMEOUT);
@@ -106,8 +111,9 @@ public class OutboundCallScheduler implements ServletContextListener{
 
     // setup client
     DefaultHttpClient httpclient = new DefaultHttpClient(params);
-    String url = SERVER_URL + "?numbertodial=" + number + "&tokenid=" + token + 
-    "&outboundId=" + id;
+
+    String url = baseUrl + "?numbertodial=" + numbertodial + "&tokenid=" + tokenid + 
+    "&callerid=" + callerid + "&outboundId=" + id;
     log.info("url=" + url);
     HttpGet httpget = null;
     try {

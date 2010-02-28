@@ -23,6 +23,8 @@ public class GlobalConstants {
    * Use with DbAdapter.getMiscValue();
    */
   public static final String CURRENT_RECORD_PROMPT_KEY = "currentrecordprompt";
-  public static final String OUTBOUND_TOKEN_KEY = "outboundurl";
-  public static final String OUTBOUND_HOURS_KEY = "outboundhours"; 
+  public static final String OUTBOUND_URL_KEY = "outboundurl";
+  public static final String OUTBOUND_TOKEN_KEY = "outboundtoken";
+  public static final String OUTBOUND_CALLERID_KEY = "outboundcallerid";
+  
 }
