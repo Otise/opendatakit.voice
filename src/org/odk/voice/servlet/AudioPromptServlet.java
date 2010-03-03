@@ -1,6 +1,5 @@
 package org.odk.voice.servlet;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -10,9 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.odk.voice.constants.FileConstants;
 import org.odk.voice.db.DbAdapter;
-import org.odk.voice.storage.FileUtils;
 
 /**
  * Servlet for serving recorded audio prompts.

@@ -26,7 +26,7 @@ function refresh()
       setTimeout('refresh()',1000);
     }
   }
-  xmlhttp.open("GET","currentRecordPrompt",true);
+  xmlhttp.open("GET","recordPrompt",true);
   xmlhttp.send(null);
 }</script>
 </head>
@@ -48,7 +48,7 @@ function refresh()
   <b>Recorded prompts:</b><p/>
   <table border>
   <tr>
-  <th>Prompt</th><th>Audio</th><th>Delete</th>
+  <th>Prompt</th><th>Audio</th><th>Delete</th><th>Upload wav file</th>
   <%  DbAdapter dba = null;
       List<String> prompts = null;
       try {
@@ -56,11 +56,17 @@ function refresh()
         prompts = dba.getAudioPrompts();for (String prompt : prompts) { %>
     <tr>
     <td style="width:500px"><%= StringEscapeUtils.escapeHtml(prompt) %></td>
-    <td><a href="audio/<%= dba.getPromptHash(prompt) %>.wmv">Listen</a></td>
-    <td><form action="currentRecordPrompt" method="post">
+    <td><a href="audio/<%= dba.getPromptHash(prompt) %>.wav">Listen</a></td>
+    <td><form action="recordPrompt" method="post">
     <input type="hidden" name="delete" value="<%= dba.getPromptHash(prompt) %>"/>
     <input type="submit" value="Delete"/>
     </form></td>
+    <td><form action="recordPrompt" enctype="multipart/form-data" method="post">
+    <input type="hidden" name="upload" value="<%= dba.getPromptHash(prompt) %>"/>
+    <input type="file" name="data"/>
+    <input type="submit" value="Upload"/>
+    </form></td>
+  </form>
     </tr>
   <% } 
    } finally {
@@ -73,7 +79,7 @@ function refresh()
   </table>
   </div>
     <div id='deleteDiv' style="margin-top:25px">
-    <form method="post" action="currentRecordPrompt">
+    <form method="post" action="recordPrompt">
       <input type="hidden" name="deleteall" value="true"/>
       <input type="submit" value="Delete all prompts"/>
     </form>

@@ -41,13 +41,13 @@
   </servlet-mapping>
   <servlet>
     <description></description>
-    <display-name>CurrentRecordPromptServlet</display-name>
-    <servlet-name>CurrentRecordPromptServlet</servlet-name>
-    <servlet-class>org.odk.voice.servlet.CurrentRecordPromptServlet</servlet-class>
+    <display-name>RecordPromptServlet</display-name>
+    <servlet-name>RecordPromptServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.RecordPromptServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>CurrentRecordPromptServlet</servlet-name>
-    <url-pattern>/currentRecordPrompt</url-pattern>
+    <servlet-name>RecordPromptServlet</servlet-name>
+    <url-pattern>/recordPrompt</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>

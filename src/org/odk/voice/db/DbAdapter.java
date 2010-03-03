@@ -400,6 +400,28 @@ public class DbAdapter {
     return prompt.hashCode();
   }
     
+  public boolean putAudioPrompt(int hash, byte[] data) throws SQLException {
+    String q1 = "SELECT prompt FROM audio_prompt WHERE prompthash=?;";
+    PreparedStatement stmt1 = con.prepareStatement(q1);
+    stmt1.setInt(1, hash);
+    ResultSet rs = stmt1.executeQuery();
+    if (rs.next()) {
+      //log.info("get audio prompt success: " + prompthash);
+      String prompt = rs.getString("prompt");
+      log.info("prompt=" + prompt);
+      String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
+      "data) VALUES (?,?,?);";
+      PreparedStatement stmt2 = con.prepareStatement(q);
+      stmt2.setInt(1, hash);
+      stmt2.setString(2, prompt);
+      stmt2.setObject(3, data);
+      stmt2.executeUpdate();
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
   public void putAudioPrompt(String prompt, byte[] data) throws SQLException {
     //log.info("putAudioPrompt: " + prompt);
     String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
@@ -647,5 +669,7 @@ public class DbAdapter {
     stmt.execute("DROP TABLE request;");
     initDb();
   }
+
+
 
 }
