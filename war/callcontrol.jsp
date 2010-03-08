@@ -87,7 +87,7 @@
   <input style="width:600px" type="text" name="outboundCallerid" value="<%= StringEscapeUtils.escapeHtml(callerid) %>"/>
   <div style="padding-bottom:15px">
   <i>Voxeo hosted:</i> Whatever you want your caller ID to appear as.<br/>
-  <i>Voxeo local:</i> Your SIP ID, e.g. "7753113@callcentric.com"<br/>
+  <i>Voxeo local:</i> Your SIP ID, e.g. "sip:7753113@callcentric.com"<br/>
   </div>
   <br/><input type="submit" value="Update"/>
   </form></div>
