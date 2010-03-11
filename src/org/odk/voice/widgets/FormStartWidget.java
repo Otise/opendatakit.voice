@@ -9,6 +9,7 @@ import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
+import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 
 public class FormStartWidget extends WidgetBase {
@@ -45,9 +46,9 @@ public class FormStartWidget extends WidgetBase {
         createPrompt(getString(ResourceKeys.GOODBYE)) + 
         VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
         VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput>");
-    VxmlForm startForm = new VxmlForm("action", startField);
+    VxmlSection recordCallSection = new VxmlSection("<block><voxeo:recordcall value=\"100\" info=\"save\" /></block>");
+    VxmlForm startForm = new VxmlForm("action", recordCallSection,startField);
     VxmlDocument doc = new VxmlDocument(sessionid, startForm);
-    doc.setContents("<voxeo:recordcall value=\"100\" info=\"save\" />");
     doc.write(out);
   }
 
