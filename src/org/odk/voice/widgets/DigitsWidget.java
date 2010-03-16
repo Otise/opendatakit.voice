@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.IntegerData;
+import org.javarosa.core.model.data.StringData;
 import org.odk.voice.constants.QuestionAttributes;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
@@ -64,7 +64,7 @@ public class DigitsWidget extends QuestionWidget {
     if (stringData == null)
       return null;
     try {
-      return new IntegerData(Integer.parseInt(stringData));
+      return new StringData(stringData);
     } catch (Exception NumberFormatException) {
       throw new IllegalArgumentException(stringData + " is not a number.");
     }
