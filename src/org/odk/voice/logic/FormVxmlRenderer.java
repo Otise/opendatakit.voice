@@ -283,7 +283,7 @@ public class FormVxmlRenderer {
         exportData(fh.isEnd());
         setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
           fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
-        if (fh.isEnd())
+        if (fh.isEnd() && callerid!= null)
           vsm.remove(callerid);
       }
       break;
@@ -470,6 +470,7 @@ public class FormVxmlRenderer {
     pph.setProperty(PropertyPreloadHandler.PHONE_NUMBER_PROPERTY, callerid);
     pph.setProperty(PropertyPreloadHandler.SESSION_ID_PROPERTY, sessionid);
     fd.getPreloader().addPreloadHandler(pph);
+    fd.getPreloader().addPreloadHandler(new CompletePreloadHandler());
     fd.initialize(true);
   }
   
@@ -656,6 +657,10 @@ public class FormVxmlRenderer {
   }
   
   private void exportData(boolean complete) {
+    
+    if (complete) {
+      fh.finalizeDataModel();
+    }
     /*String path = (complete ? FileConstants.COMPLETE_INSTANCES_PATH : FileConstants.INCOMPLETE_INSTANCES_PATH) + 
         File.separator + ((vs.getCallerid()==null)?"unknown":vs.getCallerid()) +
         File.separator + vs.getDate().getTime(); */
