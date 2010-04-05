@@ -58,6 +58,7 @@ public class FileConstants {
     public static final String LOG_FILE = FILE_BASE + File.separator + "logs" + 
     File.separator + "odk-voice.log";
     
+    public static final String CORPUS_PATH = "corpus";
     
     /**
      * See CurrentPromptServlet
@@ -68,4 +69,6 @@ public class FileConstants {
      * Max size of an uploaded instance, in bytes.
      */
     public static final int MAX_FILE_SIZE = 10000000;
+
+    
 }

@@ -4,7 +4,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+import org.odk.voice.servlet.FormVxmlServlet;
+
 public class StringPredictor {  
+  
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(StringPredictor.class);
   
   public char[] charToInt = new char[256];
   private void initCharToInt(String chars){
@@ -87,6 +93,7 @@ public class StringPredictor {
     
     LevenshteinDistanceCalculator ldc = new LevenshteinDistanceCalculator(MAX_WORD_SIZE);
     Iterator<String> iter = c.getIterator();
+    
     
     while (iter.hasNext()) {
       String word = iter.next();

@@ -16,7 +16,7 @@ public class GlobalConstants {
    */
   public static final Locale DEFAULT_LOCALE = new Locale("en");
   
-  public static final String INTERDIGIT_TIMEOUT = "3000ms";
+  public static final String INTERDIGIT_TIMEOUT = "6000ms";
   
   /**
    * Keys into the 'misc' database table.

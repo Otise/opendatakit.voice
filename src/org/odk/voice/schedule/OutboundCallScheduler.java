@@ -40,7 +40,7 @@ public class OutboundCallScheduler implements ServletContextListener{
   
   public static final int CONNECTION_TIMEOUT = 30000;
 
-  private static final long TIMER_TASK_RATE = 60000;
+  private static final long TIMER_TASK_RATE = 15000;
 
     public OutboundCallScheduler() {}
 

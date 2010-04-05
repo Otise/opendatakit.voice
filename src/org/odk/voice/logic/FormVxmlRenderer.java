@@ -308,7 +308,7 @@ public class FormVxmlRenderer {
   }
 
   private void getStringMatches(String answer) {
-    Corpus c = CorpusFactory.getCorpus(STRING_PREDICTOR_CORPUS);
+    Corpus c = CorpusFactory.get().getCorpus(STRING_PREDICTOR_CORPUS);
     StringPredictor sp = new StringPredictor(c);
     WordScore[] ws = sp.predict(answer, STRING_PREDICTOR_NBEST);
     if (ws == null) ws = new WordScore[0];
@@ -497,7 +497,7 @@ public class FormVxmlRenderer {
   }
     
   private void renderPrompt(PromptElement prompt) {
-    log.info("Question #" + fh.getQuestionNumber());
+    log.info("Question #" + (fh.getQuestionNumber() + 1));
     VxmlWidget w = getWidgetFromPrompt(prompt);
     if (w == null)
       return;

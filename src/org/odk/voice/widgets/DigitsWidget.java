@@ -63,11 +63,7 @@ public class DigitsWidget extends QuestionWidget {
       throws IllegalArgumentException {
     if (stringData == null)
       return null;
-    try {
-      return new StringData(stringData);
-    } catch (Exception NumberFormatException) {
-      throw new IllegalArgumentException(stringData + " is not a number.");
-    }
+    return new StringData(stringData);
   }
 
 }

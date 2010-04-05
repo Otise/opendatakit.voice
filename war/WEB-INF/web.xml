@@ -76,4 +76,9 @@
      org.odk.voice.schedule.OutboundCallScheduler
     </listener-class>
   </listener>
+    <listener>
+    <listener-class>
+     org.odk.voice.digits2string.CorpusFactory
+    </listener-class>
+  </listener>
 </web-app>

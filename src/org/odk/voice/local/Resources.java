@@ -110,17 +110,19 @@ public class Resources extends ListResourceBundle {
         "Please select your language."
       },
       {ResourceKeys.STRING_INSTRUCTIONS,
-        "Please enter your answer letter by letter. " +
+        "Please enter your answer on the keypad, pressing one key per letter. " +
+        "For example, you would spell R E D by pressing 7, 3, 3. " +
         "Press the pound key when you are finished."
       },
       {ResourceKeys.STRING_CONFIRM_INSTRUCTIONS,
-        "Press 1 if that is correct, 2 for more options, 3 to try again, and 4 to continue."
+        "Press 1 if that is correct, 2 to hear more possibilities," +
+        " 3 to type the word again, and 4 to skip this question."
       },
       {ResourceKeys.STRING_CONFIRM_ITEM,
         "Did you type "
       },
       {ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES,
-        "Sorry, no more matches. Press 1 to continue, or 2 to try again."
+        "Sorry, no more matches. Press 1 to skip this question, or 2 to type the word again."
       },
       {ResourceKeys.GOODBYE,
         "Goodbye."

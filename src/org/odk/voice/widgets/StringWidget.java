@@ -91,20 +91,20 @@ public class StringWidget extends QuestionWidget {
               match,
               getString(ResourceKeys.STRING_CONFIRM_INSTRUCTIONS)),
           VxmlUtils.createGrammar(new String[]{"1","2","3","4"} ,
-              new String[]{"'SAVE_ANSWER'", "'NEXT_MATCH'","'REPEAT'","'NEXT_PROMPT'"}),
+              new String[]{"'SAVE_ANSWER'", "'NEXT_MATCH'","'CURRENT_PROMPT'","'NEXT_PROMPT'"}),
           "<if cond=\"action=='NEXT_MATCH'\">" + VxmlUtils.createLocalGoto("match" + (i+1)) + 
           "<else/> " + actionFilled(false) + "</if>");
       VxmlForm form = new VxmlForm("match" + i, s, f);
       forms.add(form);
     }
     
-    VxmlForm noMoreMatches = new VxmlForm("match" + stringMatches.length,
-        new VxmlSection("<block>" + 
-        VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
-        createPrompt(getString(ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES)) +
-        VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + 
-        "</block>"));
-    forms.add(noMoreMatches);
+    VxmlField noMoreMatches = createField("action",
+        createPrompt(getString(ResourceKeys.STRING_CONFIRM_NO_MORE_MATCHES)),
+        VxmlUtils.createGrammar(new String[]{"1","2"} ,
+            new String[]{"'NEXT_PROMPT'", "'CURRENT_PROMPT'"}),
+        actionFilled(false));
+    VxmlForm nmmForm = new VxmlForm("match" + stringMatches.length, noMoreMatches);
+    forms.add(nmmForm);
     
     VxmlDocument d = new VxmlDocument(sessionid, forms.toArray(new VxmlForm[]{}));
     d.write(out);

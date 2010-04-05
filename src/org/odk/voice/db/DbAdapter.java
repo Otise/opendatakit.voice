@@ -552,13 +552,55 @@ public class DbAdapter {
     stmt.executeUpdate();
     return true;
   }
-//  
-//  "req_time DATETIME," + 
-//  "sessionid VARCHAR(100)," +
-//  "callerid VARCHAR(100)," + 
-//  "action VARCHAR(100)," + 
-//  "answer MEDIUMTEXT," + 
-//  "data MEDIUMBLOB);"
+  
+  
+  //----- SMS -----
+  
+/*  public boolean addSms(String phoneNumber,String message) throws SQLException {
+    String q = "INSERT INTO outbound (phoneNumber, message, status) VALUES (?,?,?);";
+    PreparedStatement stmt = con.prepareStatement(q);
+    //log.info("set record prompt: " + prompt);
+    stmt.setString(1, phoneNumber);
+    stmt.setString(2, message);
+    stmt.setBoolean(3, false);
+    stmt.executeUpdate();
+    return true;
+  }
+   
+  public static class ScheduledSms{
+    public String phonenumber, message;
+    public boolean completed;
+    public ScheduledSms(String phone, String message, boolean completed){
+      this.phonenumber=phone;this.message=message;this.completed=completed;
+    }
+  }
+  *//**
+   * 
+   * @param status
+   * @return All scheduled calls with the given status, or <i>all</i> scheduled 
+   * calls if status is null.
+   * @throws SQLException
+   *//*
+  public List<ScheduledSms> getSms() throws SQLException {
+    List<ScheduledSms> res = new ArrayList<ScheduledSms>();
+    String q = "SELECT , phoneNumber, message, completed FROM sms;";;
+    PreparedStatement stmt = con.prepareStatement(q);
+    ResultSet rs = stmt.executeQuery();
+    while (rs.next()) {
+      res.add(new ScheduledSms(rs.getString("phoneNumber"), 
+                               rs.getString("message"), 
+                               rs.getBoolean("completed")));
+    }
+    return res;
+  }
+  
+  public boolean setCompleted(int id, ScheduledCall.Status status) throws SQLException {
+    String q = "UPDATE outbound SET status=? WHERE id=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setString(1, status.name());
+    stmt.setInt(2, id);
+    return (stmt.executeUpdate() != 0);
+  }*/
   
   //--------------------- INTERNAL METHODS --------------------------
 
@@ -640,6 +682,7 @@ public class DbAdapter {
     
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS request (" + 
+        "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
         "req_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + 
         "sessionid VARCHAR(100)," +
         "callerid VARCHAR(100)," + 
@@ -647,6 +690,13 @@ public class DbAdapter {
         "answer MEDIUMTEXT," + 
         "data MEDIUMBLOB);"
         );
+    
+   /* stmt.execute(
+        "CREATE TABLE IF NOT EXISTS sms (" + 
+        "phoneNumber VARCHAR(100) NOT NULL," +
+        "message VARCHAR(1000)," +
+        "completed BOOL NOT NULL);"
+        );*/
         
   }
   
@@ -667,6 +717,7 @@ public class DbAdapter {
     stmt.execute("DROP TABLE misc;");
     stmt.execute("DROP TABLE outbound;");
     stmt.execute("DROP TABLE request;");
+    //stmt.execute("DROP TABLE sms;");
     initDb();
   }
 
