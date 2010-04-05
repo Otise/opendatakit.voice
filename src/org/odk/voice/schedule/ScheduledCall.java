@@ -5,6 +5,7 @@ import java.util.Date;
 public class ScheduledCall {
   
   public int id;
+  public Date date;
   public String phoneNumber;
   public Status status;
   public enum Status {
@@ -21,7 +22,7 @@ public class ScheduledCall {
     }
   }
   public Date nextAttempt;
-  public ScheduledCall (int id, String phoneNumber, Status status) {
-    this.id = id; this.phoneNumber = phoneNumber; this.status = status;
+  public ScheduledCall (int id, Date date, String phoneNumber, Status status) {
+    this.id = id; this.date = date; this.phoneNumber = phoneNumber; this.status = status;
   }
 }

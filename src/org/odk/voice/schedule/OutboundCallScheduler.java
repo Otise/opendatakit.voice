@@ -57,6 +57,8 @@ public class OutboundCallScheduler implements ServletContextListener{
     //This method is invoked when the Web Application
     //is ready to service requests
 
+    public static final int MAX_SIMUL_CONNECTIONS = 2;
+    
     public void contextInitialized(ServletContextEvent event)
     {
 //      this.context = event.getServletContext();
@@ -73,10 +75,11 @@ public class OutboundCallScheduler implements ServletContextListener{
             String url = dba.getMiscValue(GlobalConstants.OUTBOUND_URL_KEY);
             String tokenid = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY);
             String callerid = dba.getMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY);
-            List<ScheduledCall> calls = dba.getScheduledCalls(Status.PENDING);
-            if (calls.size() > 0) {
-              String number = calls.get(0).phoneNumber;
-              int id = calls.get(0).id;
+            List<ScheduledCall> pendingCalls = dba.getScheduledCalls(Status.PENDING);
+            List<ScheduledCall> inprogressCalls = dba.getScheduledCalls(Status.IN_PROGRESS);
+            if (pendingCalls.size() > 0 && inprogressCalls.size() < MAX_SIMUL_CONNECTIONS) {
+              String number = pendingCalls.get(0).phoneNumber;
+              int id = pendingCalls.get(0).id;
               boolean success = sendOutboundCallRequest(url, tokenid, callerid, number, id);
               log.info("Outbound call request: number=" + number + "; id=" + id + "; success=" + success);
               dba.setOutboundCallStatus(id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
