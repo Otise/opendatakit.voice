@@ -34,7 +34,7 @@ public class DbAdapter {
   
   public static final String DB_CLASS = "com.mysql.jdbc.Driver";
   public static final String DB_URL = "jdbc:mysql://localhost:3306";
-  public static final String DB_NAME = "odkvoice";
+  public static final String DB_NAME = "odkvoiceprime";
   public static final String DB_USER = "root";
   public static final String DB_PASS = "odk-voice";
   private static boolean initialized = false;
@@ -498,9 +498,9 @@ public class DbAdapter {
     List<ScheduledCall> res = new ArrayList<ScheduledCall>();
     String q = null;
     if (status == null) {
-      q = "SELECT id, phoneNumber, status FROM outbound;";
+      q = "SELECT id, time, phoneNumber, status FROM outbound ORDER BY time, id;";
     } else {
-      q = "SELECT id, phoneNumber, status FROM outbound WHERE status=?;";
+      q = "SELECT id, time, phoneNumber, status FROM outbound WHERE status=? ORDER BY time, id;";
     }
     PreparedStatement stmt = con.prepareStatement(q);
     if (status != null) {
@@ -508,7 +508,7 @@ public class DbAdapter {
     }
     ResultSet rs = stmt.executeQuery();
     while (rs.next()) {
-      res.add(new ScheduledCall(rs.getInt("id"), 
+      res.add(new ScheduledCall(rs.getInt("id"), new Date(rs.getTimestamp("time").getTime()),
           rs.getString("phoneNumber"), 
           ScheduledCall.Status.valueOf(rs.getString("status"))));
     }
@@ -674,6 +674,7 @@ public class DbAdapter {
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS outbound (" + 
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+        "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
         "phoneNumber VARCHAR(100) NOT NULL," +
         "status VARCHAR(20));"
 //        "frequency_ms INT," +

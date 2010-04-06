@@ -21,7 +21,7 @@ public class OutboundScheduleServlet extends HttpServlet {
 	private static org.apache.log4j.Logger log = Logger
   .getLogger(AudioPromptServlet.class);
 	
-	public static final String ADDR = "outboundSchedule";
+	public static final String ADDR = "admin/outboundSchedule";
        
     /**
      * @see HttpServlet#HttpServlet()

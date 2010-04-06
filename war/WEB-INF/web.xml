@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
-  <display-name>odk-voice</display-name>
+  <display-name>odk-voice-prime</display-name>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.htm</welcome-file>
@@ -27,7 +27,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>XFormUploadServlet</servlet-name>
-    <url-pattern>/formUpload</url-pattern>
+    <url-pattern>/admin/formUpload</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>
@@ -57,7 +57,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>LogServlet</servlet-name>
-    <url-pattern>/logs</url-pattern>
+    <url-pattern>/admin/logs</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>
@@ -67,7 +67,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>OutboundScheduleServlet</servlet-name>
-    <url-pattern>/outboundSchedule</url-pattern>
+    <url-pattern>/admin/outboundSchedule</url-pattern>
   </servlet-mapping>
   
   <!-- Define application events listeners -->
@@ -76,9 +76,36 @@
      org.odk.voice.schedule.OutboundCallScheduler
     </listener-class>
   </listener>
-    <listener>
+  
+  <listener>
     <listener-class>
      org.odk.voice.digits2string.CorpusFactory
     </listener-class>
   </listener>
+  
+    <!-- Define a Security Constraint on this Application -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Entire Application</web-resource-name>
+      <url-pattern>/admin/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>odkadmin</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Application</realm-name>
+  </login-config>
+
+  <!-- Security roles referenced by this web application -->
+  <!-- <security-role>
+    <description>
+      ODK Admin
+    </description>
+    <role-name>odkadmin</role-name>
+  </security-role> -->
+
 </web-app>

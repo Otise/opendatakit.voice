@@ -36,7 +36,7 @@
   <b>Call Queue</b><br/>
   <table border>
   <tr>
-  <th>Phone Number</th><th>Status</th><th>Retry</th><th>Delete</th>
+  <th>Time</th><th>Phone Number</th><th>Status</th><th>Retry</th><th>Delete</th>
   <%  DbAdapter dba = null;
       List<ScheduledCall> calls = null;
       try {
@@ -44,6 +44,7 @@
         calls = dba.getScheduledCalls(null);
         for (ScheduledCall call : calls) { %>
     <tr style="background-color:<%= call.status.color %>">
+    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.date.toLocaleString()) %></td>
     <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.phoneNumber) %></td>
     <td><%= StringEscapeUtils.escapeHtml(call.status.name()) %></td>
     <td><form action="outboundSchedule" method="post">
