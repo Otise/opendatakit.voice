@@ -14,6 +14,7 @@ import org.odk.voice.vxml.VxmlUtils;
 
 public class FormStartWidget extends WidgetBase {
  
+  public static final String ADMIN_CODE = "7531";
   String formTitle;
   boolean hasLanguages;
   
@@ -25,7 +26,7 @@ public class FormStartWidget extends WidgetBase {
   @Override
   public void getPromptVxml(Writer out) throws IOException {
     String grammar = hasLanguages ? 
-        VxmlUtils.createGrammar(new String[]{"1","9","7"}, 
+        VxmlUtils.createGrammar(new String[]{"1","9",ADMIN_CODE}, 
         new String[]{VoiceAction.NEXT_PROMPT.name(),
                      VoiceAction.LANGUAGE_MENU.name(),
                      VoiceAction.ADMIN.name()}) :
