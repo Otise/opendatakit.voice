@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.catalina.util.URLEncoder;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -114,9 +115,9 @@ public class OutboundCallScheduler implements ServletContextListener{
 
     // setup client
     DefaultHttpClient httpclient = new DefaultHttpClient(params);
-
-    String url = baseUrl + "?numbertodial=" + numbertodial + "&tokenid=" + tokenid + 
-    "&callerid=" + callerid + "&outboundId=" + id;
+    URLEncoder ee = new URLEncoder();
+    String url = baseUrl + "?numbertodial=" + ee.encode(numbertodial) + "&tokenid=" + tokenid + 
+    "&callerid=" + ee.encode(callerid) + "&outboundId=" + id;
     log.info("url=" + url);
     HttpGet httpget = null;
     try {
