@@ -30,7 +30,7 @@ public class FormStartWidget extends WidgetBase {
         new String[]{VoiceAction.NEXT_PROMPT.name(),
                      VoiceAction.LANGUAGE_MENU.name(),
                      VoiceAction.ADMIN.name()}) :
-        VxmlUtils.createGrammar(new String[]{"1","7"}, 
+        VxmlUtils.createGrammar(new String[]{"1",ADMIN_CODE}, 
         new String[]{VoiceAction.NEXT_PROMPT.name(),
                      VoiceAction.ADMIN.name()});
         
