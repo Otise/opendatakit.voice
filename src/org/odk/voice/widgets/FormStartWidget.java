@@ -15,6 +15,7 @@ import org.odk.voice.vxml.VxmlUtils;
 public class FormStartWidget extends WidgetBase {
  
   public static final String ADMIN_CODE = "7531";
+  public String recordCallLabel = "label";
   String formTitle;
   boolean hasLanguages;
   
@@ -47,7 +48,7 @@ public class FormStartWidget extends WidgetBase {
         createPrompt(getString(ResourceKeys.GOODBYE)) + 
         VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
         VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput>");
-    VxmlSection recordCallSection = new VxmlSection("<block><voxeo:recordcall value=\"100\" info=\"save\" /></block>");
+    VxmlSection recordCallSection = new VxmlSection("<block><voxeo:recordcall value=\"100\" info=\"" + recordCallLabel + "\" /></block>");
     VxmlForm startForm = new VxmlForm("action", recordCallSection,startField);
     VxmlDocument doc = new VxmlDocument(sessionid, startForm);
     doc.write(out);

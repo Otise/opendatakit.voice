@@ -478,7 +478,9 @@ public class FormVxmlRenderer {
     WidgetBase w = null;
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      w = new FormStartWidget(fh.getFormTitle(), fh.getLanguages()!=null);
+      FormStartWidget fsw = new FormStartWidget(fh.getFormTitle(), fh.getLanguages()!=null);
+      fsw.recordCallLabel = callerid==null?"-----":callerid;
+      w = fsw;
       break;
     case PromptElement.TYPE_END:
       w = new FormEndWidget(fh.getFormTitle());
@@ -685,9 +687,13 @@ public class FormVxmlRenderer {
       log.error("SQLException setting instance XML.",e);
     }
     
-    // probably markCompleted true iff they actually finished the survey
-    // but this is dependent on an instances DB...are we making one?
     if (complete) {
+      fh.finalizeDataModel();
+    }
+    // For the Project WET instance, we will upload any surveys that have been started.
+    // This will screw up the resume functionality a bit (since then we have two copies 
+    // of some surveys), but that can be easily resolved.
+    if (fh != null && !fh.isBeginning()) {
       InstanceUploader iu = new InstanceUploader();
       iu.setServerUrl(GlobalConstants.UPLOAD_URL);
       if (iu.uploadInstance(vs.getInstanceid()) == InstanceUploader.STATUS_OK) {
