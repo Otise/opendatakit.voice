@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -479,7 +482,8 @@ public class FormVxmlRenderer {
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
       FormStartWidget fsw = new FormStartWidget(fh.getFormTitle(), fh.getLanguages()!=null);
-      fsw.recordCallLabel = callerid==null?"-----":callerid;
+      DateFormat df = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss");
+      fsw.recordCallLabel = df.format(new Date()) + "-" + (callerid==null?"-----":callerid);
       w = fsw;
       break;
     case PromptElement.TYPE_END:
