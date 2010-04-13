@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
+import org.odk.voice.audio.AudioSample;
 import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.db.DbAdapter;
 import org.odk.voice.storage.MultiPartFormData;
@@ -88,6 +89,9 @@ public class RecordPromptServlet extends HttpServlet {
           }
           byte[] data = uploadedFormItems.getFormDataByFieldName("data").getData();
           log.info("Data length: " + data.length);
+          AudioSample as = new AudioSample(data);
+          //as.clipAudio(0, PROMPT_END_CLIP);
+          data = as.getAudio();
           dba.putAudioPrompt(hash, data);
         } catch(Exception e) {
           log.error("Exception", e);
