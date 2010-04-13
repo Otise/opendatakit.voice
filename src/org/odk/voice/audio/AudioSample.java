@@ -11,17 +11,26 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.odk.voice.storage.FileUtils;
+import org.apache.log4j.Logger;
+import org.odk.voice.logic.FormVxmlRenderer;
 
 public class AudioSample {
 
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(AudioSample.class);
+  
   private byte[] data;
   
   public AudioSample (byte[] data) {
+    try {
+      InputStream in = new ByteArrayInputStream(data);
+      log.info(AudioSystem.getAudioFileFormat(in));
+    } catch (Exception e) { log.error(e); }
     this.data = data;
   }
   
   public byte[] getAudio(){
+    
     return data;
   }
   
