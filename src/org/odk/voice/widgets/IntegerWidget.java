@@ -35,7 +35,8 @@ public class IntegerWidget extends QuestionWidget {
               new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD), null}).toString()
       );
       
-      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(true, false));
+      VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(
+          prompt.getAttribute(QuestionAttributes.SKIP_CONFIRMATION, true), false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);

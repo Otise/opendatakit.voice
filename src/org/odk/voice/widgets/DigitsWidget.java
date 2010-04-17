@@ -52,7 +52,8 @@ public class DigitsWidget extends QuestionWidget {
           digitsReader
       );
       
-      VxmlForm mainForm = new VxmlForm("main", digitsSection, answerField, getActionField(true, false));
+      VxmlForm mainForm = new VxmlForm("main", digitsSection, answerField, getActionField(
+          prompt.getAttribute(QuestionAttributes.SKIP_CONFIRMATION, true), false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);
