@@ -30,7 +30,7 @@ public class DateWidget extends QuestionWidget {
     VxmlField yearField = createField("year", 
           createPrompt(prompt.getQuestionText(), getString(ResourceKeys.DATE_INSTRUCTIONS_YEAR)),
           yearGrammar,
-          createPrompt(getString(ResourceKeys.THANK_YOU)).toString()
+          ""
 //          createPrompt(StringConstants.thankYou;
 //              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"year\"/>"},
 //              new String[]{StringConstants.answerConfirmationKeypad, null})
@@ -40,7 +40,7 @@ public class DateWidget extends QuestionWidget {
       VxmlField monthField = createField("month", 
           createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_MONTH)),
           monthGrammar,
-          createPrompt(getString(ResourceKeys.THANK_YOU)).toString()
+          ""
 //          createPrompt(
 //              new String[]{StringConstants.answerConfirmationKeypad, "<value expr=\"month\"/>"},
 //              new String[]{StringConstants.answerConfirmationKeypad, null})
@@ -54,7 +54,6 @@ public class DateWidget extends QuestionWidget {
           createPrompt(getString(ResourceKeys.DATE_INSTRUCTIONS_DAY)),
           dayGrammar,
           genConfirmationDate + 
-              createPrompt(getString(ResourceKeys.THANK_YOU)) + 
               createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)) +
               "<prompt><value expr=\"confDate\"/></prompt>"
               
