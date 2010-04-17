@@ -82,7 +82,7 @@ public class SelectOneWidget extends QuestionWidget {
 //          VxmlUtils.actionFilled(this));
       
       VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(
-          prompt.getAttribute(QuestionAttributes.SKIP_CONFIRMATION, true), false));
+          !prompt.getAttribute(QuestionAttributes.SKIP_CONFIRMATION, true), false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);
