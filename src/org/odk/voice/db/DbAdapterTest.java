@@ -137,21 +137,21 @@ public class DbAdapterTest extends TestCase {
     }
   }
   
-  public void testOutbound(){
-    try {
-      String num = "+1234567";
-      dba.addOutboundCall(num);
-      List<ScheduledCall> res = dba.getScheduledCalls(ScheduledCall.Status.PENDING);
-      assertEquals(1, res.size());
-      ScheduledCall call = res.get(0);
-      assertEquals(num, call.phoneNumber);
-      assertFalse(dba.setOutboundCallStatus(call.id + 1, ScheduledCall.Status.COMPLETE));
-      assertTrue(dba.setOutboundCallStatus(call.id, ScheduledCall.Status.NOT_COMPLETED));
-      assertEquals(1, dba.getScheduledCalls(null).size());
-      assertEquals(0, dba.getScheduledCalls(ScheduledCall.Status.PENDING).size());
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
-  }
+//  public void testOutbound(){
+//    try {
+//      String num = "+1234567";
+//      dba.addOutboundCall(num);
+//      List<ScheduledCall> res = dba.getScheduledCalls(ScheduledCall.Status.PENDING);
+//      assertEquals(1, res.size());
+//      ScheduledCall call = res.get(0);
+//      assertEquals(num, call.phoneNumber);
+//      assertFalse(dba.setOutboundCallStatus(call.id + 1, ScheduledCall.Status.COMPLETE));
+//      assertTrue(dba.setOutboundCallStatus(call.id, ScheduledCall.Status.NOT_COMPLETED));
+//      assertEquals(1, dba.getScheduledCalls(null).size());
+//      assertEquals(0, dba.getScheduledCalls(ScheduledCall.Status.PENDING).size());
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//      fail(e.getMessage());
+//    }
+//  }
 }

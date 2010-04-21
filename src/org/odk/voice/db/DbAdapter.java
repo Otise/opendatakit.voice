@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +35,7 @@ public class DbAdapter {
   
   public static final String DB_CLASS = "com.mysql.jdbc.Driver";
   public static final String DB_URL = "jdbc:mysql://localhost:3306";
-  public static final String DB_NAME = "odkvoiceprime";
+  public static final String DB_NAME = "odkvoice";
   public static final String DB_USER = "root";
   public static final String DB_PASS = "odk-voice";
   private static boolean initialized = false;
@@ -469,15 +470,23 @@ public class DbAdapter {
       return null;
     }
   }
-  
-  public boolean addOutboundCall(String phoneNumber) throws SQLException {
-    String q = "INSERT INTO outbound (phoneNumber, status) VALUES (?,?);";
+  // intervalMs < 0 means to only send once
+  // from, to == null means send immediately
+  public boolean addOutboundCall(String phoneNumber, Date from, Date to, long intervalMs) throws SQLException {
+    String q = "INSERT INTO outbound (phoneNumber, status, timeFrom, timeTo, nextTime, intervalMs) VALUES (?,?,?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
     //log.info("set record prompt: " + prompt);
     stmt.setString(1, phoneNumber);
     stmt.setString(2, ScheduledCall.Status.PENDING.name());
+    stmt.setTimestamp(3, new Timestamp(from.getTime()));
+    stmt.setTimestamp(4, new Timestamp(to.getTime()));
+    stmt.setTimestamp(5, new Timestamp(from.getTime()));
+    stmt.setLong(6, intervalMs);
     stmt.executeUpdate();
     return true;
+  }
+  public boolean addOutboundCall(String phoneNumber) throws SQLException {
+    return addOutboundCall(phoneNumber, null, null, -1);
   }
   
   public boolean deleteOutboundCall(int id) throws SQLException {
@@ -498,9 +507,9 @@ public class DbAdapter {
     List<ScheduledCall> res = new ArrayList<ScheduledCall>();
     String q = null;
     if (status == null) {
-      q = "SELECT id, time, phoneNumber, status FROM outbound ORDER BY time, id;";
+      q = "SELECT id, timeAdded, timeFrom, timeTo, nextTime, timeIntervalMs, phoneNumber, status FROM outbound ORDER BY time, id;";
     } else {
-      q = "SELECT id, time, phoneNumber, status FROM outbound WHERE status=? ORDER BY time, id;";
+      q = "SELECT id, timeAdded, timeFrom, timeTo, nextTime, timeIntervalMs,  phoneNumber, status FROM outbound WHERE status=? ORDER BY time, id;";
     }
     PreparedStatement stmt = con.prepareStatement(q);
     if (status != null) {
@@ -508,13 +517,26 @@ public class DbAdapter {
     }
     ResultSet rs = stmt.executeQuery();
     while (rs.next()) {
-      res.add(new ScheduledCall(rs.getInt("id"), new Date(rs.getTimestamp("time").getTime()),
-          rs.getString("phoneNumber"), 
-          ScheduledCall.Status.valueOf(rs.getString("status"))));
+      res.add(new ScheduledCall(rs.getInt("id"),
+                                rs.getString("phoneNumber"), 
+                                ScheduledCall.Status.valueOf(rs.getString("status")),
+                                new Date(rs.getTimestamp("timeAdded").getTime()),
+                                new Date(rs.getTimestamp("timeFrom").getTime()),
+                                new Date(rs.getTimestamp("timeTo").getTime()),
+                                new Date(rs.getTimestamp("nextTime").getTime()),
+                                rs.getLong("timeIntervalMs")));
     }
     return res;
   }
   
+  public boolean setOutboundCallNextTime(int id, Date nextTime) throws SQLException {
+    String q = "UPDATE outbound SET nextTime=? WHERE id=?;";
+    PreparedStatement stmt = con.prepareStatement(q);
+    stmt.setTimestamp(1, new Timestamp(nextTime.getTime()));
+    stmt.setInt(2, id);
+    return (stmt.executeUpdate() != 0);
+    
+  }
   public boolean setOutboundCallStatus(int id, ScheduledCall.Status status) throws SQLException {
     String q = "UPDATE outbound SET status=? WHERE id=?;";
     PreparedStatement stmt = con.prepareStatement(q);
@@ -676,7 +698,12 @@ public class DbAdapter {
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
         "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
         "phoneNumber VARCHAR(100) NOT NULL," +
-        "status VARCHAR(20));"
+        "status VARCHAR(20)," +
+        "timeAdded TIMESTAMP," +
+        "timeFrom TIMESTAMP," +
+        "timeTo TIMESTAMP," +
+        "timeNext TIMESTAMP," + 
+        "timeIntervalMs LONG);"
 //        "frequency_ms INT," +
 //        "next_date DATETIME"
         );

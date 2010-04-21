@@ -19,7 +19,11 @@
   <div id="outboundFormDiv">
     <form action="outboundSchedule" method="post">
         <b>Enter the phone numbers, one per line:</b><br/>
-        <textarea cols="50" rows="10" name="phoneNumbers"></textarea>
+        <textarea cols="50" rows="10" name="phoneNumbers"></textarea><br/>
+        Send now <input type='checkbox' name='now' value='true'></input><br/>
+        or</br>
+        Schedule calls between <input type="text" name="timeFrom"/> and <input type="text" name="timeTo"/> hours from now.<br/>
+        If calls fail, retry every <input type="text" name="timeInterval"/> hours.<br/>
         <!--  <select name="frequency">
 		  <option value="once">Once</option>
 		  <option value="daily">Daily</option>
@@ -28,7 +32,7 @@
 		</select><p/> 
 		<b>Note: </b>Calls will be scheduled starting immediately. If you select daily, 
 		calls will be scheduled at this time every day.<p/> -->
-		<br/><input type="submit" value="Schedule"/>
+		<input type="submit" value="Schedule"/>
     </form>
   </div>
   
@@ -36,7 +40,7 @@
   <b>Call Queue</b><br/>
   <table border>
   <tr>
-  <th>Time</th><th>Phone Number</th><th>Status</th><th>Retry</th><th>Delete</th>
+  <th>Phone Number</th><th>Status</th><th>Retry</th><th>Delete</th><th>Time Added</th><th>From</th><th>To</th><th>Next</th>
   <%  DbAdapter dba = null;
       List<ScheduledCall> calls = null;
       try {
@@ -44,7 +48,6 @@
         calls = dba.getScheduledCalls(null);
         for (ScheduledCall call : calls) { %>
     <tr style="background-color:<%= call.status.color %>">
-    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.date.toLocaleString()) %></td>
     <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.phoneNumber) %></td>
     <td><%= StringEscapeUtils.escapeHtml(call.status.name()) %></td>
     <td><form action="outboundSchedule" method="post">
@@ -55,6 +58,10 @@
     <input type="hidden" name="delete" value="<%= call.id %>"/>
     <input type="submit" value="Delete"/>
     </form></td>
+    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.timeAdded.toLocaleString()) %></td>
+    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.timeFrom.toLocaleString()) %></td>
+    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.timeTo.toLocaleString()) %></td>
+    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.nextTime.toLocaleString()) %></td>
     </tr>
   <% }  %>
   </table>

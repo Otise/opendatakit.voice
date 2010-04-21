@@ -2,6 +2,7 @@ package org.odk.voice.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -20,6 +21,7 @@ public class OutboundScheduleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static org.apache.log4j.Logger log = Logger
   .getLogger(AudioPromptServlet.class);
+	private static final long H2MS = 1000 * 60 * 60;
 	
 	public static final String ADDR = "admin/outboundSchedule";
        
@@ -47,6 +49,10 @@ public class OutboundScheduleServlet extends HttpServlet {
 	  String outboundCallerid = request.getParameter("outboundCallerid");
 	  String scheduleTimes = request.getParameter("scheduleTimes");
 	  String phoneNumbers = request.getParameter("phoneNumbers");
+	  String fromS = request.getParameter("timeFrom"); 
+	  String toS = request.getParameter("timeTo");
+	  String intervalS = request.getParameter("timeInterval");
+	  String now = request.getParameter("now");
 	  String retry = request.getParameter("retry");
 	  String delete = request.getParameter("delete");
     DbAdapter dba = null;
@@ -64,9 +70,7 @@ public class OutboundScheduleServlet extends HttpServlet {
         dba.setMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY, outboundCallerid);
       }
       // ------------------------------------------
-  		if (scheduleTimes != null) {
-  		  // TODO(alerer): add to database
-  		}
+
       if (retry != null) {
         int retryInt = Integer.parseInt(retry);
         dba.setOutboundCallStatus(retryInt, Status.PENDING);
@@ -75,11 +79,28 @@ public class OutboundScheduleServlet extends HttpServlet {
   		  int deleteInt = Integer.parseInt(delete);
   		  dba.deleteOutboundCall(deleteInt);
   		}
+  		
   		if (phoneNumbers != null) {
   	    String[] phoneNumberArray = phoneNumbers.split("\n");
+  	    Date from=null, to=null; long intervalMs = -1;
+  	    if (!"true".equals(now)) {
+    	    try {
+    	      double fromD = Double.valueOf(fromS);
+    	      from = new Date(Math.round(new Date().getTime() + fromD * H2MS));
+    	    } catch (NumberFormatException e) { response.sendError(401, "Invalid schedule."); }
+          try {
+            double toD = Double.valueOf(toS);
+            from = new Date(Math.round(new Date().getTime() + toD * H2MS));
+          } catch (NumberFormatException e) { response.sendError(401, "Invalid schedule.");}
+          try {
+            double intervalH = Double.valueOf(fromS);
+            intervalMs = Math.round(intervalH * H2MS);
+          } catch (NumberFormatException e) { response.sendError(401, "Invalid schedule."); }
+  	    }
+        
     		for (String phoneNumber : phoneNumberArray) {
     		  phoneNumber = phoneNumber.replace("\r", "");
-    		  dba.addOutboundCall(phoneNumber);
+    		  dba.addOutboundCall(phoneNumber, from, to, intervalMs);
     		}
   		}
   		response.sendRedirect("callcontrol.jsp");

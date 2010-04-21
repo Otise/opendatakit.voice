@@ -79,11 +79,23 @@ public class OutboundCallScheduler implements ServletContextListener{
             List<ScheduledCall> pendingCalls = dba.getScheduledCalls(Status.PENDING);
             List<ScheduledCall> inprogressCalls = dba.getScheduledCalls(Status.IN_PROGRESS);
             if (pendingCalls.size() > 0 && inprogressCalls.size() < MAX_SIMUL_CONNECTIONS) {
-              String number = pendingCalls.get(0).phoneNumber;
-              int id = pendingCalls.get(0).id;
-              boolean success = sendOutboundCallRequest(url, tokenid, callerid, number, id);
-              log.info("Outbound call request: number=" + number + "; id=" + id + "; success=" + success);
-              dba.setOutboundCallStatus(id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
+              boolean success;
+              for (ScheduledCall pc : pendingCalls) {
+                if (pc.nextTime == null || new Date().getTime() > pc.nextTime.getTime()) {
+                  success = sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id);
+                  log.info("Outbound call request: number=" + pc.phoneNumber + "; id=" + pc.id + "; success=" + success);
+                  if (pc.nextTime == null) {
+                    dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
+                  } else {
+                    long newNextTime = new Date().getTime() + pc.intervalMs;
+                    dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
+                      newNextTime > pc.timeTo.getTime() ? Status.CALL_FAILED : Status.PENDING);
+                    dba.setOutboundCallNextTime(pc.id, newNextTime > pc.timeTo.getTime() ? null : new Date(newNextTime)); 
+                  }
+                  break;
+                } 
+              }
+              
             }
           } catch (SQLException e) {
             log.error(e);
