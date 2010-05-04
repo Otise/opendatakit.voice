@@ -6,6 +6,7 @@
 <%@ page import="org.odk.voice.schedule.ScheduledCall" %>
 <%@ page import="org.odk.voice.constants.GlobalConstants" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="java.text.DateFormat" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -25,14 +26,14 @@
         Schedule calls between <input type="text" name="timeFrom"/> and <input type="text" name="timeTo"/> hours from now.<br/>
         If calls fail, retry every <input type="text" name="timeInterval"/> hours.<br/>
         <!--  <select name="frequency">
-		  <option value="once">Once</option>
-		  <option value="daily">Daily</option>
-		  <option value="weekly">Weekly</option>
-		  <option value="monthly">monthly</option>
-		</select><p/> 
-		<b>Note: </b>Calls will be scheduled starting immediately. If you select daily, 
-		calls will be scheduled at this time every day.<p/> -->
-		<input type="submit" value="Schedule"/>
+          <option value="once">Once</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">monthly</option>
+        </select><p/> 
+        <b>Note: </b>Calls will be scheduled starting immediately. If you select daily, 
+        calls will be scheduled at this time every day.<p/> -->
+        <input type="submit" value="Schedule"/>
     </form>
   </div>
   
@@ -40,8 +41,9 @@
   <b>Call Queue</b><br/>
   <table border>
   <tr>
-  <th>Phone Number</th><th>Status</th><th>Retry</th><th>Delete</th><th>Time Added</th><th>From</th><th>To</th><th>Next</th>
-  <%  DbAdapter dba = null;
+  <th>Phone Number</th><th>Status</th><th>Retry</th><th>Delete</th><th>Time Added</th><th>Delivery Information</th>
+  <%  DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+      DbAdapter dba = null;
       List<ScheduledCall> calls = null;
       try {
         dba = new DbAdapter();
@@ -58,10 +60,8 @@
     <input type="hidden" name="delete" value="<%= call.id %>"/>
     <input type="submit" value="Delete"/>
     </form></td>
-    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.timeAdded.toLocaleString()) %></td>
-    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.timeFrom.toLocaleString()) %></td>
-    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.timeTo.toLocaleString()) %></td>
-    <td style="padding-left:20px;padding-right:20px"><%= StringEscapeUtils.escapeHtml(call.nextTime.toLocaleString()) %></td>
+    <td style="padding-left:20px;padding-right:20px"><%= call.timeAdded==null ? "" : StringEscapeUtils.escapeHtml(df.format(call.timeAdded) + " EDT") %></td>
+    <td style="padding-left:20px;padding-right:20px"><%= call.getDeliveryInfo() %></td>
     </tr>
   <% }  %>
   </table>
