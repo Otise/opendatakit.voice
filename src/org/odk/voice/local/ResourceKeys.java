@@ -51,4 +51,5 @@ public class ResourceKeys {
   public static final String FORM_START_PRESS_1_TO_BEGIN = "formstartpress1";
   public static final String PRESS_STAR_TO_REPEAT = "pressstartorepeat";
   public static final String PRESS_STAR_TO_REPEAT_INITIAL = "pressstartorepeatinitial";
+  public static final String NO_INPUT_3 = "noinput3";
 }
