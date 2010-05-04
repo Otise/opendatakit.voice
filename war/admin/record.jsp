@@ -26,7 +26,7 @@ function refresh()
       setTimeout('refresh()',1000);
     }
   }
-  xmlhttp.open("GET","../recordPrompt",true);
+  xmlhttp.open("GET","recordPrompt",true);
   xmlhttp.send(null);
 }</script>
 </head>
