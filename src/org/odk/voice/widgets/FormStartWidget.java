@@ -2,26 +2,39 @@ package org.odk.voice.widgets;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
+import org.odk.voice.schedule.OutboundCallScheduler;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
+import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
+import org.odk.voice.xform.FormHandler;
 
 public class FormStartWidget extends WidgetBase {
  
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(FormStartWidget.class);
+  
   public static final String ADMIN_CODE = "7531";
-  public String recordCallLabel = "label";
+  public static String recordCallLabel = "label";  //set in FormVxmlRenderer with phone number, etc.
+  
+  FormHandler fh;
   String formTitle;
   boolean hasLanguages;
   
-  public FormStartWidget(String formTitle, boolean hasLanguages) {
-    this.formTitle = formTitle;
-    this.hasLanguages = hasLanguages;
+  public FormStartWidget(FormHandler fh) {
+    this.fh = fh;
+    this.formTitle = fh.getFormTitle();
+    this.hasLanguages = fh.getLanguages()!=null;
   }
   
   @Override
@@ -37,19 +50,36 @@ public class FormStartWidget extends WidgetBase {
         
     String filled = 
       VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "\n";
-    VxmlField startField = createField("action", 
-            createPrompt(
-                String.format(getString(ResourceKeys.FORM_START),formTitle),
-                getString(ResourceKeys.PRESS_STAR_TO_REPEAT_INITIAL),
-                getString(ResourceKeys.FORM_START_PRESS_1_TO_BEGIN),
-                hasLanguages? getString(ResourceKeys.FORM_START_LANGUAGES) : ""),
-            grammar, filled);
+    
+    List<String> startPrompts = new ArrayList<String>();
+    String customIntroPrompts = fh.getFormAttribute(FormAttribute.CUSTOM_INTRO_PROMPTS);
+    if (customIntroPrompts == null) {
+      startPrompts.add(String.format(getString(ResourceKeys.FORM_START),formTitle));
+      startPrompts.add(getString(ResourceKeys.PRESS_STAR_TO_REPEAT_INITIAL));
+      startPrompts.add(getString(ResourceKeys.FORM_START_PRESS_1_TO_BEGIN));
+      if (hasLanguages) startPrompts.add(getString(ResourceKeys.FORM_START_LANGUAGES));
+    } else {
+      String[] ciPrompts = customIntroPrompts.split(FormAttribute.CUSTOM_INTRO_PROMPTS_DELIM);
+      for(String ciPrompt : ciPrompts)
+        startPrompts.add(ciPrompt);
+    }
+    VxmlPrompt prompt = createPrompt(startPrompts.toArray(new String[startPrompts.size()]));
+    VxmlField startField = createField("action", prompt, grammar, filled);
     startField.setContents("<noinput count=\"3\">" + 
-        createPrompt(getString(ResourceKeys.GOODBYE)) + 
+        createPrompt(getString(ResourceKeys.NO_INPUT_3)) + 
         VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
         VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput>");
+    
+    // we use this instead of startField if we're skipping confirmation
+    VxmlSection skipConfSection = new VxmlSection("<block>" + 
+        prompt.toString() + 
+        VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
+        filled + "</block>");
+    
+    
     VxmlSection recordCallSection = new VxmlSection("<block><voxeo:recordcall value=\"100\" info=\"" + recordCallLabel + "\" /></block>");
-    VxmlForm startForm = new VxmlForm("action", recordCallSection,startField);
+    VxmlForm startForm = new VxmlForm("action", recordCallSection,
+      fh.getFormAttribute(FormAttribute.SKIP_CONFIRMATION, true) ? skipConfSection : startField);
     VxmlDocument doc = new VxmlDocument(sessionid, startForm);
     doc.write(out);
   }

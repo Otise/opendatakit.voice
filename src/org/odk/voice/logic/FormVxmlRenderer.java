@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.javarosa.core.model.FormDef;
 import org.odk.voice.audio.AudioSample;
 import org.odk.voice.constants.FileConstants;
+import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.constants.VoiceError;
@@ -159,11 +160,15 @@ public class FormVxmlRenderer {
           &&!vs.isAdmin()) {
         // resume session
         fh = vs.getFormHandler();
-        sessionid = vs.getSessionid();
-        if (outboundId >= 0) {
-          vs.setOutboundId(outboundId);
+        if (fh.getFormAttribute(FormAttribute.RESUME_DISABLED, true)) {
+          beginSession();
+        } else {
+          sessionid = vs.getSessionid();
+          if (outboundId >= 0) {
+            vs.setOutboundId(outboundId);
+          }
+          resumeSession();
         }
-        resumeSession();
       }
       else {
         beginSession();
@@ -236,7 +241,7 @@ public class FormVxmlRenderer {
   }
     
   public void renderUser() {
-    VoiceAction va = getAction(action);
+    final VoiceAction va = getAction(action);
     if (va == null){
       log.error("action string " + action + " was not a valid VoiceAction");
       renderError(VoiceError.INTERNAL_ERROR, action + " was not a valid Voice Action");
@@ -282,13 +287,17 @@ public class FormVxmlRenderer {
       } catch (IOException e) {
         log.error(e);
       }
-      if (fh != null) {
-        exportData(fh.isEnd());
-        setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
-          fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
-        if (fh.isEnd() && callerid!= null)
-          vsm.remove(callerid);
-      }
+      setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
+        fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
+      // run this in a new thread so it doesn't stall the response
+      new Thread(){
+        public void run(){
+          if (fh != null) {
+            exportData(fh.isEnd());
+            if (fh.isEnd() && callerid!= null)
+              vsm.remove(callerid);
+          }
+        }}.start();
       break;
     case GET_STRING_MATCHES:
       getStringMatches(answer);
@@ -481,7 +490,7 @@ public class FormVxmlRenderer {
     WidgetBase w = null;
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      FormStartWidget fsw = new FormStartWidget(fh.getFormTitle(), fh.getLanguages()!=null);
+      FormStartWidget fsw = new FormStartWidget(fh);
       DateFormat df = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss");
       fsw.recordCallLabel = df.format(new Date()) + "-" + (callerid==null?"-----":callerid);
       w = fsw;
