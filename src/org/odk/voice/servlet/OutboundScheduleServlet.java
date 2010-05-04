@@ -20,7 +20,7 @@ import org.odk.voice.schedule.ScheduledCall.Status;
 public class OutboundScheduleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static org.apache.log4j.Logger log = Logger
-  .getLogger(AudioPromptServlet.class);
+  .getLogger(OutboundScheduleServlet.class);
 	private static final long H2MS = 1000 * 60 * 60;
 	
 	public static final String ADDR = "admin/outboundSchedule";
@@ -79,7 +79,6 @@ public class OutboundScheduleServlet extends HttpServlet {
   		  int deleteInt = Integer.parseInt(delete);
   		  dba.deleteOutboundCall(deleteInt);
   		}
-  		
   		if (phoneNumbers != null) {
   	    String[] phoneNumberArray = phoneNumbers.split("\n");
   	    Date from=null, to=null; long intervalMs = -1;
@@ -90,10 +89,10 @@ public class OutboundScheduleServlet extends HttpServlet {
     	    } catch (NumberFormatException e) { response.sendError(401, "Invalid schedule."); }
           try {
             double toD = Double.valueOf(toS);
-            from = new Date(Math.round(new Date().getTime() + toD * H2MS));
+            to = new Date(Math.round(new Date().getTime() + toD * H2MS));
           } catch (NumberFormatException e) { response.sendError(401, "Invalid schedule.");}
           try {
-            double intervalH = Double.valueOf(fromS);
+            double intervalH = Double.valueOf(intervalS);
             intervalMs = Math.round(intervalH * H2MS);
           } catch (NumberFormatException e) { response.sendError(401, "Invalid schedule."); }
   	    }

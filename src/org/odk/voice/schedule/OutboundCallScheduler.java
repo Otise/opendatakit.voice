@@ -80,22 +80,23 @@ public class OutboundCallScheduler implements ServletContextListener{
             List<ScheduledCall> inprogressCalls = dba.getScheduledCalls(Status.IN_PROGRESS);
             if (pendingCalls.size() > 0 && inprogressCalls.size() < MAX_SIMUL_CONNECTIONS) {
               boolean success;
+              Date now = new Date();
               for (ScheduledCall pc : pendingCalls) {
-                if (pc.nextTime == null || new Date().getTime() > pc.nextTime.getTime()) {
+                if (pc.nextTime == null) {
                   success = sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id);
                   log.info("Outbound call request: number=" + pc.phoneNumber + "; id=" + pc.id + "; success=" + success);
-                  if (pc.nextTime == null) {
-                    dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
-                  } else {
-                    long newNextTime = new Date().getTime() + pc.intervalMs;
-                    dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
-                      newNextTime > pc.timeTo.getTime() ? Status.CALL_FAILED : Status.PENDING);
-                    dba.setOutboundCallNextTime(pc.id, newNextTime > pc.timeTo.getTime() ? null : new Date(newNextTime)); 
-                  }
+                  dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
+                  break;
+                } else if (pc.nextTime.before(now)) {
+                  success = pc.timeTo.after(now) ? 
+                      sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id) : false;
+                  Date newNextTime = new Date(now.getTime() + pc.intervalMs);
+                  dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
+                    newNextTime.after(pc.timeTo) ? Status.CALL_FAILED : Status.PENDING);
+                  dba.setOutboundCallNextTime(pc, newNextTime.after(pc.timeTo) ? null : newNextTime); 
                   break;
                 } 
-              }
-              
+              } 
             }
           } catch (SQLException e) {
             log.error(e);
