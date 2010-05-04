@@ -204,7 +204,7 @@ public class VoiceSession {
     WidgetBase w = null;
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
-      w = new FormStartWidget(fh.getFormTitle(), fh.getLanguages() != null);
+      w = new FormStartWidget(fh);
       break;
     case PromptElement.TYPE_END:
       w = new FormEndWidget(fh.getFormTitle());
