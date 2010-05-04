@@ -11,7 +11,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
-import org.odk.voice.constants.QuestionAttributes;
+import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
@@ -35,7 +35,7 @@ public class SelectOneWidget extends QuestionWidget {
     List<String> grammarTags = new ArrayList<String>();
     promptSegments.add(prompt.getQuestionText());
     promptSegments.add(getString(ResourceKeys.SELECT_1_INSTRUCTIONS));
-    if (prompt.getAttribute(QuestionAttributes.REPEAT_QUESTION_OPTION, true))
+    if (prompt.getAttribute(FormAttribute.REPEAT_QUESTION_OPTION, true))
         promptSegments.add(getString(ResourceKeys.PRESS_STAR_TO_REPEAT));
     
     StringBuilder confPrompt = new StringBuilder();
@@ -82,7 +82,7 @@ public class SelectOneWidget extends QuestionWidget {
 //          VxmlUtils.actionFilled(this));
       
       VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(
-          !prompt.getAttribute(QuestionAttributes.SKIP_CONFIRMATION, true), false));
+          !prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true), false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);

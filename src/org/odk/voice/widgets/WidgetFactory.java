@@ -18,7 +18,7 @@ package org.odk.voice.widgets;
 
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.Constants;
-import org.odk.voice.constants.QuestionAttributes;
+import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.xform.PromptElement;
 
 /**
@@ -55,7 +55,7 @@ public class WidgetFactory {
                           questionWidget = new IntegerWidget(pe);
                           break;
                       default:
-                        if (pe.getAttribute(QuestionAttributes.INT_DIGITS, true)) {
+                        if (pe.getAttribute(FormAttribute.INT_DIGITS, true)) {
                           questionWidget = new DigitsWidget(pe);
                         } else {
                           questionWidget = new StringWidget(pe);

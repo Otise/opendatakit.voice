@@ -133,6 +133,9 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.NO_MATCH,
         "The key you pressed was not one of the choices. Please listen to the options again."
       },
+      {ResourceKeys.NO_INPUT_3,
+        "Thank you for your time. Goodbye."
+      },
       {ResourceKeys.PRESS_STAR_TO_REPEAT,
         "Press star to repeat the question."
       },

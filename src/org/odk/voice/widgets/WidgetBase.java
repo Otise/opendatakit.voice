@@ -61,6 +61,9 @@ public abstract class WidgetBase implements VxmlWidget{
     VxmlField res = new VxmlField(name, prompt, grammar, filled);
     res.setNoinput(createPrompt(getString(ResourceKeys.NO_INPUT)) + "<reprompt/>");
     res.setNomatch(createPrompt(getString(ResourceKeys.NO_MATCH)) + "<reprompt/>");
+    res.setNoinput3(createPrompt(getString(ResourceKeys.NO_INPUT_3)) + 
+        VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
+        VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
     return res;
   }
   

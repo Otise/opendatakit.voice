@@ -5,7 +5,7 @@ import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
-import org.odk.voice.constants.QuestionAttributes;
+import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
@@ -27,7 +27,7 @@ public class IntegerWidget extends QuestionWidget {
     
       VxmlField answerField = createField("answer", 
           createPrompt(prompt.getQuestionText(), getString(ResourceKeys.INT_INSTRUCTIONS),
-              ( prompt.getAttribute(QuestionAttributes.REPEAT_QUESTION_OPTION, true) ? 
+              ( prompt.getAttribute(FormAttribute.REPEAT_QUESTION_OPTION, true) ? 
                   getString(ResourceKeys.PRESS_STAR_TO_REPEAT) : "")
                   ),
           intGrammar,
@@ -36,7 +36,7 @@ public class IntegerWidget extends QuestionWidget {
       );
       
       VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(
-          !prompt.getAttribute(QuestionAttributes.SKIP_CONFIRMATION, true), false));
+          !prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true), false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);
