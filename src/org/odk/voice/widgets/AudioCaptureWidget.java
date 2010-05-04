@@ -7,13 +7,14 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.odk.voice.constants.QuestionAttributes;
+import org.odk.voice.constants.FormAttribute;
+import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.db.DbAdapter;
 import org.odk.voice.local.ResourceKeys;
+import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.storage.MultiPartFormItem;
 import org.odk.voice.vxml.VxmlDocument;
-import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlSection;
@@ -50,31 +51,45 @@ public class AudioCaptureWidget extends QuestionWidget {
     VxmlForm preForm = new VxmlForm("main", createField("action", prePrompt, preGrammar, preFilled));
 */   
     log.info("Before skipInstructions");
-    String skipInstructions = prompt.getAttribute(QuestionAttributes.AUDIO_SKIP_INSTRUCTIONS);
+    String skipInstructions = prompt.getAttribute(FormAttribute.AUDIO_SKIP_INSTRUCTIONS);
     log.info("skipInstructions=" + skipInstructions);
     VxmlSection recordSection = new VxmlSection(
-      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"120s\" type=\"audio/x-wav\">\n" +
+      "<property name=\"com.voxeo.prophecy.CaptureOnSpeech\" value=\"false\"/>" + 
+      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"120s\" finalsilence=\"4s\" type=\"audio/x-wav\">\n" +
       createPrompt(prompt.getQuestionText(),
-                      ( prompt.getAttribute(QuestionAttributes.AUDIO_SKIP_INSTRUCTIONS, true) ? 
+                      ( prompt.getAttribute(FormAttribute.AUDIO_SKIP_INSTRUCTIONS, true) ? 
                             "" :  getString(ResourceKeys.AUDIO_INSTRUCTIONS)), 
-                      ( prompt.getAttribute(QuestionAttributes.REPEAT_QUESTION_OPTION, true) ? 
+                      ( prompt.getAttribute(FormAttribute.REPEAT_QUESTION_OPTION, true) ? 
                           getString(ResourceKeys.PRESS_STAR_TO_REPEAT) : "")
                           ) +
                       
       "<filled>\n" + 
-      "<if cond=\"answer$.termchar == '*'\">" + VxmlUtils.createLocalGoto("main") + "<else/>\n" + 
+      "<if cond=\"answer$.termchar == '*'\">" + VxmlUtils.createLocalGoto("main") + 
+      // uncomment to repeat their answer
+      /*"<else/>\n" + 
       createPrompt(new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), "<value expr=\"answer\"/>"},
-        new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), null}) + 
+        new String[]{getString(ResourceKeys.ANSWER_CONFIRMATION_VOICE), null}) +  */
      // notice that the recorded audio for the answer is null, because we want it to play the answer
       "</if></filled>\n" + 
-      "</record>\n");
+      "<noinput><reprompt/></noinput>" + 
+      "<noinput count=\"3\">" + createPrompt(getString(ResourceKeys.NO_INPUT_3)) + 
+      VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
+      VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput><nomatch><prompt>NOMATCH</prompt></nomatch>" + 
+      "</record>");
     
-    VxmlPrompt p2 = createPrompt(getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS));
+//    VxmlForm exitForm = new VxmlForm("exit", new VxmlSection("<block>" + 
+//        createPrompt(getString(ResourceKeys.NO_INPUT_3)) + "</block>"));
     
+    VxmlPrompt p2 = createPrompt(
+        getString(ResourceKeys.ANSWER_CONFIRMATION_OPTIONS));
     
-    VxmlField actionField = createField("action", p2, actionGrammar, actionFilled(true));
+    VxmlSection actionSection = prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true) ?
+        new VxmlSection("<block>" + 
+            VxmlUtils.createVar("action",VoiceAction.SAVE_ANSWER.name(), true) +
+            actionFilled(true) + "</block>") :
+        createField("action", p2, actionGrammar, actionFilled(true));
     
-    VxmlForm mainForm = new VxmlForm("main", recordSection, actionField);
+    VxmlForm mainForm = new VxmlForm("main", recordSection, actionSection);
     
     new VxmlDocument(sessionid, questionCountForm, /*preForm,*/ mainForm).write(out);
   }
