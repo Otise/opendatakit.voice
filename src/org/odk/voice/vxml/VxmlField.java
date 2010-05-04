@@ -15,6 +15,8 @@ public class VxmlField extends VxmlSection{
   
   String nomatch = "<reprompt/>";
   
+  String noinput3 = "";
+  
   String filled = "<reprompt/>";
   
   String contents = null;
@@ -30,6 +32,9 @@ public class VxmlField extends VxmlSection{
   
   public void setNomatch(String nomatch) {
     this.nomatch = nomatch;
+  }
+  public void setNoinput3(String noinput3) {
+    this.noinput3 = noinput3;
   }
   public void setNoinput(String noinput) {
     this.noinput = noinput;
@@ -55,6 +60,9 @@ public class VxmlField extends VxmlSection{
     out.write("    <nomatch>\n");
     out.write("      " + nomatch + "\n");
     out.write("    </nomatch>\n");
+    out.write("    <noinput count=\"3\">");
+    out.write("      " + noinput3 + "\n");
+    out.write("    </noinput>");
     out.write("    <filled>\n");
     //out.write("      <if cond=\"action=='MAIN_MENU'\">\n");
     //out.write(VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
@@ -64,4 +72,5 @@ public class VxmlField extends VxmlSection{
     out.write("    </field>\n");
     
   }
+
 }
