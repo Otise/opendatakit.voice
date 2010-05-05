@@ -496,8 +496,21 @@ public class FormHandler {
     }
 
 
+    public static final String TITLE_ATTRIBUTE_DELIMITER = "#";
+    
     public String getFormTitle() {
-        return mForm.getTitle();
+        return mForm.getTitle().split(TITLE_ATTRIBUTE_DELIMITER, 2)[0];
+    }
+    
+    public String getFormAttribute(String key) {
+      String[] titleSplit = mForm.getTitle().split(TITLE_ATTRIBUTE_DELIMITER, 2);
+      if (titleSplit.length < 2) return null;
+      return PromptElement.getAttribute(key, titleSplit[1]);
+    }
+    
+    public boolean getFormAttribute(String key, boolean asBool) {
+      String attr = getFormAttribute(key);
+      return (attr!=null && attr.equals("true"));
     }
 
 
@@ -635,5 +648,6 @@ public class FormHandler {
 //        return true;
 
     }
-    
+
+  
 }

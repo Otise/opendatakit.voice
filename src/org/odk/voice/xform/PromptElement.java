@@ -224,13 +224,12 @@ public class PromptElement {
      * &lt;hint&gt; tag to store keyval pairs (not unescaped).
      * 
      */
-    public String getAttribute(String key) {
-      String propString = getHelpText();
-      if (propString == null) {
+    public static String getAttribute(String key, String attrString) {
+      if (attrString == null) {
         log.info("getAttribute: key=" + key + ", attribute string null");
         return null;
       }
-      String[] props = propString.split(";");
+      String[] props = attrString.split(";");
       for(String prop : props) {
         String[] keyval = prop.split("=");
         if (keyval.length == 2 && keyval[0].equals(key)) {
@@ -241,6 +240,11 @@ public class PromptElement {
       log.info("getAttribute: key=" + key + ", val=null");
       return null;
     }
+
+    public String getAttribute(String key) {
+      return PromptElement.getAttribute(key, getHelpText());
+    }
+    
     public boolean getAttribute(String key, boolean asBool) {
       String attr = getAttribute(key);
       return (attr!=null && attr.equals("true"));
