@@ -65,10 +65,6 @@ public class FormStartWidget extends WidgetBase {
     }
     VxmlPrompt prompt = createPrompt(startPrompts.toArray(new String[startPrompts.size()]));
     VxmlField startField = createField("action", prompt, grammar, filled);
-    startField.setContents("<noinput count=\"3\">" + 
-        createPrompt(getString(ResourceKeys.NO_INPUT_3)) + 
-        VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
-        VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action") + "</noinput>");
     
     // we use this instead of startField if we're skipping confirmation
     VxmlSection skipConfSection = new VxmlSection("<block>" + 
