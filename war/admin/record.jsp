@@ -56,7 +56,7 @@ function refresh()
         prompts = dba.getAudioPrompts();for (String prompt : prompts) { %>
     <tr>
     <td style="width:500px"><%= StringEscapeUtils.escapeHtml(prompt) %></td>
-    <td><a href="audio/<%= dba.getPromptHash(prompt) %>.wav">Listen</a></td>
+    <td><a href="../audio/<%= dba.getPromptHash(prompt) %>.wav">Listen</a></td>
     <td><form action="recordPrompt" method="post">
     <input type="hidden" name="delete" value="<%= dba.getPromptHash(prompt) %>"/>
     <input type="submit" value="Delete"/>
