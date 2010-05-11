@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
-import org.odk.voice.schedule.OutboundCallScheduler;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -24,7 +23,7 @@ public class FormStartWidget extends WidgetBase {
   private static org.apache.log4j.Logger log = Logger
   .getLogger(FormStartWidget.class);
   
-  public static final String ADMIN_CODE = "7531";
+  public static final String ADMIN_CODE = "7";
   public static String recordCallLabel = "label";  //set in FormVxmlRenderer with phone number, etc.
   
   FormHandler fh;
@@ -66,16 +65,21 @@ public class FormStartWidget extends WidgetBase {
     VxmlPrompt prompt = createPrompt(startPrompts.toArray(new String[startPrompts.size()]));
     VxmlField startField = createField("action", prompt, grammar, filled);
     
+    if (fh.getFormAttribute(FormAttribute.SKIP_CONFIRMATION, true)){
+      startField.setNoinput(
+          VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) + filled);
+      startField.setContents("<property name=\"timeout\" value=\"0s\"/>");
+    }
+    //<property name="timeout" value="10s"/> 
     // we use this instead of startField if we're skipping confirmation
-    VxmlSection skipConfSection = new VxmlSection("<block>" + 
-        prompt.toString() + 
-        VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
-        filled + "</block>");
+//    VxmlSection skipConfSection = new VxmlSection("<block>" + 
+//        prompt.toString() + 
+//        VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
+//        filled + "</block>");
     
     
     VxmlSection recordCallSection = new VxmlSection("<block><voxeo:recordcall value=\"100\" info=\"" + recordCallLabel + "\" /></block>");
-    VxmlForm startForm = new VxmlForm("action", recordCallSection,
-      fh.getFormAttribute(FormAttribute.SKIP_CONFIRMATION, true) ? skipConfSection : startField);
+    VxmlForm startForm = new VxmlForm("action", recordCallSection, startField);
     VxmlDocument doc = new VxmlDocument(sessionid, startForm);
     doc.write(out);
   }
