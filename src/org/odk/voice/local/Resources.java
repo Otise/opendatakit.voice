@@ -128,10 +128,10 @@ public class Resources extends ListResourceBundle {
         "Goodbye."
       },
       {ResourceKeys.NO_INPUT,
-        "You didn't enter anything on the keypad. Please listen to the options again."
+        ""
       },
       {ResourceKeys.NO_MATCH,
-        "The key you pressed was not one of the choices. Please listen to the options again."
+        "The key you pressed was not one of the choices."
       },
       {ResourceKeys.NO_INPUT_3,
         "Thank you for your time. Goodbye."
