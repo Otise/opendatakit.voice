@@ -79,6 +79,12 @@
   
   <listener>
     <listener-class>
+     org.odk.voice.schedule.ThreadScheduler
+    </listener-class>
+  </listener>
+  
+  <listener>
+    <listener-class>
      org.odk.voice.digits2string.CorpusFactory
     </listener-class>
   </listener>
