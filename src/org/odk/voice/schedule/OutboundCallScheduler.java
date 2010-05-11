@@ -93,7 +93,7 @@ public class OutboundCallScheduler implements ServletContextListener{
                   Date newNextTime = new Date(now.getTime() + pc.intervalMs);
                   dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
                     newNextTime.after(pc.timeTo) ? Status.CALL_FAILED : Status.PENDING);
-                  dba.setOutboundCallNextTime(pc, newNextTime.after(pc.timeTo) ? null : newNextTime); 
+                  dba.setOutboundCallNextTime(pc, (newNextTime.after(pc.timeTo)|| success) ? null : newNextTime); 
                   break;
                 } 
               } 
