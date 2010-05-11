@@ -28,6 +28,7 @@ import org.odk.voice.digits2string.CorpusFactory;
 import org.odk.voice.digits2string.StringPredictor;
 import org.odk.voice.digits2string.WordScore;
 import org.odk.voice.local.OdkLocales;
+import org.odk.voice.schedule.ThreadScheduler;
 import org.odk.voice.schedule.ScheduledCall.Status;
 import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.session.VoiceSession;
@@ -289,15 +290,12 @@ public class FormVxmlRenderer {
       }
       setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
         fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
-      // run this in a new thread so it doesn't stall the response
-      new Thread(){
-        public void run(){
-          if (fh != null) {
-            exportData(fh.isEnd());
-            if (fh.isEnd() && callerid!= null)
-              vsm.remove(callerid);
-          }
-        }}.start();
+      // schedule this in a new thread so it doesn't stall the response
+      if (fh != null) {
+        exportData(fh.isEnd());
+        if (fh.isEnd() && callerid!= null)
+          vsm.remove(callerid);
+      }
       break;
     case GET_STRING_MATCHES:
       getStringMatches(answer);
@@ -693,30 +691,47 @@ public class FormVxmlRenderer {
     } catch (IOException e) {
       log.error("IOException writing instance XML to backup file.");
     }
+    log.info("Got to 1");
     try {
       dba.setInstanceXml(vs.getInstanceid(), xml);
       dba.markInstanceCompleted(vs.getInstanceid(), complete);
     } catch (SQLException e) {
       log.error("SQLException setting instance XML.",e);
     }
-    
+    log.info("Got to 2");
     if (complete) {
       fh.finalizeDataModel();
     }
     // For the Project WET instance, we will upload any surveys that have been started.
     // This will screw up the resume functionality a bit (since then we have two copies 
     // of some surveys), but that can be easily resolved.
+    if (fh.isBeginning()){
+      log.info("isBeginning");
+    } else {
+      log.info("Not isBeginning");
+    }
     if (fh != null && !fh.isBeginning()) {
+      ThreadScheduler.scheduleThread(new InstanceUploaderThread(), 0);
+      log.info("Queued InstanceUploaderThread");
+    }
+  }
+  
+  class InstanceUploaderThread extends Thread {
+    public long RETRY_MS = 60000;
+    public void run(){
       InstanceUploader iu = new InstanceUploader();
       iu.setServerUrl(GlobalConstants.UPLOAD_URL);
+      log.info("About to upload instance to " + GlobalConstants.UPLOAD_URL);
       if (iu.uploadInstance(vs.getInstanceid()) == InstanceUploader.STATUS_OK) {
         log.info("Instance uploaded to server at " + GlobalConstants.UPLOAD_URL + " successfully.");
       } else {
-        log.warn("Instance upload to server at " + GlobalConstants.UPLOAD_URL + " failed.");
+        log.warn("Instance upload to server at " + GlobalConstants.UPLOAD_URL + " failed. Will try again in " + RETRY_MS + " ms.");
+        ThreadScheduler.scheduleThread(new InstanceUploaderThread(), RETRY_MS); // deadlocks? No...this is a separate thread, but make sure to never turn this into a task
+        log.info("Queued backup InstanceUploaderThread");
       }
-      
     }
   }
+  
   
   private String getExportPath() {
     return FileConstants.INSTANCES_PATH + File.separator + (vs.getCallerid()==null ? "unknown" : vs.getCallerid()) + 
