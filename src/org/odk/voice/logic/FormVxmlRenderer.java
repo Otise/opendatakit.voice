@@ -711,13 +711,16 @@ public class FormVxmlRenderer {
       log.info("Not isBeginning");
     }
     if (fh != null && !fh.isBeginning()) {
-      ThreadScheduler.scheduleThread(new InstanceUploaderThread(), 0);
+      ThreadScheduler.scheduleThread(new InstanceUploaderThread(60000), 0); // initial retry time of 60s
       log.info("Queued InstanceUploaderThread");
     }
   }
   
   class InstanceUploaderThread extends Thread {
-    public long RETRY_MS = 60000;
+    public long retryMs;
+    public InstanceUploaderThread(long retryMs){
+      this.retryMs = retryMs;
+    }
     public void run(){
       InstanceUploader iu = new InstanceUploader();
       iu.setServerUrl(GlobalConstants.UPLOAD_URL);
@@ -725,8 +728,8 @@ public class FormVxmlRenderer {
       if (iu.uploadInstance(vs.getInstanceid()) == InstanceUploader.STATUS_OK) {
         log.info("Instance uploaded to server at " + GlobalConstants.UPLOAD_URL + " successfully.");
       } else {
-        log.warn("Instance upload to server at " + GlobalConstants.UPLOAD_URL + " failed. Will try again in " + RETRY_MS + " ms.");
-        ThreadScheduler.scheduleThread(new InstanceUploaderThread(), RETRY_MS); // deadlocks? No...this is a separate thread, but make sure to never turn this into a task
+        log.warn("Instance upload to server at " + GlobalConstants.UPLOAD_URL + " failed. Will try again in " + retryMs + " ms.");
+        ThreadScheduler.scheduleThread(new InstanceUploaderThread(retryMs*2), retryMs); // exponential backoff
         log.info("Queued backup InstanceUploaderThread");
       }
     }
