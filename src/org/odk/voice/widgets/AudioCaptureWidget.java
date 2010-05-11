@@ -50,12 +50,15 @@ public class AudioCaptureWidget extends QuestionWidget {
       "</if>\n";
     VxmlForm preForm = new VxmlForm("main", createField("action", prePrompt, preGrammar, preFilled));
 */   
+    String maxtime = prompt.getAttribute(FormAttribute.AUDIO_MAX_TIME);
+    maxtime = (maxtime == null) ? "120s" : maxtime;
+    
     log.info("Before skipInstructions");
     String skipInstructions = prompt.getAttribute(FormAttribute.AUDIO_SKIP_INSTRUCTIONS);
     log.info("skipInstructions=" + skipInstructions);
     VxmlSection recordSection = new VxmlSection(
       "<property name=\"com.voxeo.prophecy.CaptureOnSpeech\" value=\"false\"/>" + 
-      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"120s\" finalsilence=\"4s\" type=\"audio/x-wav\">\n" +
+      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"" + maxtime +"\" finalsilence=\"4s\" type=\"audio/x-wav\">\n" +
       createPrompt(prompt.getQuestionText(),
                       ( prompt.getAttribute(FormAttribute.AUDIO_SKIP_INSTRUCTIONS, true) ? 
                             "" :  getString(ResourceKeys.AUDIO_INSTRUCTIONS)), 
