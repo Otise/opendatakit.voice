@@ -32,11 +32,10 @@ public class ScheduledCall {
   
   public String getDeliveryInfo(){
     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-    Date now = new Date();
     if (timeFrom == null || timeTo == null) {
       return "";
     }
-    if (nextTime != null) {
+    if (Status.PENDING.equals(status)) {
       return String.format("Delivery scheduled between %s and %s every %.2f hours.<br/> %d attempts so far; next attempt at %s.", 
           df.format(timeFrom), df.format(timeTo), ((float)intervalMs)/H2MS, numAttempts, df.format(nextTime));
     } else {
