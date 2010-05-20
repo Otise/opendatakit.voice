@@ -58,7 +58,7 @@ public class OutboundCallScheduler implements ServletContextListener{
     //This method is invoked when the Web Application
     //is ready to service requests
 
-    public static final int MAX_SIMUL_CONNECTIONS = 2;
+    public static final int MAX_SIMUL_CONNECTIONS = 1;
     
     public void contextInitialized(ServletContextEvent event)
     {
@@ -91,9 +91,10 @@ public class OutboundCallScheduler implements ServletContextListener{
                   success = pc.timeTo.after(now) ? 
                       sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id) : false;
                   Date newNextTime = new Date(now.getTime() + pc.intervalMs);
+                  dba.setOutboundCallNextTime(pc, (newNextTime.after(pc.timeTo)|| success) ? null : newNextTime); 
                   dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
                     newNextTime.after(pc.timeTo) ? Status.CALL_FAILED : Status.PENDING);
-                  dba.setOutboundCallNextTime(pc, (newNextTime.after(pc.timeTo)|| success) ? null : newNextTime); 
+                  
                   break;
                 } 
               } 
