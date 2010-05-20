@@ -58,7 +58,8 @@ public class AudioCaptureWidget extends QuestionWidget {
     log.info("skipInstructions=" + skipInstructions);
     VxmlSection recordSection = new VxmlSection(
       "<property name=\"com.voxeo.prophecy.CaptureOnSpeech\" value=\"false\"/>" + 
-      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"" + maxtime +"\" finalsilence=\"4s\" type=\"audio/x-wav\">\n" +
+      "<property name=\"sensitivity\" value=\"0.0\" />" +
+      "<record name=\"answer\" beep=\"true\" dtmfterm=\"true\" maxtime=\"" + maxtime +"\" finalsilence=\"3s\" type=\"audio/x-wav\">\n" +
       createPrompt(prompt.getQuestionText(),
                       ( prompt.getAttribute(FormAttribute.AUDIO_SKIP_INSTRUCTIONS, true) ? 
                             "" :  getString(ResourceKeys.AUDIO_INSTRUCTIONS)), 
