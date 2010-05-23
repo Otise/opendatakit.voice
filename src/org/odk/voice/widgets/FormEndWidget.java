@@ -30,7 +30,8 @@ public class FormEndWidget extends WidgetBase {
                       VxmlUtils.createGrammar(new String[]{"*"}, new String[]{""}),
                       "Sorry, not yet implemented.<reprompt/>");
     
-    field.setNoinput3( VxmlUtils.createVar("action", VoiceAction.HANGUP.name(), true) +
+    field.setNoinput( VxmlUtils.createVar("action", VoiceAction.HANGUP.name(), true) + 
+                      createPrompt(getString(ResourceKeys.GOODBYE)) + 
                        VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
     
     VxmlForm endForm = new VxmlForm("main",field);
