@@ -241,7 +241,7 @@ public class FormVxmlRenderer {
     }
   }
     
-  public void renderUser() {
+  private void renderUser() {
     final VoiceAction va = getAction(action);
     if (va == null){
       log.error("action string " + action + " was not a valid VoiceAction");
@@ -523,7 +523,7 @@ public class FormVxmlRenderer {
     }
   }
 
-  public void renderError(VoiceError error, String details){
+  private void renderError(VoiceError error, String details){
     log.error("Voice error rendered. Type: " + error.name() + "; Details: " + details);
     String contents = "<block><prompt>Sorry, an error occured of type " + error.name() + ". Details are: " + details + "</prompt>" + 
     VxmlUtils.createVar("action", VoiceAction.HANGUP.name(), true) +
@@ -550,7 +550,7 @@ public class FormVxmlRenderer {
     return vs;
   }
   
-  public void renderAdmin() {
+  private void renderAdmin() {
     VoiceAction va = getAction(action);
     String prompt;
     log.info("Rendering admin mode. Action=" + action);
