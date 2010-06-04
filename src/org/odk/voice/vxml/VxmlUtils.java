@@ -21,10 +21,14 @@ public class VxmlUtils {
    * @param keys Grammar keys.
    * @param tags Grammar tags associated with the corresponding key.
    * @return The grammar VXML string.
-   */
+   */  
   public static String createGrammar(String[] keys, String[] tags) {
+    return createGrammar(keys, tags, true);
+  }
+  
+  public static String createGrammar(String[] keys, String[] tags, boolean dtmfMode) {
     StringBuilder grammar = new StringBuilder(
-    "<grammar mode=\"dtmf\"\n" +
+    "<grammar " + (dtmfMode ? "mode=\"dtmf\"" : "") + "\n" + 
     "    type=\"application/srgs+xml\"\n" +
     "    root=\"TOPLEVEL\"\n" +
     "    tag-format=\"semantics/1.0\"\n" +
@@ -39,6 +43,7 @@ public class VxmlUtils {
     grammar.append("</grammar>\n");
     return grammar.toString();
   }
+  
   
   /**
    * Use {@link getAudio} instead of this except for special cases.

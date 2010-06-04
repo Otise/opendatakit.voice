@@ -32,22 +32,28 @@ public class VoiceSession {
   private static org.apache.log4j.Logger log = Logger
   .getLogger(VoiceSession.class);
   
-  private static Random rand = new Random((new Date()).getTime());
-  private FormHandler fh;
-  private boolean admin;
-  private String callerid; 
-  private String sessionid;
-  private int instanceid;
-  private Date date;
+  static Random rand = new Random((new Date()).getTime());
+  FormHandler fh;
+  boolean admin;
+  String callerid; 
+  String sessionid;
+  int instanceid;
+  Date date;
+  int attempt = 0;
   
-  private List<String> recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
-  private int recordPromptIndex = -1; //the index in recordPrompts that is currently being recorded
-  private int recordLanguageIndex = -1;
-  private boolean recordPromptExtras = false;
   
-  private int outboundId = -1;
+  // --- stupid stuff because iterating through record prompts was implemented the wrong way ---
+  // --- TODO(alerer): fix this -----
+  List<String> recordPrompts; //if an admin is recording prompts, this variable stores the prompts for the current question
+  int recordPromptIndex = -1; //the index in recordPrompts that is currently being recorded
+  int recordLanguageIndex = -1;
+  boolean recordPromptExtras = false;
+  // ---------------------------------
   
-  public VoiceSession(){
+  int outboundId = -1;
+  
+  public VoiceSession(int attempt){
+    this.attempt = attempt;
     this.date = new Date();
     sessionid = "session" + String.valueOf(rand.nextLong());
   }
@@ -114,12 +120,22 @@ public class VoiceSession {
     return outboundId;
   }
   
+  public void incrementAttempt(){
+    attempt++;
+  }
+  public int getAttempt(){
+    return attempt;
+  }
+  
   //-------------------------------------------------------
   // ------------- Record Prompt Logic --------------------
   // ------------------------------------------------------
   // TODO: this code doesn't really belong in VoiceSession, 
   // but it is ugly to put it elsewhere because you have to 
   // expose and use a lot of properties from VoiceSession.
+  // The better abstraction should be getAllRecordPrompts, 
+  // so we're not maintaining these ridiculous variables 
+  // in VoiceSession.
   
   public String getCurrentRecordPrompt(){
     if (recordPromptIndex < 0) {

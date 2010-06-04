@@ -30,5 +30,6 @@ public enum VoiceAction {
   HANGUP, 
   GET_STRING_MATCHES, 
   RESTART_SESSION, 
-  NO_RESPONSE,
+  NO_RESPONSE, 
+  TOO_LOUD,
 }

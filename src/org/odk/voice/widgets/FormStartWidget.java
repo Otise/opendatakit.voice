@@ -24,11 +24,12 @@ public class FormStartWidget extends WidgetBase {
   .getLogger(FormStartWidget.class);
   
   public static final String ADMIN_CODE = "7";
-  public static String recordCallLabel = "label";  //set in FormVxmlRenderer with phone number, etc.
+  public String recordCallLabel = "label";  //set in FormVxmlRenderer with phone number, etc.
   
   FormHandler fh;
   String formTitle;
   boolean hasLanguages;
+  int attempt = 1;
   
   public FormStartWidget(FormHandler fh) {
     this.fh = fh;
@@ -38,6 +39,21 @@ public class FormStartWidget extends WidgetBase {
   
   @Override
   public void getPromptVxml(Writer out) throws IOException {
+    // forceQuiet stuff ----------
+    String forceQuietS = fh.getFormAttribute(FormAttribute.FORCE_QUIET);
+    boolean forceQuiet = (forceQuietS != null);
+    int forceQuietStart = 0;
+    if (forceQuiet) {
+      try {
+        forceQuietStart = Integer.parseInt(forceQuietS); 
+        } catch (NumberFormatException e) { 
+          forceQuiet = false;
+      }
+    } 
+    // -------------------------
+    
+    boolean skipConfirmation = fh.getFormAttribute(FormAttribute.SKIP_CONFIRMATION, true);
+    
     String grammar = hasLanguages ? 
         VxmlUtils.createGrammar(new String[]{"1","9",ADMIN_CODE}, 
         new String[]{VoiceAction.NEXT_PROMPT.name(),
@@ -62,14 +78,31 @@ public class FormStartWidget extends WidgetBase {
       for(String ciPrompt : ciPrompts)
         startPrompts.add(ciPrompt);
     }
-    VxmlPrompt prompt = createPrompt(startPrompts.toArray(new String[startPrompts.size()]));
+    
+    VxmlPrompt[] prompts = new VxmlPrompt[startPrompts.size()];
+    for (int i=0; i < startPrompts.size(); i++) {
+      prompts[i] = createPrompt(!forceQuiet || i+1 >= forceQuietStart, 
+          startPrompts.get(i));
+    }
+    VxmlPrompt prompt = createCompositePrompt(prompts);
     VxmlField startField = createField("action", prompt, grammar, filled);
     
-    if (fh.getFormAttribute(FormAttribute.SKIP_CONFIRMATION, true)){
-      startField.setNoinput(
+    
+    String properties = "";
+    if (skipConfirmation){
+      startField.setNoinput(null, 
           VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) + filled);
-      startField.setContents("<property name=\"timeout\" value=\"0s\"/>");
+      properties += "<property name=\"timeout\" value=\"0s\"/>";
+    }   
+    if (forceQuiet && attempt == 1){
+      startField.setNomatch(null, createPrompt(false, getString(ResourceKeys.FORCE_QUIET_WARNING)) + "<reprompt/>");
+      startField.setNomatch(3,    VxmlUtils.createVar("action", VoiceAction.TOO_LOUD.name(), true) + 
+          createPrompt(false, getString(ResourceKeys.FORCE_QUIET_HANGUP)).toString() +
+           VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
+      properties += "<property name=\"inputmodes\" value=\"dtmf voice\"/>";
     }
+    startField.setContents(properties);
+
     //<property name="timeout" value="10s"/> 
     // we use this instead of startField if we're skipping confirmation
 //    VxmlSection skipConfSection = new VxmlSection("<block>" + 
@@ -82,6 +115,10 @@ public class FormStartWidget extends WidgetBase {
     VxmlForm startForm = new VxmlForm("action", recordCallSection, startField);
     VxmlDocument doc = new VxmlDocument(sessionid, startForm);
     doc.write(out);
+  }
+
+  public void setAttempt(int attempt) {
+    this.attempt = attempt;
   }
 
 }

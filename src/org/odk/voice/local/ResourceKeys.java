@@ -52,4 +52,6 @@ public class ResourceKeys {
   public static final String PRESS_STAR_TO_REPEAT = "pressstartorepeat";
   public static final String PRESS_STAR_TO_REPEAT_INITIAL = "pressstartorepeatinitial";
   public static final String NO_INPUT_3 = "noinput3";
+  public static final String FORCE_QUIET_WARNING = "forceQuietWarning";
+  public static final String FORCE_QUIET_HANGUP = "forceQuietHangup";
 }
