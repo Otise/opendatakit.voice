@@ -11,4 +11,7 @@ public class FormAttribute {
   public static final String RESUME_DISABLED = "resumeDisabled";
   public static final String AUDIO_MAX_TIME = "maxTime";
   public static final String STRING_CORPUS = "stringCorpus";
+  // if forceQuiet is used, its value should be an integer n where n is the first 
+  // intro prompt where forceQuiet should begin to apply.
+  public static final String FORCE_QUIET = "forceQuiet"; 
 }

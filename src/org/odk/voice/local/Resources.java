@@ -142,6 +142,12 @@ public class Resources extends ListResourceBundle {
       {ResourceKeys.PRESS_STAR_TO_REPEAT_INITIAL,
         "You can press star at any time to repeat the current question."
       },
+      {ResourceKeys.FORCE_QUIET_WARNING,
+        "It is too loud right now to hear the instructions. Please listen quietly until the instructions are finished."
+      },
+      {ResourceKeys.FORCE_QUIET_HANGUP,
+        "It is too loud right now to continue. We'll call you back later and see if the connection is better. Goodbye."
+      },
   // END OF MATERIAL TO LOCALIZE
   };
 }

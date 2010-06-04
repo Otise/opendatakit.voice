@@ -59,9 +59,9 @@ public abstract class WidgetBase implements VxmlWidget{
   
   public VxmlField createField(String name, VxmlPrompt prompt, String grammar, String filled){
     VxmlField res = new VxmlField(name, prompt, grammar, filled);
-    res.setNoinput(createPrompt(getString(ResourceKeys.NO_INPUT)) + "<reprompt/>");
-    res.setNomatch(createPrompt(getString(ResourceKeys.NO_MATCH)) + "<reprompt/>");
-    res.setNoinput3(createPrompt(getString(ResourceKeys.NO_INPUT_3)) + 
+    res.setNomatch(null, createPrompt(getString(ResourceKeys.NO_MATCH)) + "<reprompt/>");
+    res.setNoinput(null, createPrompt(getString(ResourceKeys.NO_INPUT)) + "<reprompt/>");
+    res.setNoinput(3, createPrompt(getString(ResourceKeys.NO_INPUT_3)) + 
         VxmlUtils.createVar("action", VoiceAction.NO_RESPONSE.name(), true) +
         VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
     return res;
@@ -115,20 +115,37 @@ public abstract class WidgetBase implements VxmlWidget{
     };
   }
   
-  VxmlPrompt createPrompt(String[] text, String[] audio) {
+  VxmlPrompt createPrompt(String[] text, String[] audio, boolean bargein) {
     int length = text==null? audio.length : text.length;
-    String vxml = "      <prompt>\n";
+    String vxml = "<prompt" + (bargein?"":" bargein=\"false\"") + ">";
     for (int i = 0; i < length; i++){
-      vxml = vxml + VxmlUtils.indent(VxmlUtils.getAudio(text==null?null:text[i], audio==null?null:audio[i]), 4);
+      vxml = vxml + VxmlUtils.getAudio(text==null?null:text[i], audio==null?null:audio[i]);
     }
-    vxml = vxml + "      </prompt>\n";
+    vxml = vxml + "</prompt>";
     for (String s: audio)
       addPromptString(s);
     return createBasicPrompt(vxml);
   }
   
+  VxmlPrompt createPrompt(String[] text, String[] audio) {
+    return createPrompt(text, audio, true);
+  }
+  
+  
   VxmlPrompt createPrompt(String... textAndAudio) {
     return createPrompt(textAndAudio, textAndAudio);
+  }
+  VxmlPrompt createPrompt(boolean bargein, String... textAndAudio) {
+    return createPrompt(textAndAudio, textAndAudio, bargein);
+  }
+  
+  
+  VxmlPrompt createCompositePrompt(VxmlPrompt[] prompts){
+    StringBuilder vxml = new StringBuilder("");
+    for (VxmlPrompt p : prompts) {
+      vxml.append(p);
+    }
+    return createBasicPrompt(vxml.toString());
   }
   
   VxmlSection getActionField(boolean confirm, boolean binary) {

@@ -19,6 +19,7 @@ public class ScheduledCall {
     NO_RESPONSE("#FFEEEE"), 
     IN_PROGRESS("#FFFFEE"),
     CALL_FAILED("#FFEEEE"); 
+    //TOO_LOUD("FFFFFF"); 
     
     public String color;
     private Status(String color) {

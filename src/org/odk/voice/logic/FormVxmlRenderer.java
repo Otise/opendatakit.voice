@@ -153,6 +153,7 @@ public class FormVxmlRenderer {
     log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
     vsm = VoiceSessionManager.getManager();
     
+    //TODO(alerer): clean this mess up
     if (action == null || action.equals("")) {
       vs = vsm.get(callerid);
       if (vs != null && 
@@ -168,6 +169,7 @@ public class FormVxmlRenderer {
           if (outboundId >= 0) {
             vs.setOutboundId(outboundId);
           }
+          //vs.incrementAttempt();
           resumeSession();
         }
       }
@@ -281,6 +283,7 @@ public class FormVxmlRenderer {
       renderPrompt(fh.prevPrompt());
       break;
     case NO_RESPONSE:
+    case TOO_LOUD:
     case HANGUP:
       log.info("Hangup detected.");
       try {
@@ -289,6 +292,7 @@ public class FormVxmlRenderer {
         log.error(e);
       }
       setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
+        va.equals(VoiceAction.TOO_LOUD) ? Status.PENDING :
         fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
       // schedule this in a new thread so it doesn't stall the response
       if (fh != null) {
@@ -366,6 +370,7 @@ public class FormVxmlRenderer {
     }
   }
   private void beginSession() {
+    
     vs = newSession(sessionid, callerid);
     if (vs == null) {
       log.error("vs==null in beginSession, after newSession");
@@ -489,6 +494,7 @@ public class FormVxmlRenderer {
     switch (prompt.getType()) {
     case PromptElement.TYPE_START:
       FormStartWidget fsw = new FormStartWidget(fh);
+      fsw.setAttempt(vs.getAttempt());
       DateFormat df = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss");
       fsw.recordCallLabel = df.format(new Date()) + "-" + (callerid==null?"-----":callerid);
       w = fsw;
@@ -536,9 +542,13 @@ public class FormVxmlRenderer {
   }
   
   private VoiceSession newSession(String sessionid, String callerid){
+    int attempt = 0;
+    if (vs!= null && vs.getOutboundId() == outboundId && outboundId >= 0)
+      attempt = vs.getAttempt();
+    attempt++;
     
     log.info("outboundid=" + outboundId);
-    VoiceSession vs = new VoiceSession();
+    VoiceSession vs = new VoiceSession(attempt);
     if (callerid != null)
       vs.setCallerid(callerid);
     if (sessionid != null)
