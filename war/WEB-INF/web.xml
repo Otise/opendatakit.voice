@@ -47,7 +47,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>RecordPromptServlet</servlet-name>
-    <url-pattern>/admin/recordPrompt</url-pattern>
+    <url-pattern>/record/recordPrompt</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>
@@ -97,6 +97,16 @@
     </web-resource-collection>
     <auth-constraint>
       <role-name>odkadmin</role-name>
+    </auth-constraint>
+  </security-constraint>
+  
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Entire Application</web-resource-name>
+      <url-pattern>/recorder/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>odkrecorder</role-name>
     </auth-constraint>
   </security-constraint>
 
