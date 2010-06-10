@@ -500,7 +500,7 @@ public class FormVxmlRenderer {
       w = fsw;
       break;
     case PromptElement.TYPE_END:
-      w = new FormEndWidget(fh.getFormTitle());
+      w = new FormEndWidget(fh);
       break;
     case PromptElement.TYPE_QUESTION:
       QuestionWidget qw = WidgetFactory.createWidgetFromPrompt(sessionid, prompt, vs.getInstanceid());
