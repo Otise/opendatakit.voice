@@ -223,7 +223,7 @@ public class VoiceSession {
       w = new FormStartWidget(fh);
       break;
     case PromptElement.TYPE_END:
-      w = new FormEndWidget(fh.getFormTitle());
+      w = new FormEndWidget(fh);
       break;
     case PromptElement.TYPE_QUESTION:
       QuestionWidget w2 = WidgetFactory.createWidgetFromPrompt("", prompt, 0);

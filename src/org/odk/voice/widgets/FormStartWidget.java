@@ -74,7 +74,7 @@ public class FormStartWidget extends WidgetBase {
       startPrompts.add(getString(ResourceKeys.FORM_START_PRESS_1_TO_BEGIN));
       if (hasLanguages) startPrompts.add(getString(ResourceKeys.FORM_START_LANGUAGES));
     } else {
-      String[] ciPrompts = customIntroPrompts.split(FormAttribute.CUSTOM_INTRO_PROMPTS_DELIM);
+      String[] ciPrompts = customIntroPrompts.split(FormAttribute.CUSTOM_PROMPTS_DELIM);
       for(String ciPrompt : ciPrompts)
         startPrompts.add(ciPrompt);
     }
