@@ -103,7 +103,7 @@
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>Entire Application</web-resource-name>
-      <url-pattern>/recorder/*</url-pattern>
+      <url-pattern>/record/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>odkrecorder</role-name>
