@@ -3,10 +3,10 @@ package org.odk.voice.session;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-import org.odk.voice.logic.FormVxmlRenderer;
 
 /**
  * A singleton manager object for holding all active sessions.
@@ -14,6 +14,9 @@ import org.odk.voice.logic.FormVxmlRenderer;
  *
  */
 public class VoiceSessionManager {
+  public static double PURGE_PROB = 0.01; // sessions are purged every 100 calls
+  public static long STALE_MS = 1000 * 60 * 60 * 24; // sessions become stale after 24 hours
+  
   private static VoiceSessionManager m;
   private static org.apache.log4j.Logger log = Logger
   .getLogger(VoiceSessionManager.class);
@@ -24,20 +27,22 @@ public class VoiceSessionManager {
     }
     return m;
   }
+  private Random r;
   
   //////////////////////////////////////////////////
   
   private Map<String, VoiceSession> vs;
-  private Map<String, String> callerToSession;
   private Map<String, Date> fresh;
   
   private VoiceSessionManager(){
+    r = new Random(System.currentTimeMillis());
     log.info("VoiceSessionManager instantiated");
     this.vs = new HashMap<String, VoiceSession>();
     this.fresh = new HashMap<String, Date>();
   }
   
   public void put(String callerid, String sessionid, VoiceSession s){
+    if (r.nextDouble() < PURGE_PROB) purge(new Date(new Date().getTime() - STALE_MS));
     if (callerid != null) {
       vs.put(callerid, s);
       fresh.put(callerid, new Date());
@@ -61,6 +66,7 @@ public class VoiceSessionManager {
     vs.remove(v.getSessionid());
     return v;
   }
+
   
   public void purge(Date stale){
     for (Entry<String, Date> e : fresh.entrySet()) {
