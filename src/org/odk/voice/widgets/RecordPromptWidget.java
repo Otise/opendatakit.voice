@@ -13,6 +13,12 @@ import org.odk.voice.vxml.VxmlPrompt;
 import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 
+/**
+ * Widget for administrative recording of survey prompts over the phone.
+ * 
+ * @author alerer
+ *
+ */
 public class RecordPromptWidget extends WidgetBase {
  
   private String prompt;

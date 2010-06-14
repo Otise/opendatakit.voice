@@ -12,7 +12,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
-import org.odk.voice.logic.FormVxmlRenderer;
 
 public class AudioSample {
 
@@ -30,24 +29,22 @@ public class AudioSample {
   }
   
   public byte[] getAudio(){
-    
     return data;
   }
   
   /**
-   * Clips from the beginning and end of the audio file.
+   * Clips an audio file.
    * 
    * NOTE: clipping from the beginning is not currently supported.
    * 
-   * @param clipBegin Amount to clip from the beginning, in seconds.
    * @param clipEnd Amount to clip from the end, in seconds.
    * @throws IOException
    * @throws UnsupportedAudioFileException
    */
-  public void clipAudio(float clipBegin, float clipEnd) throws IOException, UnsupportedAudioFileException {
+  public void clipAudio(float clipEnd) throws IOException, UnsupportedAudioFileException {
     InputStream in = new ByteArrayInputStream(data);
     
-    if (clipBegin < 0 || clipEnd < 0)
+    if (clipEnd < 0)
       throw new IllegalArgumentException("clipBegin and clipEnd must be non-negative");
 
     AudioFileFormat inFileFormat = AudioSystem.getAudioFileFormat(in);
@@ -66,11 +63,8 @@ public class AudioSample {
 
     inFileAIS.close();
     byte[] full = out.toByteArray();
-    byte[] clipped = new byte[0];
-    if (frameRate * (clipBegin + clipEnd) < full.length) {
-      data = Arrays.copyOfRange(full, 
-          0, //(int) (frameRate * clipBegin), 
-          (int) (full.length - frameRate * clipEnd));
+    if (frameRate * clipEnd < full.length) {
+      data = Arrays.copyOfRange(full, 0, (int) (full.length - frameRate * clipEnd));
     }
   }
 }

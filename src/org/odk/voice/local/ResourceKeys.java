@@ -10,6 +10,8 @@ package org.odk.voice.local;
  * 
  * To use a string resource, call <code>resources.getString(ResourceKeys.KEY_NAME)</code>.
  * 
+ * To add a new language, see {@link OdkLocales}.
+ * 
  * @author alerer
  *
  */

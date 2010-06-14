@@ -38,13 +38,13 @@ public class FormVxmlServlet extends HttpServlet {
           binaryData = new MultiPartFormData(req);
           sessionid = getMultipartParam("sessionid", binaryData);
           action = getMultipartParam("action", binaryData);
-        //TODO(alerer): receiving and storing the entire request stream before continuing is very inefficient.
       } catch (FileUploadException e) {
         log.error("Multipart data in request produced FileUploadException", e);
         return;
       }
 	  } else {
 	    outboundIdString = req.getParameter("outboundId");
+	    // if this is an outbound call, we actually want to see who was CALLED
 	    String callerIdKey = outboundIdString == null ? "callerid":"calledid";
 	    callerid = req.getParameter("session." + callerIdKey);
 	    if (callerid == null) {

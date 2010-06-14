@@ -1,8 +1,7 @@
-package org.odk.voice.test;
+package org.odk.voice.storage;
 
 import junit.framework.TestCase;
 
-import org.odk.voice.storage.FormLoader;
 import org.odk.voice.xform.FormHandler;
 
 public class FormLoaderTest extends TestCase {

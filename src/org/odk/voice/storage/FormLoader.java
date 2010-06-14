@@ -27,12 +27,6 @@ public class FormLoader {
   public static FormHandler getFormHandler(byte[] formXml, byte[] formBin) {
     FormHandler fh = null;
     FormDef fd = null;
-    // we're not using formBin yet
-    //if (formBin != null) {
-      //log.info("Form binary exists");
-      //fd = deserializeFormDef(formBin)
-    //} else {
-      //log.info("Form binary does not exist");
     InputStream is = new ByteArrayInputStream(formXml);
     fd = XFormUtils.getFormFromInputStream(is);
     fd.setEvaluationContext(new EvaluationContext());
@@ -63,6 +57,7 @@ public class FormLoader {
 	      ByteArrayOutputStream out = new ByteArrayOutputStream();
 	      
 	      // write form binary
+	      // we're not using this at the moment, but it could speed up form loading
 	      try {
 	        fh.getForm().writeExternal(new DataOutputStream(out));
 	        dba.setFormBinary(formName,out.toByteArray());
@@ -86,72 +81,5 @@ public class FormLoader {
 	
 	    return fh;
 	}
-	
-//    /**
-//     * Read serialized {@link FormDef} from file and recreate as object.
-//     * 
-//     * @param formDef serialized FormDef file
-//     * @return {@link FormDef} object
-//     */
-//    public static FormDef deserializeFormDef(File formDef) {
-//
-//        // TODO: any way to remove reliance on jrsp?
-//
-//        // need a list of classes that formdef uses
-//        JavaRosaServiceProvider.instance().registerPrototypes(GlobalConstants.SERIALISABLE_CLASSES);
-//        FileInputStream fis = null;
-//        FormDef fd = null;
-//        try {
-//            // create new form def
-//            fd = new FormDef();
-//            fis = new FileInputStream(formDef);
-//            DataInputStream dis = new DataInputStream(fis);
-//
-//            // read serialized formdef into new formdef
-//            fd.readExternal(dis, ExtUtil.defaultPrototypes());
-//            dis.close();
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (DeserializationException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        return fd;
-//    }
-    
-//    /**
-//     * Write the FormDef to the file system as a binary blob.
-//     * 
-//     * @param filepath path to the form file
-//     */
-//    public static void serializeFormDef(FormDef fd) {
-//
-//        // if cache folder is missing, create it.
-//        if (FileUtils.createFolder(FileConstants.CACHE_PATH)) {
-//
-//            // calculate unique md5 identifier
-//            String hash = FileUtils.getMd5Hash(new File(filepath));
-//            File formDef = new File(FileConstants.CACHE_PATH + hash + ".formdef");
-//
-//            // formdef does not exist, create one.
-//            if (!formDef.exists()) {
-//                FileOutputStream fos;
-//                try {
-//                    fos = new FileOutputStream(formDef);
-//                    DataOutputStream dos = new DataOutputStream(fos);
-//                    fd.writeExternal(dos);
-//                    dos.flush();
-//                    dos.close();
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
+
 }

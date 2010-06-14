@@ -21,6 +21,14 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * This widget renders string XForms controls. This widget is coupled to {@link FormVxmlRenderer} 
+ * in between getPromptVxml and getConfirmationVxml, the FormVxmlRenderer does a bunch of work using 
+ * the digits2string package.
+ * 
+ * @author alerer
+ *
+ */
 public class StringWidget extends QuestionWidget {
   
   private static org.apache.log4j.Logger log = Logger
@@ -30,10 +38,8 @@ public class StringWidget extends QuestionWidget {
     super(p);
   }
   
-  
   public void getPromptVxml(Writer out) throws IOException{
 
-    
     final String interdigitTimeout = "<property name=\"interdigettimeout\" value=\"" + 
             GlobalConstants.INTERDIGIT_TIMEOUT + "\"/>"; 
     final String actionVar = VxmlUtils.createVar("action", VoiceAction.GET_STRING_MATCHES.name(), true);

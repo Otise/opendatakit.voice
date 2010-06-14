@@ -16,16 +16,29 @@ import java.util.NoSuchElementException;
 
 import org.omg.CORBA_2_3.portable.OutputStream;
 
-
-public class FileCorpus implements Corpus {
+/**
+ * Corpus implementation.
+ * @author alerer
+ *
+ */
+public class CorpusImpl implements Corpus {
   String[] words;
   Map<String, Double> priors;
   
-  public FileCorpus(String[] words){
+  /**
+   * Creates a corpus from an array of word strings.
+   * @param words
+   */
+  public CorpusImpl(String[] words){
     this(words, null);
   }
   
-  public FileCorpus(String[] words, double[] priors){
+  /**
+   * Creates a corpus from an array of word strings and prior weights.
+   * @param words
+   * @param priors
+   */
+  public CorpusImpl(String[] words, double[] priors){
     if (priors != null && priors.length != words.length) {
       throw new IllegalArgumentException("Words and priors must have the same length");
     }
@@ -39,7 +52,12 @@ public class FileCorpus implements Corpus {
     }
   }
   
-  public FileCorpus(InputStream is) {
+  /**
+   * Create a corpus from an input stream containing either a list of newline-separated words or 
+   * newline-separated pairs of word/prior pairs. 
+   * @param is
+   */
+  public CorpusImpl(InputStream is) {
     List<String> words = new ArrayList<String>();
     priors = new HashMap<String, Double>();
     Reader r = null;
@@ -106,6 +124,10 @@ public class FileCorpus implements Corpus {
     return words.length;
   }
   
+  /**
+   * Export the corpus to an OutputStream in the same form accepted by the InputStream constructor.
+   * @param os
+   */
   public void export(OutputStream os){
     try {
       Writer w = new OutputStreamWriter(os);

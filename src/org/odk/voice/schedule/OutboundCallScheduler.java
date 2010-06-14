@@ -29,7 +29,8 @@ import org.odk.voice.schedule.ScheduledCall.Status;
 /**
  * An {@link OutboundCallScheduler} automatically runs a daemon timer thread 
  * in the application background that regularly queries for pending scheduled 
- * outbound calls and executes them (one at a time).
+ * outbound calls and executes them (one at a time). Set as a ContextListener 
+ * in web.xml
  * 
  * @author alerer
  *
@@ -39,73 +40,36 @@ public class OutboundCallScheduler implements ServletContextListener{
   private static org.apache.log4j.Logger log = Logger
   .getLogger(OutboundCallScheduler.class);
   
+  /**
+   * Timeout before assuming call failed.
+   */
   public static final int CONNECTION_TIMEOUT = 30000;
-
-  private static final long TIMER_TASK_RATE = 15000;
-
+  
+  /**
+   * Rate at which this class attempts to schedule calls.
+   */
+  public static final long TIMER_TASK_RATE = 15000;
+  
+  /**
+   * The maximum number of simultaneous calls in progress.
+   */
+  public static final int MAX_SIMUL_CONNECTIONS = 1;
+  
+  
     public OutboundCallScheduler() {}
 
-    public void contextDestroyed(ServletContextEvent event)
-    {
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {}
 
-//      //Output a simple message to the server's console
-//      System.out.println("The Simple Web App. Has Been Removed");
-//      this.context = null;
-
-    }
-
-
-    //This method is invoked when the Web Application
-    //is ready to service requests
-
-    public static final int MAX_SIMUL_CONNECTIONS = 1;
-    
+    @Override
     public void contextInitialized(ServletContextEvent event)
     {
-//      this.context = event.getServletContext();
-
       Timer timer = new Timer("CallScheduler", true);
       
       TimerTask task = new TimerTask(){
         @Override
         public void run() {
-          
-          DbAdapter dba = null;
-          try {
-            dba = new DbAdapter();
-            String url = dba.getMiscValue(GlobalConstants.OUTBOUND_URL_KEY);
-            String tokenid = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY);
-            String callerid = dba.getMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY);
-            List<ScheduledCall> pendingCalls = dba.getScheduledCalls(Status.PENDING);
-            List<ScheduledCall> inprogressCalls = dba.getScheduledCalls(Status.IN_PROGRESS);
-            if (pendingCalls.size() > 0 && inprogressCalls.size() < MAX_SIMUL_CONNECTIONS) {
-              boolean success;
-              Date now = new Date();
-              for (ScheduledCall pc : pendingCalls) {
-                if (pc.nextTime == null) {
-                  success = sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id);
-                  log.info("Outbound call request: number=" + pc.phoneNumber + "; id=" + pc.id + "; success=" + success);
-                  dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
-                  break;
-                } else if (pc.nextTime.before(now)) {
-                  success = pc.timeTo.after(now) ? 
-                      sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id) : false;
-                  Date newNextTime = new Date(now.getTime() + pc.intervalMs);
-                  dba.setOutboundCallNextTime(pc, (newNextTime.after(pc.timeTo)|| success) ? null : newNextTime); 
-                  dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
-                    newNextTime.after(pc.timeTo) ? Status.CALL_FAILED : Status.PENDING);
-                  
-                  break;
-                } 
-              } 
-            }
-          } catch (SQLException e) {
-            log.error(e);
-          } finally {
-            if (dba != null) {
-              dba.close();
-            }
-          }
+          runScheduler();
         }
       };
       
@@ -113,10 +77,51 @@ public class OutboundCallScheduler implements ServletContextListener{
       //Output a simple message to the server's console
       
       log.info("OutboundCallScheduler Timer started.");
-
     }
+    
+  /**
+   * Runs the periodic action of the scheduler. If there are available call slots, 
+   * checks if there are any calls pending and sends them.
+   */
+  void runScheduler() {
+    DbAdapter dba = null;
+    try {
+      dba = new DbAdapter();
+      String url = dba.getMiscValue(GlobalConstants.OUTBOUND_URL_KEY);
+      String tokenid = dba.getMiscValue(GlobalConstants.OUTBOUND_TOKEN_KEY);
+      String callerid = dba.getMiscValue(GlobalConstants.OUTBOUND_CALLERID_KEY);
+      List<ScheduledCall> pendingCalls = dba.getScheduledCalls(Status.PENDING);
+      List<ScheduledCall> inprogressCalls = dba.getScheduledCalls(Status.IN_PROGRESS);
+      if (pendingCalls.size() > 0 && inprogressCalls.size() < MAX_SIMUL_CONNECTIONS) {
+        boolean success;
+        Date now = new Date();
+        for (ScheduledCall pc : pendingCalls) {
+          if (pc.nextTime == null) { // send immediately
+            success = sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id);
+            log.info("Outbound call request: number=" + pc.phoneNumber + "; id=" + pc.id + "; success=" + success);
+            dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : Status.CALL_FAILED);
+            break;
+          } else if (pc.nextTime.before(now)) { // scheduled to be sent
+            success = pc.timeTo.after(now) ? 
+                sendOutboundCallRequest(url, tokenid, callerid, pc.phoneNumber, pc.id) : false;
+            Date newNextTime = new Date(now.getTime() + pc.intervalMs);
+            dba.setOutboundCallNextTime(pc, (newNextTime.after(pc.timeTo)|| success) ? null : newNextTime); 
+            dba.setOutboundCallStatus(pc.id, success ? Status.IN_PROGRESS : 
+              newNextTime.after(pc.timeTo) ? Status.CALL_FAILED : Status.PENDING);
+            break;
+          } 
+        } 
+      }
+    } catch (SQLException e) {
+      log.error(e);
+    } finally {
+      if (dba != null) {
+        dba.close();
+      }
+    }
+  }
   
-  private boolean sendOutboundCallRequest(String baseUrl, 
+  boolean sendOutboundCallRequest(String baseUrl, 
       String tokenid,
       String callerid,
       String numbertodial, 

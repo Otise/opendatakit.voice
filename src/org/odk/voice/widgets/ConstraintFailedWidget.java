@@ -14,6 +14,12 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/** 
+ * Widget rendered when an XForms constraint is violated.
+ * 
+ * @author alerer
+ *
+ */
 public class ConstraintFailedWidget extends WidgetBase {
  
   private static org.apache.log4j.Logger log = Logger

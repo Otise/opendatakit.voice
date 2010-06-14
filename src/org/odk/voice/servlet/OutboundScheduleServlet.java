@@ -47,7 +47,6 @@ public class OutboundScheduleServlet extends HttpServlet {
 	  String outboundUrl = request.getParameter("outboundUrl");
 	  String outboundTokenid = request.getParameter("outboundTokenid");
 	  String outboundCallerid = request.getParameter("outboundCallerid");
-	  String scheduleTimes = request.getParameter("scheduleTimes");
 	  String phoneNumbers = request.getParameter("phoneNumbers");
 	  String fromS = request.getParameter("timeFrom"); 
 	  String toS = request.getParameter("timeTo");

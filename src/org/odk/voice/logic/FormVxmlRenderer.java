@@ -24,7 +24,7 @@ import org.odk.voice.constants.XFormConstants;
 import org.odk.voice.db.DbAdapter;
 import org.odk.voice.db.DbAdapter.FormMetadata;
 import org.odk.voice.digits2string.Corpus;
-import org.odk.voice.digits2string.CorpusFactory;
+import org.odk.voice.digits2string.CorpusManager;
 import org.odk.voice.digits2string.StringPredictor;
 import org.odk.voice.digits2string.WordScore;
 import org.odk.voice.local.OdkLocales;
@@ -96,9 +96,8 @@ public class FormVxmlRenderer {
   // The amount to clip at the end of prompts (in seconds) to remove the beep from the DTMF termination of the prompt recording
   private static final float PROMPT_END_CLIP = 0.2F;
   
-  // 
-  // TODO(alerer): Once JR supports bind element attributes, make corpus question-configurable
-  private static final String STRING_PREDICTOR_CORPUS = "dict.en";
+
+  private static final String DEFAULT_STRING_PREDICTOR_CORPUS = "dict.en";
   private static final int STRING_PREDICTOR_NBEST = 5;
 
   private static org.apache.log4j.Logger log = Logger
@@ -148,30 +147,20 @@ public class FormVxmlRenderer {
     this.outboundId = id;
   }
   
+  /**
+   * Top-level method for rendering the next session dialogue.
+   */
   public void renderDialogue() {
-    
     log.info("Rendering dialogue: sessionid=" + sessionid + ", callerid=" + callerid + ", action=" + action + ", answer=" + answer);
     vsm = VoiceSessionManager.getManager();
     
     //TODO(alerer): clean this mess up
     if (action == null || action.equals("")) {
       vs = vsm.get(callerid);
-      if (vs != null && 
-          vs.getFormHandler() != null && 
-          vs.getFormHandler().isBeginning() == false 
-          &&!vs.isAdmin()) {
-        // resume session
+      if (canResume(vs)) {
         fh = vs.getFormHandler();
-        if (fh.getFormAttribute(FormAttribute.RESUME_DISABLED, true)) {
-          beginSession();
-        } else {
-          sessionid = vs.getSessionid();
-          if (outboundId >= 0) {
-            vs.setOutboundId(outboundId);
-          }
-          //vs.incrementAttempt();
-          resumeSession();
-        }
+        sessionid = vs.getSessionid();
+        resumeSession();
       }
       else {
         beginSession();
@@ -182,14 +171,14 @@ public class FormVxmlRenderer {
       vs = vsm.get(sessionid);
     }
     
-    if (vs == null) {
+    if (vs == null) { // if action is not null and we don't have a session
       log.error("session lost");
-        renderError(VoiceError.SESSION_LOST, null);
-        return;
-    } else {
-      sessionid = vs.getSessionid();
-      callerid = vs.getCallerid();
+      renderError(VoiceError.SESSION_LOST, null);
+      return;
     }
+    
+    sessionid = vs.getSessionid();
+    callerid = vs.getCallerid();
     
     fh = vs.getFormHandler();
     
@@ -209,6 +198,9 @@ public class FormVxmlRenderer {
     logRequest(); 
   }
   
+  /**
+   * Logs the current HTTP request in the database, for future analysis.
+   */
   private void logRequest() {
     try {
       byte[] data = null;
@@ -224,7 +216,18 @@ public class FormVxmlRenderer {
     }
   }
   
+  private boolean canResume(VoiceSession vs) {
+    if (vs == null || vs.isAdmin()) return false;
+    FormHandler fh = vs.getFormHandler(); // we're not actually setting the global here (no side effects)
+    if (fh == null || fh.isBeginning() || 
+        fh.getFormAttribute(FormAttribute.RESUME_DISABLED, true)) return false;
+    return true;
+  }
+  
   private void resumeSession() {
+    if (outboundId >= 0) {
+      vs.setOutboundId(outboundId);
+    }
     FormResumeWidget frw = new FormResumeWidget(fh.getFormTitle());
     initWidget(frw);
     try {
@@ -238,7 +241,6 @@ public class FormVxmlRenderer {
     try {
       return Enum.valueOf(VoiceAction.class, action);
     } catch (IllegalArgumentException e) {
-
       return null;
     }
   }
@@ -294,7 +296,6 @@ public class FormVxmlRenderer {
       setOutboundStatus(va.equals(VoiceAction.NO_RESPONSE) ? Status.NO_RESPONSE :
         va.equals(VoiceAction.TOO_LOUD) ? Status.PENDING :
         fh.isEnd() ? Status.COMPLETE : Status.NOT_COMPLETED);
-      // schedule this in a new thread so it doesn't stall the response
       if (fh != null) {
         exportData(fh.isEnd());
         if (fh.isEnd() && callerid!= null)
@@ -322,7 +323,8 @@ public class FormVxmlRenderer {
   }
 
   private void getStringMatches(String answer) {
-    Corpus c = CorpusFactory.get().getCorpus(STRING_PREDICTOR_CORPUS);
+    // TODO(alerer): support form-defined corpi
+    Corpus c = CorpusManager.get().getCorpus(DEFAULT_STRING_PREDICTOR_CORPUS);
     StringPredictor sp = new StringPredictor(c);
     WordScore[] ws = sp.predict(answer, STRING_PREDICTOR_NBEST);
     if (ws == null) ws = new WordScore[0];
@@ -369,6 +371,7 @@ public class FormVxmlRenderer {
       log.error(e);
     }
   }
+  
   private void beginSession() {
     
     vs = newSession(sessionid, callerid);
@@ -399,19 +402,6 @@ public class FormVxmlRenderer {
       log.error("SQLException in beginSession", e);
       e.printStackTrace();
     }
-//    log.info("Sessionid = " + sessionid);
-//    VxmlDocument d = new VxmlDocument(sessionid);
-//    d.setContents(
-//        VxmlUtils.createVar("action", VoiceAction.SELECT_FORM.name(), true) +
-//        VxmlUtils.createVar("answer", "form.xml", true) +
-//    		"<form id=\"begin\">" +    
-//    		"<block>" + VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action", "answer") + "</block></form>\n");
-//    try {
-//      d.write(out);
-//    } catch (IOException e) {
-//      log.error("IOException in beginSession", e);
-//      e.printStackTrace();
-//    }
   }
   
   private void initWidget(WidgetBase w) {
@@ -542,6 +532,8 @@ public class FormVxmlRenderer {
   }
   
   private VoiceSession newSession(String sessionid, String callerid){
+    // currently, 'attempt' is only used for the forceQuiet feature
+    // TODO(alerer): move attempt field to the outbound database table.
     int attempt = 0;
     if (vs!= null && vs.getOutboundId() == outboundId && outboundId >= 0)
       attempt = vs.getAttempt();
@@ -619,7 +611,7 @@ public class FormVxmlRenderer {
     byte[] data = item.getData();
     try {
       AudioSample as = new AudioSample(data);
-      as.clipAudio(0, PROMPT_END_CLIP);
+      as.clipAudio(PROMPT_END_CLIP); // clips the end of the prompt to remove DTMF tone
       data = as.getAudio();
       log.info("PUT: " + prompt);
       dba.putAudioPrompt(prompt, data);
@@ -696,36 +688,35 @@ public class FormVxmlRenderer {
     String filename = path + File.separator +
                path.substring(path.lastIndexOf(File.separator) + 1) + ".xml";
     log.info("XML path: " + filename);
+    // write instance to file
     try {
       FileUtils.writeFile(xml, filename, true);
     } catch (IOException e) {
       log.error("IOException writing instance XML to backup file.");
     }
-    log.info("Got to 1");
+    // write instance to database
     try {
       dba.setInstanceXml(vs.getInstanceid(), xml);
       dba.markInstanceCompleted(vs.getInstanceid(), complete);
     } catch (SQLException e) {
       log.error("SQLException setting instance XML.",e);
     }
-    log.info("Got to 2");
-    if (complete) {
-      fh.finalizeDataModel();
-    }
-    // For the Project WET instance, we will upload any surveys that have been started.
+
+    // We upload any surveys that have been started.
     // This will screw up the resume functionality a bit (since then we have two copies 
     // of some surveys), but that can be easily resolved.
-    if (fh.isBeginning()){
-      log.info("isBeginning");
-    } else {
-      log.info("Not isBeginning");
-    }
     if (fh != null && !fh.isBeginning()) {
       ThreadScheduler.scheduleThread(new InstanceUploaderThread(60000), 0); // initial retry time of 60s
       log.info("Queued InstanceUploaderThread");
     }
   }
   
+  /**
+   * A thread that attempts to submit an instance to UPLOAD_URL, and uses exponential backoff 
+   * on failure.
+   * @author alerer
+   *
+   */
   class InstanceUploaderThread extends Thread {
     public long retryMs;
     public InstanceUploaderThread(long retryMs){
@@ -744,7 +735,6 @@ public class FormVxmlRenderer {
       }
     }
   }
-  
   
   private String getExportPath() {
     return FileConstants.INSTANCES_PATH + File.separator + (vs.getCallerid()==null ? "unknown" : vs.getCallerid()) + 

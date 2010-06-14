@@ -33,14 +33,15 @@ public class XFormUploadServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String viewFormname = req.getParameter("view");
-    // TODO (alerer): DANGEROUS BACKDOOR! MUST BE REMOVED!
-    String resetDb = req.getParameter("resetDb");
+    
     DbAdapter dba = null;
     try {
-      if (resetDb != null) {
-        dba = new DbAdapter();
-        dba.resetDb();
-      }
+      // You can uncomment these lines to enable a (dangerous) backdoor to reset the db
+      //String resetDb = req.getParameter("resetDb");
+      // if (resetDb != null) {
+      //   dba = new DbAdapter();
+      //   dba.resetDb();
+      // }
       if (viewFormname != null) {
         dba = new DbAdapter();
         byte[] xml = dba.getFormXml(viewFormname);
@@ -149,44 +150,4 @@ public class XFormUploadServlet extends HttpServlet {
     }
   }
     
-  // right now, we write to database AND to file
-//  private String saveForm(MultiPartFormItem item) throws FileUploadException, IOException, SQLException {
-//    String filename = item.getFilename();
-//    String path = FileConstants.FORMS_PATH + File.separator + filename;
-//    byte[] data =  item.getData();
-//    
-//    try {
-//      FormHandler fh = FormLoader.getFormHandler(data, null);
-//    } catch (Exception e) {
-//      log.error(e);
-//      
-//      return;
-//    }
-//    
-//    DbAdapter dba = null;
-//    try {
-//      dba = new DbAdapter();
-//      dba.addForm(filename, data);
-//    } finally {
-//      if (dba != null) {
-//        dba.close();
-//      }
-//      dba = null;
-//    }
-//    FileUtils.writeFile(data, path, true);
-//    return filename;
-  
-  //////////////////////////////
-  
-//    String filename = item.getFilename();
-//    filename = filename.substring(Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\")) + 1);
-//    byte[] data =  item.getData();
-//    String path = FileConstants.FORMS_PATH + File.separator + filename;
-//    String path2 = FileUtils.writeFile(data, path, false);
-//    if (path2 == null) 
-//      throw new FileUploadException();
-//    return path2.substring(path2.lastIndexOf(File.separator) + 1);
-  
-  
-//  }
 }

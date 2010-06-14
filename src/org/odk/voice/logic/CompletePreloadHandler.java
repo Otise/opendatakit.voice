@@ -5,6 +5,11 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.IPreloadHandler;
 
+/**
+ * Preload handler to detect when the end of the form has been reached.
+ * @author alerer
+ *
+ */
 public class CompletePreloadHandler implements IPreloadHandler {
 
   @Override

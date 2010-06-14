@@ -21,16 +21,21 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * This widget renders &lt;select&gt; XForms controls.
+ * 
+ * @author alerer
+ *
+ */
 public class SelectMultiWidget extends QuestionWidget {
   
-  private static final String ANSWER_SEPARATOR = "@@@";
+  // When the answer is sent back to ODK Voice by HTTP post, the different choices are separated by this delimiter
+  private static final String ANSWER_DELIMITER = "@@@";
 
   public SelectMultiWidget(PromptElement p) {
     super(p);
   }
-  
-
-      
+ 
   public void getPromptVxml(Writer out) throws IOException{
     List<VxmlSection> sections = new ArrayList<VxmlSection>();
     String confirmPrompts = "";
@@ -56,7 +61,7 @@ public class SelectMultiWidget extends QuestionWidget {
             "");
         sections.add(f);
         confirmPrompts += "<prompt cond=\"" + itemValue + "=='true'\">" + VxmlUtils.getAudio(itemLabel) + "</prompt>";
-        concatScript += "if (" + itemValue + " == 'true') answer = answer + '" + itemValue + "' + '" + ANSWER_SEPARATOR + "';\n";
+        concatScript += "if (" + itemValue + " == 'true') answer = answer + '" + itemValue + "' + '" + ANSWER_DELIMITER + "';\n";
       }
     }
     addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
@@ -85,7 +90,7 @@ public class SelectMultiWidget extends QuestionWidget {
   public IAnswerData getAnswer(String stringData, MultiPartFormData binaryData)
       throws IllegalArgumentException {
     Vector<Selection> ve = new Vector<Selection>();
-    String[] split = stringData.split(ANSWER_SEPARATOR);
+    String[] split = stringData.split(ANSWER_DELIMITER);
 
     for (int i = 0; i < split.length; i++) {
       ve.add(new Selection(split[i]));

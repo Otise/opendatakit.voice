@@ -5,7 +5,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 /**
- * Interface for a VXML <prompt> element.
+ * Interface for a VXML &lt;prompt&gt; element.
  * 
  * @return
  */

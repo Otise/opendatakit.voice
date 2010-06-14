@@ -23,8 +23,8 @@ public class AudioPromptServlet extends HttpServlet {
   
 	/**
 	 * Given an audio/* path, fetches the appropriate prompt audio and returns it.
-	 * TODO: We are currently using the hash of the prompt string; this can break if there are 
-	 * hash collisions. We should at least be using a cryptographic hash rather than String.hashCode()
+	 * 
+	 * 
 	 * 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */

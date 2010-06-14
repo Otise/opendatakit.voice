@@ -41,12 +41,12 @@
   </servlet-mapping>
   <servlet>
     <description></description>
-    <display-name>RecordPromptServlet</display-name>
-    <servlet-name>RecordPromptServlet</servlet-name>
-    <servlet-class>org.odk.voice.servlet.RecordPromptServlet</servlet-class>
+    <display-name>PromptHandlerServlet</display-name>
+    <servlet-name>PromptHandlerServlet</servlet-name>
+    <servlet-class>org.odk.voice.servlet.PromptHandlerServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>RecordPromptServlet</servlet-name>
+    <servlet-name>PromptHandlerServlet</servlet-name>
     <url-pattern>/record/recordPrompt</url-pattern>
   </servlet-mapping>
   <servlet>

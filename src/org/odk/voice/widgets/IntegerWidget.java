@@ -11,10 +11,14 @@ import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
-import org.odk.voice.vxml.VxmlSection;
-import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * Widget rendered for int questions.
+ * 
+ * @author alerer
+ *
+ */
 public class IntegerWidget extends QuestionWidget {
   
   public IntegerWidget(PromptElement p) {
