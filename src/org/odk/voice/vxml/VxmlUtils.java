@@ -1,16 +1,17 @@
 package org.odk.voice.vxml;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 public class VxmlUtils {
   
-  public static String indent(String s, int level) {
-    String indent = "";
-    for (int i=0; i < level; indent=indent+"  ", i++);
-    s = indent + s;
-    indent = "\n" + indent;
-    return s.substring(0, s.length()-1).replaceAll("\n", indent) + s.substring(s.length()-1);
-  }
+  private static org.apache.log4j.Logger log = Logger
+  .getLogger(VxmlUtils.class);
+  
   
   /**
    * <p>Create a VXML &lt;grammar&gt; node with the given keys and tags.</p>
@@ -47,11 +48,24 @@ public class VxmlUtils {
   
   /**
    * Use {@link getAudio} instead of this except for special cases.
+   * 
+   *     
    * @param audio
    * @return
    */
   public static String getWav(String audio){
-    return (int) audio.hashCode() + ".wav";
+    return getPromptHash(audio) + ".wav";
+  }
+  
+  public static long getPromptHash(String audio){
+    try {
+      MessageDigest m=MessageDigest.getInstance("MD5");
+      m.update(audio.getBytes());
+      return new BigInteger(1,m.digest()).longValue();
+    } catch (NoSuchAlgorithmException e) {
+      log.error(e);
+      throw new RuntimeException(e);
+    }
   }
   
   /**
@@ -75,10 +89,20 @@ public class VxmlUtils {
     return getAudio(textAndAudio, textAndAudio);
   }
   
+  /**
+   * Returns a goto within the same VXML document.
+   * @param nextUrl
+   * @return
+   */
   public static String createLocalGoto(String nextUrl){
     return "<goto next=\"#" + StringEscapeUtils.escapeHtml(nextUrl) + "\" />";
   }
   
+  /**
+   * Returns a goto to a different VXML document (URL).
+   * @param nextUrl
+   * @return
+   */
   public static String createRemoteGoto(String nextUrl){
     return "<submit next=\"" + StringEscapeUtils.escapeHtml(nextUrl) + "\" namelist=\"sessionid\" />";
   }

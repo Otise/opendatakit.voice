@@ -22,11 +22,16 @@ public class AudioPromptServlet extends HttpServlet {
   .getLogger(AudioPromptServlet.class);
   
 	/**
+	 * Given an audio/* path, fetches the appropriate prompt audio and returns it.
+	 * TODO: We are currently using the hash of the prompt string; this can break if there are 
+	 * hash collisions. We should at least be using a cryptographic hash rather than String.hashCode()
+	 * 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	  String pathInfo = req.getPathInfo();
 	  log.info("AudioPromptServlet called. pathInfo: " + pathInfo);
+    // if using files rather than db
 //	  String path = FileConstants.PROMPT_AUDIO_PATH + File.separator + pathInfo.substring(pathInfo.lastIndexOf("/") + 1);
 //	   log.info("Path: " + path);
 //	  File f = new File(path);
