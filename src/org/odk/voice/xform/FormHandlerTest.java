@@ -1,4 +1,4 @@
-package org.odk.voice.test;
+package org.odk.voice.xform;
 
 import junit.framework.TestCase;
 

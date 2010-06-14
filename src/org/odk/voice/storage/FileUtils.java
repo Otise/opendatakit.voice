@@ -31,6 +31,8 @@ import java.util.ArrayList;
 /**
  * Static methods used for common file operations.
  * 
+ * This class is no longer used heavily as most persistence occurs through the database.
+ * 
  * @author Adam Lerer (adam.lerer@gmail.com)
  * @author Carl Hartung (carlhartung@gmail.com)
  * 
@@ -89,7 +91,6 @@ public class FileUtils {
             File[] children = root.listFiles();
             for (File child : children) {
                 boolean directory = child.isDirectory();
-                String filename = child.getName();
                 if (directory) {
                     mFolderList.add(child.getAbsolutePath());
                 }

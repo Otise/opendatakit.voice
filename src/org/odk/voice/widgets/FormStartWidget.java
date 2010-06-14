@@ -18,6 +18,11 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.FormHandler;
 
+/**
+ * Widget for the 'title dialogue' of a survey.
+ * @author alerer
+ *
+ */
 public class FormStartWidget extends WidgetBase {
  
   private static org.apache.log4j.Logger log = Logger
@@ -40,6 +45,12 @@ public class FormStartWidget extends WidgetBase {
   @Override
   public void getPromptVxml(Writer out) throws IOException {
     // forceQuiet stuff ----------
+    // if forceQuiet is on, all the prompts after some prompt in the instructions will have 
+    // bargein on with voice (not dtmf). If the user barges in, it will count as nomatch, 
+    // since the grammar is empty. Thus the 'be quiet' prompt will play and the instructions 
+    // will start over. On the third 'be quiet', the survey will end, and if an outbound call, 
+    // try to call back. This feature was no successful on evaluation, so it is not recommended 
+    // tht it be used.
     String forceQuietS = fh.getFormAttribute(FormAttribute.FORCE_QUIET);
     boolean forceQuiet = (forceQuietS != null);
     int forceQuietStart = 0;

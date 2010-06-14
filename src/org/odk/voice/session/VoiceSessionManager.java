@@ -67,7 +67,6 @@ public class VoiceSessionManager {
     return v;
   }
 
-  
   public void purge(Date stale){
     for (Entry<String, Date> e : fresh.entrySet()) {
       if (e.getValue().before(stale)){

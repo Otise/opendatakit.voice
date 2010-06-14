@@ -15,6 +15,11 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * Widget rendered for int question when FormAttribute.INT_DIGITS is true.
+ * @author alerer
+ *
+ */
 public class DigitsWidget extends QuestionWidget {
   
   public DigitsWidget(PromptElement p) {

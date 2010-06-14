@@ -21,6 +21,11 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * Widget rendered for upload type=audio questions.
+ * @author alerer
+ *
+ */
 public class AudioCaptureWidget extends QuestionWidget {
  
   public static final String AUDIO_EXTENSION = "audio/wav";

@@ -1,9 +1,8 @@
-package org.odk.voice.test;
+package org.odk.voice.audio;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -11,9 +10,9 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.odk.voice.storage.FileUtils;
-
 import junit.framework.TestCase;
+
+import org.odk.voice.storage.FileUtils;
 
 public class AudioSampleTest extends TestCase {
 

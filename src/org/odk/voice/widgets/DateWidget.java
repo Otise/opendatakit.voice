@@ -13,6 +13,12 @@ import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * Widget for date question.
+ * 
+ * @author alerer
+ *
+ */
 public class DateWidget extends QuestionWidget {
   
   public final static String DATE_SEPARATOR = "/";

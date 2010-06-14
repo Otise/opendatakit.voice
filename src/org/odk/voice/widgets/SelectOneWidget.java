@@ -20,6 +20,12 @@ import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * This widget renders &lt;select1&gt; XForms controls.
+ * 
+ * @author alerer
+ *
+ */
 public class SelectOneWidget extends QuestionWidget {
   
   private static org.apache.log4j.Logger log = Logger

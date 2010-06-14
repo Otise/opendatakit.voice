@@ -19,6 +19,11 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.FormHandler;
 
+/**
+ * Widged rendering a menu where user can change language.
+ * @author alerer
+ *
+ */
 public class ChangeLanguageWidget extends WidgetBase {
  
   private static org.apache.log4j.Logger log = Logger

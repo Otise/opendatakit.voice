@@ -15,6 +15,12 @@ import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.FormHandler;
 
+/**
+ * Widget rendered on completion of a survey.
+ * 
+ * @author alerer
+ *
+ */
 public class FormEndWidget extends WidgetBase {
  
   FormHandler fh;

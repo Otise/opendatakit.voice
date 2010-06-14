@@ -13,6 +13,11 @@ import org.odk.voice.vxml.VxmlSection;
 import org.odk.voice.vxml.VxmlUtils;
 import org.odk.voice.xform.PromptElement;
 
+/**
+ * Widget for read-only elements.
+ * @author alerer
+ *
+ */
 public class InfoWidget extends QuestionWidget {
   
   public InfoWidget(PromptElement p) {

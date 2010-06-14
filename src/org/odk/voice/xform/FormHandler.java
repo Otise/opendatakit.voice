@@ -53,8 +53,6 @@ public class FormHandler {
     private FormDef mForm;
     private FormIndex mCurrentIndex;
     private int mQuestionCount;
-    private Integer numQuestions;
-    private boolean irrelevantQuestions = false;
 
     private static org.apache.log4j.Logger log = Logger
     	.getLogger(FormHandler.class);
@@ -465,8 +463,6 @@ public class FormHandler {
     public FormIndex nextIndexForCount(FormIndex i) {
         //do {
             i = mForm.incrementIndex(i);
-            if (i.isInForm() && !isRelevant(i))
-              irrelevantQuestions = true;
         //} while (i.isInForm() /* && !isRelevant(i) */);
         return i;
     }

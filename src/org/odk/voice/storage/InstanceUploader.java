@@ -70,19 +70,21 @@ public class InstanceUploader  {
           DefaultHttpClient httpclient = new DefaultHttpClient(params);
           HttpPost httppost = new HttpPost(serverUrl);
 
-//          // get instance file
-//          File instanceDir = new File(instancePath);
-//
-//          // find all files in parent directory
-//          File[] files = instanceDir.listFiles();
-//          if (files == null) {
-//              log.warn("No files to upload in " + instancePath);
-//          }
 
-          // mime post
           MultipartEntity entity = new MultipartEntity();
           
           // using file storage
+
+//        // get instance file
+//        File instanceDir = new File(instancePath);
+//
+//        // find all files in parent directory
+//        File[] files = instanceDir.listFiles();
+//        if (files == null) {
+//            log.warn("No files to upload in " + instancePath);
+//        }
+
+        // mime post
 //          for (int j = 0; j < files.length; j++) {
 //              File f = files[j];
 //              if (f.getName().endsWith(".xml")) {
@@ -98,8 +100,7 @@ public class InstanceUploader  {
 //              }
 //          }
           
-          // using database storage
-          
+          // using database storage      
           DbAdapter dba = null;
           try {
             dba = new DbAdapter();
@@ -144,8 +145,8 @@ public class InstanceUploader  {
           if (h != null && h.length > 0) {
               responseUrl = h[0].getValue();
           } else {
-              // something should be done here...
             log.error("Location header was absent");
+            return STATUS_ERROR;
           }
           int responseCode = response.getStatusLine().getStatusCode();
           log.info("Response code:" + responseCode);

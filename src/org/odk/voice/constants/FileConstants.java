@@ -21,8 +21,8 @@ import java.io.File;
 
 /**
  * Note: ODK Voice has moved to MySQL as a storage medium (rather than files), 
- * so these constants are mostly deprecated. However, data is still also written 
- * to files for backup.
+ * so these constants are mostly deprecated, except for the logs. 
+ * However, data is still also written to files for backup.
  * 
  * @author Adam Lerer (adam.lerer@gmail.com)
  * 
@@ -58,12 +58,10 @@ public class FileConstants {
     public static final String LOG_FILE = FILE_BASE + File.separator + "logs" + 
     File.separator + "odk-voice.log";
     
-    public static final String CORPUS_PATH = "corpus";
-    
     /**
-     * See CurrentPromptServlet
+     * Path to corpi for the string widget.
      */
-    public static final String CURRENT_RECORD_PROMPT_PATH = CACHE_PATH + File.separator + "currentPrompt";
+    public static final String CORPUS_PATH = "corpus";
     
     /**
      * Max size of an uploaded instance, in bytes.

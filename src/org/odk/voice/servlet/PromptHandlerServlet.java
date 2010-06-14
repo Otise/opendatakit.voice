@@ -16,32 +16,22 @@ import org.odk.voice.constants.GlobalConstants;
 import org.odk.voice.db.DbAdapter;
 import org.odk.voice.storage.MultiPartFormData;
 
-/**
- * If an admin voice session is occuring that is recording prompts, returns the current prompt 
- * that is being recorded. This is useful when the admin wants to see the prompt they're recording 
- * on the screen.
- */
 
-public class RecordPromptServlet extends HttpServlet {
+public class PromptHandlerServlet extends HttpServlet {
   
   public static String ADDR = "recordPrompt";
 	private static final long serialVersionUID = 1L;
 	
   private static org.apache.log4j.Logger log = Logger
-  .getLogger(RecordPromptServlet.class);
+  .getLogger(PromptHandlerServlet.class);
   
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+   * Used by record.jsp
+   * If an admin voice session is occuring that is recording prompts, returns the current prompt 
+   * that is being recorded. 
+   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//	  File f = new File(FileConstants.CURRENT_RECORD_PROMPT_PATH);
-//	  if (!f.exists()) {
-//	    return;
-//	  }
-//	  InputStream is = new FileInputStream(f);
-//	  int i;
-//	  while ((i = is.read()) != -1)
-//	    resp.getOutputStream().write((byte) i);
 	  DbAdapter dba = null;
 	  try {
   	  dba = new DbAdapter();
@@ -57,6 +47,8 @@ public class RecordPromptServlet extends HttpServlet {
 
 
 	/**
+	 * Controls prompt handling actions in record.jsp, such as deleting or uploading audio files.
+	 * 
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

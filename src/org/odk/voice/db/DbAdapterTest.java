@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 
 import org.odk.voice.db.DbAdapter.FormMetadata;
 import org.odk.voice.db.DbAdapter.InstanceBinary;
-import org.odk.voice.schedule.ScheduledCall;
 
 public class DbAdapterTest extends TestCase {
   

@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.odk.voice.servlet.FormVxmlServlet;
 
 public class StringPredictor {  
   
@@ -87,7 +86,6 @@ public class StringPredictor {
     
     // TODO: use a heap here for better performance
     WordScore[] top = new WordScore[nbest];
-    double[] scores = new double[nbest];
     Arrays.fill(top, new WordScore("???", 0.0));
     int min_index = 0;
     

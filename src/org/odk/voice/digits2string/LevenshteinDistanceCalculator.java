@@ -1,5 +1,10 @@
 package org.odk.voice.digits2string;
 
+/**
+ * See http://en.wikipedia.org/wiki/Levenshtein_distance
+ * @author alerer
+ *
+ */
 public class LevenshteinDistanceCalculator {
   
   int[][] calcArray;

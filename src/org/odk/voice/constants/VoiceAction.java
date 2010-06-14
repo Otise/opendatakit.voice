@@ -17,19 +17,19 @@ package org.odk.voice.constants;
  *
  */
 public enum VoiceAction {
-  SELECT_FORM,
-  CURRENT_PROMPT,
-  NEXT_PROMPT,
-  PREV_PROMPT,
-  SAVE_ANSWER, 
-  RESUME_FORM,
-  LANGUAGE_MENU,
-  SET_LANGUAGE,
-  MAIN_MENU,
-  ADMIN,
-  HANGUP, 
-  GET_STRING_MATCHES, 
-  RESTART_SESSION, 
-  NO_RESPONSE, 
-  TOO_LOUD,
+  SELECT_FORM,        // If multiple uploaded forms, selects a form from the list
+  CURRENT_PROMPT,     // Replay current prompt
+  NEXT_PROMPT,        // Goto next prompt
+  PREV_PROMPT,        // Goto previous prompt
+  SAVE_ANSWER,        // Save answer and go to next prompt
+  RESUME_FORM,        // Resume a partially completed form from a previous call
+  LANGUAGE_MENU,      // Enter the language menu to select a language
+  SET_LANGUAGE,       // Set the language to the answer field
+  MAIN_MENU,          // Not implemented
+  ADMIN,              // Enter the admin menu for recording prompts
+  HANGUP,             // User hung up
+  GET_STRING_MATCHES, // For string question, find the matching words for a key sequence
+  RESTART_SESSION,    // Delete partically completed form from a previous call, and start again
+  NO_RESPONSE,        // User did not respond to a question after multiple prompts
+  TOO_LOUD,           // If forceQuiet enabled, sent if calls is disconnected because user is too loud
 }
