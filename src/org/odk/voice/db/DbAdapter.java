@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.odk.voice.schedule.ScheduledCall;
+import org.odk.voice.vxml.VxmlUtils;
 
 /**
  * Adapter for a MySQL database persistence layer.
@@ -333,13 +334,13 @@ public class DbAdapter {
     return getAudioPrompt(getPromptHash(prompt));
   }
   
-  public byte[] getAudioPrompt(int prompthash) {
+  public byte[] getAudioPrompt(long prompthash) {
     //log.info("getAudioPrompt: " + prompthash);
     try {
       String q = "SELECT data FROM audio_prompt WHERE prompthash=?;";
       
       PreparedStatement stmt = con.prepareStatement(q);
-      stmt.setInt(1, prompthash);
+      stmt.setLong(1, prompthash);
       ResultSet rs = stmt.executeQuery();
       
       if (rs.next()) {
@@ -378,11 +379,11 @@ public class DbAdapter {
     return deleteAudioPrompt(getPromptHash(prompt));
   }
   
-  public boolean deleteAudioPrompt(int prompthash) {
+  public boolean deleteAudioPrompt(long prompthash) {
     try {
       String q = "DELETE FROM audio_prompt WHERE prompthash=?;";
       PreparedStatement stmt = con.prepareStatement(q);
-      stmt.setInt(1, prompthash);
+      stmt.setLong(1, prompthash);
       return stmt.executeUpdate() > 0;
     } catch (SQLException e) {
       log.error(e);
@@ -395,9 +396,9 @@ public class DbAdapter {
    * @param prompt The audio prompt.
    * @return The hash of the audio prompt used by the database.
    */
-  public int getPromptHash(String prompt) {
-    if (prompt == null) return 0;
-    return prompt.hashCode();
+  public long getPromptHash(String prompt) {
+    if (prompt == null) prompt="";
+    return VxmlUtils.getPromptHash(prompt);
   }
     
   public boolean putAudioPrompt(int hash, byte[] data) throws SQLException {
@@ -427,7 +428,7 @@ public class DbAdapter {
     String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
     "data) VALUES (?,?,?);";
     PreparedStatement stmt = con.prepareStatement(q);
-    stmt.setInt(1, getPromptHash(prompt));
+    stmt.setLong(1, getPromptHash(prompt));
     stmt.setString(2, prompt);
     stmt.setObject(3, data);
     stmt.executeUpdate();
@@ -693,7 +694,7 @@ public class DbAdapter {
       );
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS audio_prompt (" + 
-            "prompthash INT NOT NULL PRIMARY KEY," +
+            "prompthash LONG NOT NULL PRIMARY KEY," +
             "prompt VARCHAR(10000)," + 
             "data MEDIUMBLOB );"
         );
