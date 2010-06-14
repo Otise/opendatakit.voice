@@ -32,10 +32,10 @@ public class LogServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	  String sBytes = request.getParameter("bytes");
-//	  int bytes = 10000;
-//	  try {
-//	    bytes = Integer.valueOf(sBytes);
-//	  } catch (NumberFormatException e) {}
+	  int bytes = -1;
+	  try {
+	    bytes = Integer.valueOf(sBytes);
+	  } catch (NumberFormatException e) {}
     
 	  InputStream is = null;
     
@@ -46,9 +46,12 @@ public class LogServlet extends HttpServlet {
       long length = f.length();
       
       // Output the file.
+      long minOffset = bytes < 0 ? 0 : length - bytes;
       int offset = 0;
       while (offset < length) {
-          response.getWriter().write(is.read());
+          if (offset > minOffset)
+            response.getWriter().write(is.read());
+          else is.read();
           offset++;
       }
     } catch (FileNotFoundException e) {
