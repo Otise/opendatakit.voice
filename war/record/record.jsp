@@ -39,10 +39,9 @@ function refresh()
   
   <div id="instructions" style="margin-top:50px; width:600px">
   
-  <b>Instructions: </b><p/>Call the ODK Voice server, select a survey (if prompted),
-  and when it says "Welcome to the ...", press 7. You will be asked to record prompts 
-  over the phone. The prompt you are being asked to record will appear in the red box in 
-  real time.</b></div>
+  <b>Instructions: </b><p/>Call the ODK Voice server, when it says "Welcome to the ...", press 7. 
+  You will be asked to record prompts over the phone. The prompt you are being asked to record 
+  will appear in the red box in real time.</b></div>
   
   <div id="promptlist" style="margin-top:50px">
   <b>Recorded prompts:</b><p/>

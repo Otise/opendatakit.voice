@@ -1,0 +1,229 @@
+<html>
+<head>
+<title>ODK Voice - Readme</title>
+<link rel="stylesheet" href="style.css" type="text/css" media="screen"/>
+</head>
+<body>
+
+<div class="banner">
+  <h1>ODK Voice - Readme</h1>
+</div>
+
+<div class="contents">
+
+<h2>Setting Up ODK Voice</h2>
+<ol>
+<li>Download the ODK Voice source code and open it as an Eclipse Dynamic Web Project (use Eclipse EE)</li>
+<li>Right click <b>Project Explorer -> ODK Voice -> Export -> WAR file</b></li>
+<li>Install MySQL 5.0 with root password of 'odk-voice' (this is not secure, you can change the user/password in DbAdapter.java)</li>
+<li>Install Apache Tomcat 6.0.x</li>
+<li>Create an odkadmin 'role': Go to <b>%tomcat_base%/conf/tomcat-users.xml</b> and add: <br/>
+&lt;role rolename="odkadmin"&gt; <br/>
+&lt;role rolename="odkrecorder"&gt; <br/>
+&lt;user username="odkadmin" password="XXX" roles="odkadmin,odkrecorder"&gt;
+</li>
+<li>View the admin page at <b>http://your_ip:8080/war_file_name</b>. You will need to use the username and password you said in the previous step to access any of the linked pages.</li>
+<ul>
+<li><b>Manage forms</b> lets you upload, view, and delete forms.</li>
+<li><b>Manage prompts</b> lets you record, upload, and delete prompts. See <a href="#record">Recording Prompts</a> for more details.</li>
+<li><b>Manage outbound calls</b> lets you schedule outbound and view outbound calls and adjust outbound calling settings.</li>
+<li><b>Manage forms</b> lets you upload, view, and delete forms.</li>
+</ul>
+<li>Set up a VoiceXML client and point it at <b>http://your_ip:8080/war_file_name/formVxml</b>. 
+See <a href="#vxmlclient">Setting up a VoiceXML client</a> for more details</li>
+</ol>
+
+<h2>Setting Up a VoiceXML Client</h2>
+<a name="vxmlclient"></a>
+
+ODK Voice produces voice dialogues using VoiceXML. A 'VoiceXML client' is required to interpret the 
+VoiceXML and produce audio dialogues. There are several options for VoiceXML clients:
+
+<ul>
+<li><b>Voxeo Prophecy:</b> a proprietary, standalone application that can be run on 
+Windows or RedHat Linux. Provides up to two ports (simultaneous calls) per machine with the 
+free license. Can be connected to a VoIP provider or GSM modem. <br/><i>Recommended</i></li>
+<li><b>Voxeo Evolution:</b> a proprietary, hosted platform provided by Voxeo. 'Development' 
+applications can be created for free as long as usage is relatively low, and you can create free 
+phone numbers for calling within the US. Licenses for production applications and worldwide calling 
+are expensive. <br/><i>Supported</i></li>
+<li><b>i6net VXI*:</b> The official supported VoiceXML client for Asterisk. VXI* has the advantage 
+of running on top of Asterisk, but licenses are not free above some number of ports.<br/>
+<i>Not Supported</i></li>
+<li><b>VoiceGlue:</b> An open source VoiceXML client for Asterisk. VoiceGlue is open source and 
+probably a good place to start if you want to run an open stack, but it is not feature-complete 
+so will probably require a good amount of work to be able to be integrated with ODK Voice.
+<br/><i>Not Supported</i></li>
+</ul>
+
+For most applications, we recommend using the Voxeo Prophecy platform, although it is not open 
+source and free licenses limit the number of simultaneous calls per server. 
+
+<h3>Setting Up Prophecy for ODK Voice</h3>
+<p>Download Prophecy 9 from the <a href="http://www.voxeo.com/prophecy/">Voxeo Prophecy download site</a>.
+You ned to install it on Windows, RedHat Linux, or CentOS. It doesn't have to be one the same server 
+as ODK Voice, but it's preferable.</p>
+
+<p>You need to connect Prophecy to a POTS gateway in order to make calls - you can either use 
+a VoIP (SIP) provider or a hardware GSM modem. We will describe connecting to a SIP provider. 
+There are hundreds of choices of SIP providers available online. We have had success using 
+<a href="http://www.mywebcalls.com">myWebCalls</a>. Sign up with a VoIP provider, and you will be 
+given a username, password, and SIP registrar domain (usually just the site domain).</p>
+
+You will need to make some changes to the Prophecy configuration file. Go to {Voxeo}/config/config.xml, 
+and add the following lines (the lines below are for configuration with mywebcalls.com): 
+
+<div class="box">
+<pre>
+&lt;!--+-+-+-+-+-+-+-+-+-+-+-+-+-
+       CT layer category
+  -+-+-+-+-+-+-+-+-+-+-+-+-+-+-&gt;
+
+   &lt;category name="VoIPCT"&gt;
+
+     &lt;item name="DialingIntlPrefix"&gt;00&lt;/item&gt;
+     &lt;item name="DialingPrefix"&gt;00&lt;/item&gt;
+
+     &lt;item name="VoipGateway1"&gt;86.53.0.135:5060&lt;/item&gt;
+     &lt;item name="Bridged"&gt;0&lt;/item&gt;
+     &lt;category name="Registrations"&gt;
+       &lt;category name="CustomConfig"&gt;
+         &lt;item name="Username"&gt;{username}&lt;/item&gt;
+         &lt;item name="Password"&gt;{password}&lt;/item&gt;
+         &lt;item name="Domain"&gt;sipagate.com&lt;/item&gt;
+         &lt;item name="Registrar"&gt;86.53.0.135:5060&lt;/item&gt;
+         &lt;item name="ExpirationTimeout"&gt;30&lt;/item&gt;
+         &lt;item name="VOIPType"&gt;Custom&lt;/item&gt;
+         &lt;item name="ResolveRegistrar"&gt;0&lt;/item&gt;
+         &lt;item name="PayloadSize" type="int"&gt;240&lt;/item&gt;
+       &lt;/category&gt;
+     &lt;/category&gt;
+   &lt;/category&gt;
+   </pre>
+</div>
+
+<p>sipagate.com is the SIP domain used by mywebcalls.com (most SIP providers use the same domain 
+for web and SIP, but mywebcalls.com is an exception).
+86.53.0.135:5060 is the SIP IP/port for sipagate.com. If you set ResolveRegistrar to 1, you should 
+be able to just use the domain (i.e. sipagate.com) for the Registrar and VoipGateway1 fields; 
+however, this has not worked for me. Unfortunately, figuring out the IP/port for your VoIP provider is not 
+always simple; you can contact them and ask, or set up your VoIP with a <a href="">softphone</a> and 
+use <a href="http://docs.voxeo.com/prophecy/9.0/wireshark.htm">wireshark</a> to see where the SIP requests are going.</p>
+
+<p>See <a href="http://docs.voxeo.com/prophecy/9.0/">the Voxeo SIP config instructions</a> for more details.</p>
+
+<p>Then, go to {Voxeo}/home.html (the file), to enter the admin console.</p>
+
+<p>Sign in (initial user/pass are admin/admin, you can change them), and click on the <b>Applications</b> tab.
+Click <b>New</b> in the upper right corner of the Applications window (not shown). In the Edit Application 
+window, fill in the fields as shown below. Replace <b>alerer-asterisk.mit.edu</b> with your server IP 
+(or <b>localhost</b> if Voxeo is installed on the same computer as ODK Voice).
+Click <b>New</b> in the Edit Application window, and create a 
+route called "odk-voice" linked to your application.</p>
+
+<img style="margin:20px" src="voxeo-app.png"/>
+
+<h3>Outbound Calling</h3>
+
+To configure outbound calling, go to the ODK Voice <b>Manage Outbound Calls</b> page. You will 
+see a configuration box at the bottom of the page. Below each box there are already instructions 
+for what you should put in each box for Voxeo hosted (Evolution) and local (Prophecy) platforms. 
+'Outbound call request URL' is the URL that ODK Voice should poll to initiate a call. In the case of 
+Prophecy, it is <b>{Prophecy server IP}:9998/SessionControl/VoiceXML.start</b>. Outbound call token is the 
+'route' for your application configured on the Prophecy server. Outbound caller ID must be
+<b>sip:yoursipid@sipdomain.com</b>.
+
+<h2>Recording Prompts</h2>
+<a name="record"></a>
+<p>Once you upload a form, ODK Voice will automatically determine the necessary prompts for recording 
+and lets you record these prompts over the phone.</p>
+
+<p>After you have set up ODK Voice with a VoiceXML client and POTS gateway, go to the 'Record Prompts' 
+page on the ODK Voice website. Now, call ODK Voice from a phone, and when you connect, press 7 to enter 
+the recording console (if you have uploaded multiple surveys, you'll have to select one survey over the phone 
+before pressing 7). You will hear 'Press 1 to record this prompt or 3 to skip it'; at the same time, text should 
+appear in the red box on the Record Prompts web page. Press 1 on your phone and speak the prompt in the red box into the 
+phone. Press any key when you are done recording. You will hear the prompt you recorded and have the option to keep it 
+or try again.</p>
+
+<p>After you have recorded the prompts, hit refresh on your browser to see all the prompts you've recorded on the 
+website. You can press 'Listen' to hear the prompt you've recorded, 'Delete' to delete that prompt (which will allow 
+you to call in again and re-record it), or 'Upload' to upload a WAV file for that prompt. Uploaded WAV files 
+must be <b>8kHz mono U-law</b> encoded or they will not work. A variety of programs available on the 
+internet will allow you to convert between WAV formats.</p>
+
+<h2>Creating XForms for ODK Voice</h2>
+
+<p>ODK Voice is designed to work out-of-the-box with <a href="http://www.javarosa.org">Javarosa</a>-compliant 
+XForms. However, not all XForms features are supported, and ODK Voice provides a number of voice-specific 
+options that can be added to an XForm.</p>
+
+<h3>Supported Question Types</h3>
+
+ODK Voice supports the following question types:
+<table><tr><th>Control Type</th></tr>
+<tr><td>input type="int"</td></tr>
+<tr><td>input type="date"</td></tr>
+<tr><td>input type="string" (not recommended)</td></tr>
+<tr><td>input readonly="true"</td></tr>
+<tr><td>select1</td></tr>
+<tr><td>select</td></tr>
+<tr><td>upload mediatype="audio/*"</td></tr>
+
+</table>
+
+You can also use <a href="http://www.javarosa.org/wiki/xform">javarosa preloaders</a> to get session information.
+
+<table><tr><th>jr:preload</th><th>jr:preloadParams</th><th>Data</th></tr>
+<tr><td>property</td><td>phonenumber</td><td>The phone number for the call.</td></tr>
+<tr><td>property</td><td>sessionid</td><td>The unique sessionid for the call.</td></tr>
+<tr><td>complete</td><td></td><td>True iff the survey reached completion.</td></tr>
+</table>
+
+<h3>Custom Rendering Attributes</h3>
+
+Custom voice rendering attributes can be added to either questions or forms. These custom attributes influence 
+the rendering of the form by ODK Voice. Unfortunately, custom voice attributes are not implemented 
+in a standard (or for that means, pretty) way, since JavaRosa has not created a standard way of 
+adding custom attributes. Attributes are specified as a list of semicolon-separated key-value pairs 
+"attr1=val1;attr2=val2;..." To add form level attributes, append '#' to the end of the title in the 
+&lt;title&gt; element, followed by the attributes, e.g.
+
+<div class="box">
+<pre>&lt;title&gt;My First Survey#skipConfirmation=true&lt;/title&gt;</pre>
+</div>
+
+Question-level attributes go in the &lt;hint&gt; element of the question control, e.g.
+
+<div class="box"><pre>
+&lt;input ref="/survey/q1"&gt;
+  &lt;hint&gt;skipQuestionCount=true&lt;/hint&gt;
+&lt;/input&gt;
+</pre></div>
+
+See the sample forms for more details. 
+</pre>
+
+Below is a list of custom attributes.
+
+<table>
+<tr><th>Attribute</th><th>Scope</th><th>Function</th>
+<tr><td>digits </td><td> Q </td><td> For numeric question, play back the response as digits (e.g. two five) instead of a number (e.g. twenty-five). </tr>
+<tr><td>skipInstructions </td><td> Q </td><td> Skip generic question instructions (custom instructions should be included in the question prompt).  </tr>
+<tr><td>skipQuestionCount </td><td> Q </td><td> Skip saying `Question 1 of 3' at the beginning of a question. </tr>
+<tr><td>repeatQuestionOption </td><td> Q </td><td> Remind the user that they can press star to repeat the current question. </tr>
+<tr><td>skipConfirmation </td><td> Q/F </td><td> Skip the confirmation step for a question. </tr>
+<tr><td>customIntroPrompts </td><td> F </td><td> Replace the generic form intro prompts with custom prompts. </tr>
+<tr><td>resumeDisabled </td><td> F </td><td> Disable the ability to call back and resume a form. </tr>
+<tr><td>maxTime </td><td> Q </td><td> For audio question, set the maximum record time. </tr>
+<tr><td>stringCorpus </td><td> Q </td><td> For string question, specify the corpus. </tr>
+<tr><td>forceQuiet </td><td> F </td><td> Prompt the user to stop talking if they interrupt the instructions, and offer to call back if the connection remains noisy. Not well-supported.</tr>
+</table>
+ 
+</div>
+</body>
+</html>
+
+
+</body>
+</html>
