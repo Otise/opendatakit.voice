@@ -78,7 +78,7 @@ public class VxmlUtils {
     if (audio == null || audio == "") return text;
     else
       return "<audio src=\"audio/" + VxmlUtils.getWav(audio) + "\">\n" + 
-           "  " + (text==null?"":text) + "\n" +
+           (text==null?"":text) + "\n" +
            "</audio>\n";
   }
   
