@@ -11,6 +11,11 @@ import org.odk.voice.vxml.VxmlField;
 import org.odk.voice.vxml.VxmlForm;
 import org.odk.voice.vxml.VxmlUtils;
 
+/**
+ * Widget rendered when a survey is resumed.
+ * @author alerer
+ *
+ */
 public class FormResumeWidget extends WidgetBase {
  
   String formTitle;
