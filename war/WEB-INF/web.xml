@@ -85,7 +85,7 @@
   
   <listener>
     <listener-class>
-     org.odk.voice.digits2string.CorpusFactory
+     org.odk.voice.digits2string.CorpusManager
     </listener-class>
   </listener>
   
