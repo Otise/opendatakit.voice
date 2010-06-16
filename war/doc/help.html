@@ -26,15 +26,14 @@
 <ul>
 <li><b>Manage forms</b> lets you upload, view, and delete forms.</li>
 <li><b>Manage prompts</b> lets you record, upload, and delete prompts. See <a href="#record">Recording Prompts</a> for more details.</li>
-<li><b>Manage outbound calls</b> lets you schedule outbound and view outbound calls and adjust outbound calling settings.</li>
-<li><b>Manage forms</b> lets you upload, view, and delete forms.</li>
+<li><b>Manage outbound calls</b> lets you schedule outbound and view outbound calls and adjust outbound calling settings. Se <a href="#outbound">Outbound Calls</a> for more details.</li>
 </ul>
 <li>Set up a VoiceXML client and point it at <b>http://your_ip:8080/war_file_name/formVxml</b>. 
 See <a href="#vxmlclient">Setting up a VoiceXML client</a> for more details</li>
 </ol>
 
-<h2>Setting Up a VoiceXML Client</h2>
 <a name="vxmlclient"></a>
+<h2>Setting Up a VoiceXML Client</h2>
 
 ODK Voice produces voice dialogues using VoiceXML. A 'VoiceXML client' is required to interpret the 
 VoiceXML and produce audio dialogues. There are several options for VoiceXML clients:
@@ -123,18 +122,9 @@ route called "odk-voice" linked to your application.</p>
 
 <img style="margin:20px" src="voxeo-app.png"/>
 
-<h3>Outbound Calling</h3>
-
-To configure outbound calling, go to the ODK Voice <b>Manage Outbound Calls</b> page. You will 
-see a configuration box at the bottom of the page. Below each box there are already instructions 
-for what you should put in each box for Voxeo hosted (Evolution) and local (Prophecy) platforms. 
-'Outbound call request URL' is the URL that ODK Voice should poll to initiate a call. In the case of 
-Prophecy, it is <b>{Prophecy server IP}:9998/SessionControl/VoiceXML.start</b>. Outbound call token is the 
-'route' for your application configured on the Prophecy server. Outbound caller ID must be
-<b>sip:yoursipid@sipdomain.com</b>.
-
-<h2>Recording Prompts</h2>
 <a name="record"></a>
+<h2>Recording Prompts</h2>
+
 <p>Once you upload a form, ODK Voice will automatically determine the necessary prompts for recording 
 and lets you record these prompts over the phone.</p>
 
@@ -151,6 +141,41 @@ website. You can press 'Listen' to hear the prompt you've recorded, 'Delete' to 
 you to call in again and re-record it), or 'Upload' to upload a WAV file for that prompt. Uploaded WAV files 
 must be <b>8kHz mono U-law</b> encoded or they will not work. A variety of programs available on the 
 internet will allow you to convert between WAV formats.</p>
+
+<img src="record-screenshot.png"/>
+
+<a name="outbound"></a>
+<h2>Outbound Calling</h2>
+
+<p>To perform outbound calling, click on <b>Manage Outbound Calls</b> from the ODK Voice home page .</p> 
+
+<p>You will first have to configure ODK Voice for outbound calling. On the bottom of the 
+<b>Manage Outbound Calls</b> page, you will see a configuration box. </p>
+
+<img src="outbound-config.png"/>
+
+<p>Below each box there are already instructions 
+for what you should put in each box for Voxeo hosted (Evolution) and local (Prophecy) platforms. 
+'Outbound call request URL' is the URL that ODK Voice should poll to initiate a call. In the case of 
+Prophecy, it is <b>{Prophecy server IP}:9998/SessionControl/VoiceXML.start</b>. Outbound call token is the 
+'route' for your application configured on the Prophecy server. Outbound caller ID must be
+<b>sip:yoursipid@sipdomain.com</b>.</p>
+
+<p>Once outbound calling is configured, enter the numbers you want to call in the box provided, 
+each on its own line. If you check the <b>Send now</b> box, the calls will be sent immediately 
+(in order). Otherwise, you must enter a start and end time and a retry interval, as a decimal 
+number of hours. For example, if it is 1PM and you enter 2.5, 4.5, and 1 (respectively), calls 
+will be scheduled starting at 3:30PM and ending at 5:30PM, and if a call fails (i.e. user does 
+not answer) it will be retried after 1 hour.</p>
+
+<p>Below this form is a table that displays all the scheduled calls and their status. Before a 
+call is sent, its status is PENDING. A call that is answered changes status to 
+IN_PROGRESS, and once the call finishes, it can have a number of different statuses depending 
+on the call outcome (COMPLETED, NOT_COMPLETED, NO_RESPONSE). For calls 
+scheduled for later delivery, information about the delivery (number of attempts, etc.) is also 
+provided.</p>
+
+<img src="outbound-screenshot.png"/>
 
 <h2>Creating XForms for ODK Voice</h2>
 
