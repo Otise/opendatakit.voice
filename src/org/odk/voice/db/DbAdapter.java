@@ -35,7 +35,7 @@ public class DbAdapter {
   
   public static final String DB_CLASS = "com.mysql.jdbc.Driver";
   public static final String DB_URL = "jdbc:mysql://localhost:3306";
-  public static final String DB_NAME = "odkvoiceprime";
+  public static final String DB_NAME = "odkvoice";
   public static final String DB_USER = "root";
   public static final String DB_PASS = "odk-voice";
   private static boolean initialized = false;
@@ -694,7 +694,7 @@ public class DbAdapter {
       );
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS audio_prompt (" + 
-            "prompthash LONG NOT NULL PRIMARY KEY," +
+            "prompthash BIGINT NOT NULL PRIMARY KEY," +
             "prompt VARCHAR(10000)," + 
             "data MEDIUMBLOB );"
         );

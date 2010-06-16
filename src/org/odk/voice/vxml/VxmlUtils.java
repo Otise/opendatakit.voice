@@ -58,6 +58,7 @@ public class VxmlUtils {
   }
   
   public static long getPromptHash(String audio){
+    if (audio==null||audio=="") return 0;
     try {
       MessageDigest m=MessageDigest.getInstance("MD5");
       m.update(audio.getBytes());
