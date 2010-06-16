@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -565,7 +566,7 @@ public class FormVxmlRenderer {
       savePrompt();
       // purposely fall through
     case NEXT_PROMPT:
-      prompt = nextRecordPrompt(false);
+      prompt = nextRecordPrompt();
       writeCurrentRecordPrompt(prompt);
       renderRecordPromptDialogue(prompt);
       break;
@@ -588,7 +589,7 @@ public class FormVxmlRenderer {
     // and should go in a widget
     
     VxmlDocument d = new VxmlDocument(sessionid);
-    d.setContents("<form id=\"begin\"><block>" + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=NEXT_PROMPT") + "</block></form>\n");
+    d.setContents("<form id=\"begin\"><block>" + VxmlUtils.createRemoteGoto(FormVxmlServlet.ADDR + "?action=CURRENT_PROMPT") + "</block></form>\n");
     try {
       d.write(out);
     } catch (IOException e) {
@@ -630,21 +631,94 @@ public class FormVxmlRenderer {
     }
   }
   
-  private String currentRecordPrompt(){
-    return vs.getCurrentRecordPrompt();
-  }
   
-  private String nextRecordPrompt(boolean rerecord){
-    if (vs == null) {
-      log.warn("VoiceSession null trying to get record prompt");
-      return null;
-    }
-    String p = vs.getNextRecordPrompt();
-    while (p!= null && !rerecord && dba.getAudioPrompt(p)!=null) {
-      p = vs.getNextRecordPrompt();
+  //////////////////////////// prompt recording //////////////////
+  
+  private String nextRecordPrompt(){
+    String p = getNextRecordPrompt();
+    while (p!= null && dba.getAudioPrompt(p)!=null) {
+      p = getNextRecordPrompt();
     }
     return p;
   }
+  
+  private String currentRecordPrompt(){
+    if (vs.getRecordPrompts() == null){
+      vs.setRecordPrompts(getSurveyPromptsAllLanguages());
+      vs.setRecordPromptIndex(0);
+    }
+    int i = vs.getRecordPromptIndex();
+    if (i >= vs.getRecordPrompts().size())
+      return null;
+    return vs.getRecordPrompts().get(i);
+  }
+  
+  private String getNextRecordPrompt(){
+    if (vs.getRecordPrompts() == null){
+      vs.setRecordPrompts(getSurveyPromptsAllLanguages());
+      vs.setRecordPromptIndex(0);
+    }
+    int i = vs.getRecordPromptIndex();
+    if (i >= vs.getRecordPrompts().size() - 1)
+      return null;
+    vs.setRecordPromptIndex(i + 1);
+    return vs.getRecordPrompts().get(i + 1);  
+  }
+  
+  private List<String> getSurveyPromptsAllLanguages(){
+    if (fh.getLanguages() == null || fh.getLanguages().length == 0) {
+      return getSurveyPrompts();
+    }
+    List<String> prompts = new ArrayList<String>();
+    for (String language : fh.getLanguages()) {
+      fh.setLanguage(language);
+      updateLocale();
+      prompts.addAll(getSurveyPrompts());
+    }
+    return prompts;
+  }
+  
+  private List<String> getSurveyPrompts(){
+    List<String> prompts = new ArrayList<String>();
+    
+    while (!fh.isBeginning()){ // move to the beginning of the survey
+      fh.prevPrompt();
+    }
+    prompts.addAll(getWidgetFromPrompt(fh.currentPrompt()).getPromptStrings());
+    while(!fh.isEnd()) {
+      prompts.addAll(getWidgetFromPrompt(fh.nextQuestionPromptIgnoreRelevance()).getPromptStrings());
+      // make sure that the locale is set properly here!
+    }
+    prompts.addAll(getExtraPrompts());
+    
+    return prompts;
+  }
+    
+  private List<String> getExtraPrompts(){
+    List<String> prompts = new ArrayList<String>();
+    
+    DbAdapter dba = null;
+    try {
+      dba = new DbAdapter();
+      prompts.addAll(getLocalPrompts(new SelectFormWidget(dba.getForms()), prompts));
+    } catch (SQLException e) {
+      log.error(e);
+    } finally {
+      if (dba != null) dba.close();
+    }
+    prompts.addAll(getLocalPrompts(new FormResumeWidget(fh.getFormTitle()), prompts));
+    prompts.addAll(getLocalPrompts(new ChangeLanguageWidget(fh.getLanguages()), prompts));
+    prompts.addAll(getLocalPrompts(new RecordPromptWidget(""), prompts));
+    
+    return prompts;
+  }
+  
+  private List<String> getLocalPrompts(WidgetBase w, List<String> prompts) {
+    w.setLocale(OdkLocales.getLocale(fh.getCurrentLanguage()));
+    return w.getPromptStrings();
+  }
+  
+  ///////////////////////////
   
   private void writeCurrentRecordPrompt(String prompt) {
     log.info("Writing record prompt: " + prompt);
