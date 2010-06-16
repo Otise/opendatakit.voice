@@ -40,6 +40,14 @@ h3
   background: #fffde8;
 }
 
+img
+{
+  padding: 10px;
+  border: #ffe0bb dotted 1px;
+  margin: 1em;
+  background: #fffda8;
+}
+
 a {
   color: #00F;
   text-decoration: none;
