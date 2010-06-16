@@ -45,7 +45,7 @@ public class AudioPromptServlet extends HttpServlet {
 	  String sPromptHash = pathInfo.substring(pathInfo.lastIndexOf("/") + 1, pathInfo.lastIndexOf("."));
 	  DbAdapter dba = null;
 	  try {
-	    int promptHash = Integer.parseInt(sPromptHash);
+	    long promptHash = Long.parseLong(sPromptHash);
 	    dba = new DbAdapter();
 	    byte[] audio = dba.getAudioPrompt(promptHash);
 	    if (audio == null) {
@@ -56,7 +56,7 @@ public class AudioPromptServlet extends HttpServlet {
 	      resp.getOutputStream().write(audio);
 	    }
 	  } catch (NumberFormatException e) {
-	    log.error("Audio prompt filename was not an integer", e);
+	    log.error("Audio prompt filename was not a long", e);
 	    resp.sendError(404);
 	    return;
 	  } catch (SQLException e) {
