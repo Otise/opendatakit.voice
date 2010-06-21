@@ -39,7 +39,7 @@ public class FormStartWidget extends WidgetBase {
   public FormStartWidget(FormHandler fh) {
     this.fh = fh;
     this.formTitle = fh.getFormTitle();
-    this.hasLanguages = fh.getLanguages()!=null;
+    this.hasLanguages = fh.getLanguages()!=null && fh.getLanguages().length > 1;
   }
   
   @Override
