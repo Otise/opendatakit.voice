@@ -33,8 +33,7 @@ public class Resources extends ListResourceBundle {
         "To change language, press 9."
       },
       {ResourceKeys.FORM_END, 
-        "Thank you for completing the %1$s. You can press star to review " + 
-        "and change your answers, or simply hang up and the survey will be saved."
+        "Thank you for completing the %1$s. You can hang up and the survey will be saved."
       },                              
       {ResourceKeys.FORM_RECONNECT, 
         "Welcome back to the %1$s. You currently have an uncompleted " + 
