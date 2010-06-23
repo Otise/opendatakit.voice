@@ -131,16 +131,18 @@ public abstract class WidgetBase implements VxmlWidget{
     return createPrompt(text, audio, true);
   }
   
-  
   VxmlPrompt createPrompt(String... textAndAudio) {
     return createPrompt(textAndAudio, textAndAudio);
   }
-  VxmlPrompt createPrompt(boolean bargein, String... textAndAudio) {
-    return createPrompt(textAndAudio, textAndAudio, bargein);
+//  VxmlPrompt createPrompt(boolean bargein, String... textAndAudio) {
+//    return createPrompt(textAndAudio, textAndAudio, bargein);
+//  }
+  VxmlPrompt createPrompt(boolean ttsOnly, String... text) {
+    return createPrompt(text, null);
   }
   
   
-  VxmlPrompt createCompositePrompt(VxmlPrompt[] prompts){
+  VxmlPrompt createCompositePrompt(VxmlPrompt... prompts){
     StringBuilder vxml = new StringBuilder("");
     for (VxmlPrompt p : prompts) {
       vxml.append(p);
