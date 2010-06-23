@@ -20,6 +20,8 @@ import org.odk.voice.xform.PromptElement;
  */
 public class InfoWidget extends QuestionWidget {
   
+  PromptElement p;
+  
   public InfoWidget(PromptElement p) {
     super(p);
   }
@@ -32,7 +34,10 @@ public class InfoWidget extends QuestionWidget {
           "</block>");
       
       VxmlField actionField = createField("action", 
-          createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
+          this.createCompositePrompt(
+              createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
+              createPrompt(true, prompt.getAnswerText())
+              ),
           actionGrammar,
           VxmlUtils.createVar("answer", "", true) + actionFilled(false));
 
