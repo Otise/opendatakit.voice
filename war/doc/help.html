@@ -18,9 +18,9 @@
 <li>Install MySQL 5.0 with root password of 'odk-voice' (this is not secure, you can change the user/password in DbAdapter.java)</li>
 <li>Install Apache Tomcat 6.0.x</li>
 <li>Create an odkadmin 'role': Go to <b>%tomcat_base%/conf/tomcat-users.xml</b> and add: <br/>
-&lt;role rolename="odkadmin"&gt; <br/>
-&lt;role rolename="odkrecorder"&gt; <br/>
-&lt;user username="odkadmin" password="XXX" roles="odkadmin,odkrecorder"&gt;
+&lt;role rolename="odkadmin" /&gt; <br/>
+&lt;role rolename="odkrecorder" /&gt; <br/>
+&lt;user username="odkadmin" password="XXX" roles="odkadmin,odkrecorder" /&gt;
 </li>
 <li>View the admin page at <b>http://your_ip:8080/war_file_name</b>. You will need to use the username and password you said in the previous step to access any of the linked pages.</li>
 <ul>
