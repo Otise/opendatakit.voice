@@ -122,8 +122,10 @@ public abstract class WidgetBase implements VxmlWidget{
       vxml = vxml + VxmlUtils.getAudio(text==null?null:text[i], audio==null?null:audio[i]);
     }
     vxml = vxml + "</prompt>";
-    for (String s: audio)
-      addPromptString(s);
+    if (audio != null) {
+      for (String s: audio)
+          addPromptString(s);
+    }
     return createBasicPrompt(vxml);
   }
   
