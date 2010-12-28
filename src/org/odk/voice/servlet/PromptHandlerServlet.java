@@ -57,7 +57,7 @@ public class PromptHandlerServlet extends HttpServlet {
       dba = new DbAdapter();
       String delete = req.getParameter("delete");
       if (delete != null) {
-        int deleteHash = Integer.parseInt(delete);
+        long deleteHash = Long.parseLong(delete);
         dba.deleteAudioPrompt(deleteHash);
       }
       else if (req.getParameter("deleteall") != null) {
@@ -74,7 +74,7 @@ public class PromptHandlerServlet extends HttpServlet {
           String hashString = new String(
               uploadedFormItems.getFormDataByFieldName("upload").getData());
           log.info("Upload=" + hashString);
-          int hash = Integer.parseInt(hashString);
+          long hash = Long.parseLong(hashString);
           if (!uploadedFormItems.getFormDataByFieldName("data").getFilename().endsWith(".wav")) {
             resp.getWriter().write("Uploaded file must be of type wav.");
             return;

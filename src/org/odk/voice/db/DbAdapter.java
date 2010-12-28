@@ -401,10 +401,10 @@ public class DbAdapter {
     return VxmlUtils.getPromptHash(prompt);
   }
     
-  public boolean putAudioPrompt(int hash, byte[] data) throws SQLException {
+  public boolean putAudioPrompt(long hash, byte[] data) throws SQLException {
     String q1 = "SELECT prompt FROM audio_prompt WHERE prompthash=?;";
     PreparedStatement stmt1 = con.prepareStatement(q1);
-    stmt1.setInt(1, hash);
+    stmt1.setLong(1, hash);
     ResultSet rs = stmt1.executeQuery();
     if (rs.next()) {
       //log.info("get audio prompt success: " + prompthash);
@@ -413,7 +413,7 @@ public class DbAdapter {
       String q = "REPLACE INTO audio_prompt (prompthash, prompt, " +
       "data) VALUES (?,?,?);";
       PreparedStatement stmt2 = con.prepareStatement(q);
-      stmt2.setInt(1, hash);
+      stmt2.setLong(1, hash);
       stmt2.setString(2, prompt);
       stmt2.setObject(3, data);
       stmt2.executeUpdate();
