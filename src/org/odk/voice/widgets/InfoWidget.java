@@ -36,7 +36,7 @@ public class InfoWidget extends QuestionWidget {
       
       // almost a replica of WidgetBase.getActionField,
       // except that one of the prompts is different.
-      boolean confirm = prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
+      boolean confirm = !prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
       VxmlSection actionField;
       if (confirm) {
         actionField = createField("action", 
