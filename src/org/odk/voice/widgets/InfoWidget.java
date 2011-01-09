@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.javarosa.core.model.data.IAnswerData;
+import org.odk.voice.constants.FormAttribute;
+import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
@@ -27,19 +29,27 @@ public class InfoWidget extends QuestionWidget {
   }
   
   public void getPromptVxml(Writer out) throws IOException{
-
       
       VxmlSection infoSection = new VxmlSection("<block>" + 
           createPrompt(prompt.getQuestionText()) + 
           "</block>");
       
-      VxmlField actionField = createField("action", 
-          this.createCompositePrompt(
-              createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
-              createPrompt(true, prompt.getAnswerText())
-              ),
-          actionGrammar,
-          VxmlUtils.createVar("answer", "", true) + actionFilled(false));
+      // almost a replica of WidgetBase.getActionField,
+      // except that one of the prompts is different.
+      boolean confirm = prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
+      VxmlSection actionField;
+      if (confirm) {
+        actionField = createField("action", 
+        createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
+        actionGrammar,
+        actionFilled(false));
+      } else {
+        actionField = new VxmlSection(
+            "<block>" + 
+            VxmlUtils.createVar("action", VoiceAction.SAVE_ANSWER.name(), true) + 
+            actionFilled(false) + 
+            "</block>");
+      }
 
       VxmlForm mainForm = new VxmlForm("main", infoSection, actionField);
       
