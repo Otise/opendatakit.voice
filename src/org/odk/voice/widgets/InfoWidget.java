@@ -7,6 +7,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.odk.voice.constants.FormAttribute;
 import org.odk.voice.constants.VoiceAction;
 import org.odk.voice.local.ResourceKeys;
+import org.odk.voice.servlet.FormVxmlServlet;
 import org.odk.voice.storage.MultiPartFormData;
 import org.odk.voice.vxml.VxmlDocument;
 import org.odk.voice.vxml.VxmlField;
@@ -31,7 +32,9 @@ public class InfoWidget extends QuestionWidget {
   public void getPromptVxml(Writer out) throws IOException{
       
       VxmlSection infoSection = new VxmlSection("<block>" + 
-          createPrompt(prompt.getQuestionText()) + 
+      		 createCompositePrompt(
+      				 createPrompt(prompt.getQuestionText()), 
+               createPrompt(true, prompt.getAnswerText())) + 
           "</block>");
       
       // almost a replica of WidgetBase.getActionField,
@@ -47,7 +50,7 @@ public class InfoWidget extends QuestionWidget {
         actionField = new VxmlSection(
             "<block>" + 
             VxmlUtils.createVar("action", VoiceAction.SAVE_ANSWER.name(), true) + 
-            actionFilled(false) + 
+            VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"}) + 
             "</block>");
       }
 
