@@ -34,23 +34,32 @@ public class InfoWidget extends QuestionWidget {
       VxmlSection infoSection = new VxmlSection("<block>" + 
       		 createCompositePrompt(
       				 createPrompt(prompt.getQuestionText()), 
-               createPrompt(true, prompt.getAnswerText())) + 
+               createPrompt(true, prompt.getAnswerText())) +
           "</block>");
       
       // almost a replica of WidgetBase.getActionField,
-      // except that one of the prompts is different.
+      // except that some things are different :).
       boolean confirm = !prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
+      String submit = VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
+      						    VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action"});
+      
       VxmlSection actionField;
       if (confirm) {
+      	String myActionFilled = "<if cond=\"action=='REPEAT'\">" + 
+        "<clear namelist=\"action\"/>" +
+        VxmlUtils.createLocalGoto("main") + "<else/>" + 
+        createPrompt(getString(ResourceKeys.THANK_YOU))  +
+        submit + 
+        "</if>\n";
+      	
         actionField = createField("action", 
         createPrompt(getString(ResourceKeys.INFO_CONFIRMATION)),
         actionGrammar,
-        actionFilled(false));
+        myActionFilled);
       } else {
         actionField = new VxmlSection(
             "<block>" + 
-            VxmlUtils.createVar("action", VoiceAction.SAVE_ANSWER.name(), true) + 
-            VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action", "answer"}) + 
+            submit + 
             "</block>");
       }
 
