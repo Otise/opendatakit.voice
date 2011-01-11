@@ -39,12 +39,12 @@ public class InfoWidget extends QuestionWidget {
       
       // almost a replica of WidgetBase.getActionField,
       // except that some things are different :).
-      boolean confirm = !prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
+      boolean skip_conf = prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
       String submit = VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) +
       						    VxmlUtils.createSubmit(FormVxmlServlet.ADDR, new String[]{"action"});
       
       VxmlSection actionField;
-      if (confirm) {
+      if (!skip_conf) {
       	String myActionFilled = "<if cond=\"action=='REPEAT'\">" + 
         "<clear namelist=\"action\"/>" +
         VxmlUtils.createLocalGoto("main") + "<else/>" + 

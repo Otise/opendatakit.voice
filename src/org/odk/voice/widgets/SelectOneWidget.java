@@ -53,6 +53,7 @@ public class SelectOneWidget extends QuestionWidget {
       String itemLabel = null;
       String itemValue = null;
       
+      boolean skip_conf = prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true);
       addPromptString(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD));
       confPrompt.append(VxmlUtils.getAudio(getString(ResourceKeys.ANSWER_CONFIRMATION_KEYPAD)));
       int i = 1;
@@ -79,7 +80,7 @@ public class SelectOneWidget extends QuestionWidget {
       VxmlField answerField = createField("answer", 
           createPrompt(promptSegments.toArray(new String[]{})), 
           VxmlUtils.createGrammar(grammarKeys.toArray(new String[]{}), grammarTags.toArray(new String[]{})),
-          createBasicPrompt(confPrompt.toString()).toString());
+          skip_conf ? "" : createBasicPrompt(confPrompt.toString()).toString());
       
 //      
 //      VxmlField actionField = createField("action", 
@@ -88,7 +89,7 @@ public class SelectOneWidget extends QuestionWidget {
 //          VxmlUtils.actionFilled(this));
       
       VxmlForm mainForm = new VxmlForm("main", answerField, getActionField(
-          !prompt.getAttribute(FormAttribute.SKIP_CONFIRMATION, true), false));
+          !skip_conf, false));
       
       VxmlDocument d = new VxmlDocument(sessionid, questionCountForm, mainForm);
       d.write(out);
