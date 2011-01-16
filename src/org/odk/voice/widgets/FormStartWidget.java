@@ -51,7 +51,7 @@ public class FormStartWidget extends WidgetBase {
     // will start over. On the third 'be quiet', the survey will end, and if an outbound call, 
     // try to call back. This feature was no successful on evaluation, so it is not recommended 
     // tht it be used.
-    String forceQuietS = fh.getFormAttribute(FormAttribute.FORCE_QUIET);
+    /*
     boolean forceQuiet = (forceQuietS != null);
     int forceQuietStart = 0;
     if (forceQuiet) {
@@ -60,7 +60,7 @@ public class FormStartWidget extends WidgetBase {
         } catch (NumberFormatException e) { 
           forceQuiet = false;
       }
-    } 
+    }  */
     // -------------------------
     
     boolean skipConfirmation = fh.getFormAttribute(FormAttribute.SKIP_CONFIRMATION, true);
@@ -92,8 +92,9 @@ public class FormStartWidget extends WidgetBase {
     
     VxmlPrompt[] prompts = new VxmlPrompt[startPrompts.size()];
     for (int i=0; i < startPrompts.size(); i++) {
-      prompts[i] = createPrompt(!forceQuiet || i+1 >= forceQuietStart, 
-          startPrompts.get(i));
+      // prompts[i] = createPrompt(!forceQuiet || i+1 >= forceQuietStart, 
+      //     startPrompts.get(i));
+      prompts[i] = createPrompt(startPrompts.get(i));
     }
     VxmlPrompt prompt = createCompositePrompt(prompts);
     VxmlField startField = createField("action", prompt, grammar, filled);
@@ -105,13 +106,14 @@ public class FormStartWidget extends WidgetBase {
           VxmlUtils.createVar("action", VoiceAction.NEXT_PROMPT.name(), true) + filled);
       properties += "<property name=\"timeout\" value=\"0s\"/>";
     }   
-    if (forceQuiet && attempt == 1){
+    /* 
+      if (forceQuiet && attempt == 1){
       startField.setNomatch(null, createPrompt(false, getString(ResourceKeys.FORCE_QUIET_WARNING)) + "<reprompt/>");
       startField.setNomatch(3,    VxmlUtils.createVar("action", VoiceAction.TOO_LOUD.name(), true) + 
           createPrompt(false, getString(ResourceKeys.FORCE_QUIET_HANGUP)).toString() +
            VxmlUtils.createSubmit(FormVxmlServlet.ADDR, "action"));
       properties += "<property name=\"inputmodes\" value=\"dtmf voice\"/>";
-    }
+    } */
     startField.setContents(properties);
 
     //<property name="timeout" value="10s"/> 
