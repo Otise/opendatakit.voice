@@ -140,7 +140,7 @@ public abstract class WidgetBase implements VxmlWidget{
 //    return createPrompt(textAndAudio, textAndAudio, bargein);
 //  }
   VxmlPrompt createPrompt(boolean ttsOnly, String... text) {
-    return createPrompt(text, null);
+    return createPrompt(text, ttsOnly ? null : text);
   }
   
   
