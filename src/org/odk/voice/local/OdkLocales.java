@@ -21,6 +21,7 @@ public class OdkLocales {
   static {
     localeMap.put("English", Locale.ENGLISH);
     localeMap.put("Swahili", new Locale("sw"));
+    localeMap.put("Spanish", new Locale("es"));
   }
   
   public static Locale getLocale(String language) {

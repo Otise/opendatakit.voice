@@ -41,7 +41,7 @@ import org.odk.voice.vxml.VxmlUtils;
 public abstract class WidgetBase implements VxmlWidget{
 
   String sessionid;
-  
+  Locale loc;
   ResourceBundle resources;
   
   private List<String> promptStrings = new ArrayList<String>();
@@ -52,6 +52,7 @@ public abstract class WidgetBase implements VxmlWidget{
   
   public void setLocale(Locale l) {
     if (l != null) {
+    	this.loc = l;
       resources = 
         ResourceBundle.getBundle(org.odk.voice.local.Resources.class.getCanonicalName(), l);
     }
@@ -117,7 +118,7 @@ public abstract class WidgetBase implements VxmlWidget{
   
   VxmlPrompt createPrompt(String[] text, String[] audio, boolean bargein) {
     int length = text==null? audio.length : text.length;
-    String vxml = "<prompt" + (bargein?"":" bargein=\"false\"") + ">";
+    String vxml = "<prompt" + (bargein?"":" bargein=\"false\"") + " xml:lang=\"" + loc.getLanguage() + "\">";
     for (int i = 0; i < length; i++){
       vxml = vxml + VxmlUtils.getAudio(text==null?null:text[i], audio==null?null:audio[i]);
     }
